@@ -139,6 +139,9 @@
                     <div class="employee-badge" id="reload-btn" title="Reload">
                         <i class="fa-solid fa-arrow-rotate-right"></i>
                     </div>
+                    <div class="employee-badge" id="change-password-btn" title="Zmeniť heslo">
+                        <i class="fas fa-key"></i>
+                    </div>
                     <div class="employee-badge" id="logout-btn" title="Odhlásiť sa">
                         <i class="fas fa-sign-out-alt"></i>
                     </div>
@@ -365,7 +368,7 @@
                         
                         <div class="ua-card">
                             <h2>Plán služieb</h2>
-                            
+                            <p>- spracovaný súbor sa otvorí v samostatnom okne</p>
                             <div class="file-upload-section">
                                 <div id="izs-drop-zone" class="drop-zone">
                                     <p><strong>Presuňte súbor .xlsx sem</strong></p>
@@ -382,9 +385,6 @@
                                 <button id="izs-process-btn" class="ua-btn default">Spracovať</button>
                                 <button id="izs-clear-btn" class="ua-btn default">Vymazať</button>
                             </div>
-                        </div>
-
-                        <div class="ua-card" id="izs-output-container">
                         </div>
                     </div>
                 </div>
@@ -488,21 +488,34 @@
             </div>
         </main>
     </div>
-    <!-- Logs: -->
-    <div id="delete-logs-overlay" class="delete-modal-overlay hidden">
-        <div class="delete-modal">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Potvrdenie akcie</h3>
-            <p>Naozaj chcete permanentne zmazať všetky logy?</p>
-            <div class="modal-actions">
-                <button id="modal-btn-cancel" class="modal-btn cancel">Zrušiť</button>
-                <button id="modal-btn-confirm-delete" class="modal-btn delete">
-                    <span class="btn-text">Áno, zmazať</span>
-                    <span class="btn-loader"></span>
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Rozpis IZS: -->
+    <div id="previewModal" class="modal-overlay hidden">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Náhľad dokumentu</h2>
+                            <button id="closeModalButton" class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <iframe id="pdfPreviewFrame" width="100%" height="600px" style="border: 1px solid var(--color-border); border-radius: var(--radius-sm); background-color: #fff;"></iframe>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="downloadPdfButton" class="ua-btn accent">Stiahnuť PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="izsPreviewModal" class="modal-overlay hidden">
+                    <div class="modal-content" style="max-width: 95%; height: 90vh;">
+                        <div class="modal-header">
+                            <h2>Náhľad Plánu služieb</h2>
+                            <button id="izsCloseModalBtn" class="modal-close">&times;</button>
+                        </div>
+                        <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;">
+                            </div>
+                    </div>
+                </div>
+                <div id="izs-module" class="module-content hidden"></div>
+    
     
     <!-- Zamestnanci: -->
     <div id="delete-employee-overlay" class="delete-modal-overlay hidden">
@@ -513,6 +526,52 @@
             <div class="modal-actions">
                 <button id="btn-cancel-delete-emp" class="modal-btn cancel">Zrušiť</button>
                 <button id="btn-confirm-delete-emp" class="modal-btn delete">
+                    <span class="btn-text">Áno, zmazať</span>
+                    <span class="btn-loader"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- zmena hesla -->
+    <div id="change-password-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Zmena hesla</h2>
+            <button id="close-password-modal" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="change-password-form">
+                <div class="form-group">
+                    <label for="current-password">Súčasné heslo:</label>
+                    <input type="password" id="current-password" required placeholder="Zadajte aktuálne heslo">
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Nové heslo:</label>
+                    <input type="password" id="new-password" required placeholder="Minimálne 6 znakov">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Potvrdenie nového hesla:</label>
+                    <input type="password" id="confirm-password" required placeholder="Zopakujte nové heslo">
+                </div>
+                <div id="password-error-msg" style="color: #E53E3E; font-size: 0.9rem; margin-bottom: 10px; display: none;"></div>
+                <div class="modal-footer" style="padding: 0; border: none;">
+                    <button type="submit" class="ua-btn accent" style="width: 100%;">Zmeniť heslo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <!-- Logs: -->
+    <div id="delete-logs-overlay" class="delete-modal-overlay hidden">
+        <div class="delete-modal">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Potvrdenie akcie</h3>
+            <p>Naozaj chcete permanentne zmazať všetky logy?</p>
+            <div class="modal-actions">
+                <button id="modal-btn-cancel" class="modal-btn cancel">Zrušiť</button>
+                <button id="modal-btn-confirm-delete" class="modal-btn delete">
                     <span class="btn-text">Áno, zmazať</span>
                     <span class="btn-loader"></span>
                 </button>
