@@ -1676,3 +1676,62 @@ input[type="text"], select, textarea {
     height: 10px !important;
     transition: height 0.2s ease;
 }
+
+/* ========================================= */
+/* OPRAVA VZHĽADU INPUTU - ZABUDNUTÉ HESLO   */
+/* ========================================= */
+
+.forgot-password-wrapper {
+    text-align: right;
+    margin-bottom: var(--spacing-md);
+    margin-top: -5px;
+}
+
+#forgot-password-link {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+#forgot-password-link:hover {
+    color: var(--color-orange-accent);
+    text-decoration: underline;
+}
+
+#forgot-password-form input[type="email"] {
+    width: 100%;
+    background: var(--color-bg);        /* Tmavé pozadie (#111827) */
+    border: 1px solid var(--color-border); /* Tmavosivý rámik */
+    border-radius: var(--radius-md);    /* Zaoblené rohy (8px) */
+    padding: var(--spacing-sm);         /* Vnútorné odsadenie (1rem) */
+    color: var(--color-text-primary);   /* Svetlosivý text */
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+/* Efekt po kliknutí do poľa (Focus) */
+#forgot-password-form input[type="email"]:focus {
+    border-color: var(--color-orange-accent); /* Oranžová farba rámika */
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2); /* Jemná oranžová žiara */
+}
+
+/* Úprava textu labelu "E-mail:" nad poľom, aby ladil */
+#forgot-password-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* =================================== */
+/* OPRAVA: ZABUDOL SOM HESLO Z-INDEX   */
+/* =================================== */
+
+#forgot-password-modal {
+    z-index: 10001 !important; /* Musí byť viac ako 9999 (Login) */
+}
