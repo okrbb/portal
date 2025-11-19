@@ -1097,9 +1097,87 @@ function setupPasswordChangeLogic() {
     }
 }
 
+/**
+ * Inicializuje logiku pre "Zabudol som heslo".
+ * VERZIA: Priame odoslanie žiadosti adminovi (bez DB kontroly, ktorá vyžaduje prihlásenie).
+ */
+function setupForgotPasswordLogic() {
+    const forgotLink = document.getElementById('forgot-password-link');
+    const forgotModal = document.getElementById('forgot-password-modal');
+    const closeForgotModalBtn = document.getElementById('close-forgot-modal');
+    const forgotForm = document.getElementById('forgot-password-form');
+    const forgotErrorMsg = document.getElementById('forgot-error-msg');
+    const emailInputLogin = document.getElementById('email-input');
+    const forgotEmailInput = document.getElementById('forgot-email');
+
+    // === KONFIGURÁCIA ADMINA ===
+    const ADMIN_EMAIL = "mario.banic2@minv.sk"; 
+
+    if (!forgotLink || !forgotModal || !forgotForm) return;
+
+    // 1. Otvorenie modálu
+    forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotModal.classList.remove('hidden');
+        if (forgotErrorMsg) forgotErrorMsg.style.display = 'none';
+        
+        if (emailInputLogin && emailInputLogin.value) {
+            forgotEmailInput.value = emailInputLogin.value;
+        } else {
+            forgotEmailInput.value = '';
+        }
+        forgotEmailInput.focus();
+    });
+
+    // 2. Zatvorenie modálu
+    if (closeForgotModalBtn) {
+        closeForgotModalBtn.addEventListener('click', () => {
+            forgotModal.classList.add('hidden');
+        });
+    }
+
+    forgotModal.addEventListener('click', (e) => {
+        if (e.target === forgotModal) {
+            forgotModal.classList.add('hidden');
+        }
+    });
+
+    // 3. Odoslanie žiadosti
+    forgotForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const userEmail = forgotEmailInput.value.trim();
+
+        if (!userEmail) return;
+
+        const submitBtn = forgotForm.querySelector('button[type="submit"]');
+        
+        // UI feedback
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Otváram e-mail...';
+
+        // Príprava e-mailu
+        const subject = `Žiadosť o reset hesla - OKR Portál`;
+        const body = `Dobrý deň,\n\nprosím o resetovanie hesla pre používateľa s e-mailom: ${userEmail}.\n\nĎakujem.`;
+
+        const mailtoLink = `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        // Otvorenie klienta
+        window.location.href = mailtoLink;
+
+        // Reset UI
+        showToast("Otvoril sa váš e-mailový klient. Odošlite správu adminovi.", TOAST_TYPE.INFO);
+        forgotModal.classList.add('hidden');
+        forgotForm.reset();
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Odoslať';
+    });
+}
+
 async function initializeApp() {
     
     try {
+        setupForgotPasswordLogic();
         const userProfile = await handleLogin();
 
         if (!userProfile) {
