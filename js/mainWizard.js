@@ -989,6 +989,114 @@ async function loadDashboardDutyToday(db) {
     }
 }
 
+/**
+ * Nastaví logiku pre zmenu hesla.
+ * Volá sa až po inicializácii aplikácie.
+ */
+function setupPasswordChangeLogic() {
+    console.log("[MW] Inicializujem logiku zmeny hesla...");
+
+    const changePassBtn = document.getElementById('change-password-btn');
+    const changePassModal = document.getElementById('change-password-modal');
+    const closePassModalBtn = document.getElementById('close-password-modal');
+    const changePassForm = document.getElementById('change-password-form');
+    const passErrorMsg = document.getElementById('password-error-msg');
+
+    // Debuggovanie - ak niečo chýba, vypíše chybu do konzoly (F12)
+    if (!changePassBtn) console.error("Chyba: Tlačidlo #change-password-btn sa nenašlo.");
+    if (!changePassModal) console.error("Chyba: Modál #change-password-modal sa nenašiel.");
+
+    if (changePassBtn && changePassModal) {
+        // 1. Otvorenie modálu
+        // Použijeme .onclick namiesto addEventListener, aby sme predišli duplicite pri reloade
+        changePassBtn.onclick = (e) => {
+            e.preventDefault();
+            console.log("Kliknuté na zmenu hesla");
+            changePassModal.classList.remove('hidden');
+            
+            if(changePassForm) changePassForm.reset();
+            if(passErrorMsg) passErrorMsg.style.display = 'none';
+        };
+
+        // 2. Zatvorenie modálu
+        if (closePassModalBtn) {
+            closePassModalBtn.onclick = () => {
+                changePassModal.classList.add('hidden');
+            };
+        }
+
+        // 3. Odoslanie formulára
+        if (changePassForm) {
+            changePassForm.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                const currentPass = document.getElementById('current-password').value;
+                const newPass = document.getElementById('new-password').value;
+                const confirmPass = document.getElementById('confirm-password').value;
+                
+                // Validácie
+                if (newPass !== confirmPass) {
+                    showError("Nové heslá sa nezhodujú.");
+                    return;
+                }
+                if (newPass.length < 6) {
+                    showError("Nové heslo musí mať aspoň 6 znakov.");
+                    return;
+                }
+
+                try {
+                    const user = firebase.auth().currentUser;
+                    if (!user) throw new Error("Používateľ nie je prihlásený.");
+
+                    // Loading stav tlačidla (voliteľné)
+                    const submitBtn = changePassForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = "Mením heslo...";
+                    submitBtn.disabled = true;
+
+                    // A. Re-autentifikácia (bezpečnosť)
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+                    await user.reauthenticateWithCredential(credential);
+
+                    // B. Zmena hesla
+                    await user.updatePassword(newPass);
+
+                    // Úspech
+                    showToast("Heslo bolo úspešne zmenené.", "success"); // Použitie stringu 'success' ak TOAST_TYPE nie je dostupný v scope
+                    changePassModal.classList.add('hidden');
+                    changePassForm.reset();
+
+                } catch (error) {
+                    console.error("Chyba pri zmene hesla:", error);
+                    let msg = "Nepodarilo sa zmeniť heslo.";
+                    
+                    if (error.code === 'auth/wrong-password') msg = "Zadali ste nesprávne súčasné heslo.";
+                    else if (error.code === 'auth/weak-password') msg = "Nové heslo je príliš slabé.";
+                    else if (error.code === 'auth/too-many-requests') msg = "Príliš veľa pokusov. Skúste to neskôr.";
+                    
+                    showError(msg);
+                } finally {
+                     // Reset tlačidla
+                     const submitBtn = changePassForm.querySelector('button[type="submit"]');
+                     if(submitBtn) {
+                        submitBtn.textContent = "Zmeniť heslo";
+                        submitBtn.disabled = false;
+                     }
+                }
+            };
+        }
+    }
+
+    function showError(msg) {
+        if (passErrorMsg) {
+            passErrorMsg.textContent = msg;
+            passErrorMsg.style.display = 'block';
+        } else {
+            alert(msg);
+        }
+    }
+}
+
 async function initializeApp() {
     
     try {
@@ -1062,6 +1170,8 @@ async function initializeApp() {
         
         initializeMobileMenu();
         initializeEditModule(db, allEmployeesData, activeUser);
+
+        setupPasswordChangeLogic();
 
         console.log("Portál pripravený. Aktívny používateľ: ", activeUser.funkcia, activeUser.oddelenie);
 
