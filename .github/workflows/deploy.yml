@@ -1,55 +1,55 @@
-# Názov vášho workflow (zobrazí sa v záložke "Actions" na Githube)
 name: Deploy to GitHub Pages
 
-# Kedy sa má workflow spustiť:
 on:
-  # 1. Vždy, keď nahráte (push) zmeny do vetvy (branch) 'main'
   push:
-    branches:
-      - main
-  # 2. Umožní vám spustiť ho manuálne z GitHubu
+    branches: ["main"] # Alebo "master", podľa názvu vašej hlavnej vetvy
+
+  # Umožňuje manuálne spustenie z Actions tabu
   workflow_dispatch:
 
-# Povolenia, ktoré workflow potrebuje
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Definuje jednu "úlohu" (job) s názvom "deploy"
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   deploy:
-    # Povieme Githube, aby použil najnovšiu verziu Ubuntu (Linux)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    
-    # Kroky, ktoré má vykonať
     steps:
-      # Krok 1: Stiahne váš kód z repozitára (aby sme s ním mohli pracovať)
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Krok 2: Nahradí zástupné symboly skutočnými kľúčmi
-      - name: Replace Secrets
+      - name: Inject Firebase Configuration
         run: |
-          # Použijeme príkaz 'sed' na nájdenie a nahradenie textu v súbore
-          # Používame '|' ako oddeľovač, pretože URL adresa obsahuje '/'
+          # Skopírujeme šablónu do finálneho súboru
+          cp js/config.template.js js/config.js
           
-          # Nahradí __FIREBASE_API_KEY__ v js/config.js hodnotou z GitHub Secrets
-          sed -i "s|__FIREBASE_API_KEY__|${{ secrets.FIREBASE_API_KEY }}|g" js/config.js
+          # Nahradíme placeholdery skutočnými hodnotami zo Secrets
+          sed -i "s|FIREBASE_API_KEY_PLACEHOLDER|${{ secrets.FIREBASE_API_KEY }}|g" js/config.js
+          sed -i "s|FIREBASE_AUTH_DOMAIN_PLACEHOLDER|${{ secrets.FIREBASE_AUTH_DOMAIN }}|g" js/config.js
+          sed -i "s|FIREBASE_PROJECT_ID_PLACEHOLDER|${{ secrets.FIREBASE_PROJECT_ID }}|g" js/config.js
+          sed -i "s|FIREBASE_STORAGE_BUCKET_PLACEHOLDER|${{ secrets.FIREBASE_STORAGE_BUCKET }}|g" js/config.js
+          sed -i "s|FIREBASE_MESSAGING_SENDER_ID_PLACEHOLDER|${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}|g" js/config.js
+          sed -i "s|FIREBASE_APP_ID_PLACEHOLDER|${{ secrets.FIREBASE_APP_ID }}|g" js/config.js
+          
+          # Pre kontrolu vypíšeme, či súbor existuje (nevypisujeme obsah kvôli bezpečnosti logov)
+          ls -l js/config.js
 
-      # Krok 3: Nastaví GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # Krok 4: Vytvorí "artifact" (balíček) pre nasadenie
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Povieme mu, aby zabalil celý adresár
           path: '.'
 
-      # Krok 5: Nasadí (deploy) pripravený balíček na GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
-
         uses: actions/deploy-pages@v4
