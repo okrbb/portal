@@ -1,0 +1,55 @@
+# Názov vášho workflow (zobrazí sa v záložke "Actions" na Githube)
+name: Deploy to GitHub Pages
+
+# Kedy sa má workflow spustiť:
+on:
+  # 1. Vždy, keď nahráte (push) zmeny do vetvy (branch) 'main'
+  push:
+    branches:
+      - main
+  # 2. Umožní vám spustiť ho manuálne z GitHubu
+  workflow_dispatch:
+
+# Povolenia, ktoré workflow potrebuje
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Definuje jednu "úlohu" (job) s názvom "deploy"
+jobs:
+  deploy:
+    # Povieme Githube, aby použil najnovšiu verziu Ubuntu (Linux)
+    runs-on: ubuntu-latest
+    
+    # Kroky, ktoré má vykonať
+    steps:
+      # Krok 1: Stiahne váš kód z repozitára (aby sme s ním mohli pracovať)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Krok 2: Nahradí zástupné symboly skutočnými kľúčmi
+      - name: Replace Secrets
+        run: |
+          # Použijeme príkaz 'sed' na nájdenie a nahradenie textu v súbore
+          # Používame '|' ako oddeľovač, pretože URL adresa obsahuje '/'
+          
+          # Nahradí __FIREBASE_API_KEY__ v js/config.js hodnotou z GitHub Secrets
+          sed -i "s|__FIREBASE_API_KEY__|${{ secrets.FIREBASE_API_KEY }}|g" js/config.js
+
+      # Krok 3: Nastaví GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Krok 4: Vytvorí "artifact" (balíček) pre nasadenie
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Povieme mu, aby zabalil celý adresár
+          path: '.'
+
+      # Krok 5: Nasadí (deploy) pripravený balíček na GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+
+        uses: actions/deploy-pages@v4
