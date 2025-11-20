@@ -8,7 +8,7 @@ import { showToast, TOAST_TYPE } from './utils.js';
 let _db;
 let _activeUser;
 let selectedFile = null;
-let cisloSpisu = ''; // Globálna premenná pre uchovanie čísla spisu
+let cisloSpisu = ''; 
 
 /**
  * Inicializácia modulu IZS
@@ -19,6 +19,7 @@ export function initializeIZSModule(db, activeUser) {
     
     console.log('Inicializujem modul IZS...');
     setupDropZone();
+    setupModalListeners(); // Nová funkcia pre zatváranie modálu
 }
 
 /**
@@ -30,7 +31,7 @@ function setupDropZone() {
     const fileNameDisplay = document.getElementById('izs-file-name');
     const processBtn = document.getElementById('izs-process-btn');
     const clearBtn = document.getElementById('izs-clear-btn');
-    const outputContainer = document.getElementById('izs-output-container');
+    // outputContainer už nepoužívame na vykreslenie, ale môžeme ho vyčistiť pri resete
 
     if (!dropZone || !fileInput) {
         console.warn("IZS Module: Drop zone elements not found.");
@@ -80,10 +81,9 @@ function setupDropZone() {
                 fileNameDisplay.querySelector('span').textContent = '';
             }
 
-            // Reset Output
-            if (outputContainer) {
-                outputContainer.innerHTML = '';
-            }
+            // Vyčistenie modálu (pre istotu)
+            const modalBody = document.getElementById('izsModalBody');
+            if (modalBody) modalBody.innerHTML = '';
         });
     }
 
@@ -95,6 +95,20 @@ function setupDropZone() {
                 return;
             }
             renderTableFromExcel(selectedFile);
+        });
+    }
+}
+
+/**
+ * Nastavenie listenerov pre modálne okno
+ */
+function setupModalListeners() {
+    const closeBtn = document.getElementById('izsCloseModalBtn');
+    const modal = document.getElementById('izsPreviewModal');
+
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
         });
     }
 }
@@ -132,101 +146,116 @@ function handleFileSelection(file) {
 }
 
 /* ========================================================================== */
-/* CORE LOGIC: Rendering Excel to HTML (Ported from script.js)               */
+/* CORE LOGIC: Rendering Excel to HTML (Targeting Modal)                     */
 /* ========================================================================== */
 
 async function renderTableFromExcel(file) {
-    const outputContainer = document.getElementById('izs-output-container');
-    outputContainer.innerHTML = '<div class="loader"></div><p style="text-align:center">Spracovávam farby a dáta...</p>';
+    const modal = document.getElementById('izsPreviewModal');
+    const modalBody = document.getElementById('izsModalBody');
+    
+    if (!modal || !modalBody) {
+        console.error("IZS Modal elements not found");
+        return;
+    }
+
+    // Otvoríme modál a zobrazíme loader
+    modal.classList.remove('hidden');
+    modalBody.innerHTML = '<div class="loader" style="margin: 20px auto;"></div><p style="text-align:center; color: #000;">Spracovávam farby a dáta...</p>';
 
     try {
-        // XlsxPopulate je načítaný globálne cez CDN v index.html
         const workbook = await XlsxPopulate.fromDataAsync(await file.arrayBuffer());
 
-        // Zistiť aktívny hárok
-        let sheet;
-        try {
-            const activeSheetIndex = workbook.activeSheet();
-            if (typeof activeSheetIndex === 'number') {
-                sheet = workbook.sheet(activeSheetIndex);
-            } else {
-                sheet = workbook.sheet(0);
-            }
-        } catch (e) {
-            console.warn("Nepodarilo sa zistiť aktívny hárok, používam prvý.", e);
+        // =================================================================
+        // 1. Získanie AKTÍVNEHO hárka (záložky)
+        // =================================================================
+        let sheet = workbook.activeSheet();
+
+        // Kontrola, či sa podarilo načítať aktívny hárok. 
+        // Ak nie (sheet je null/undefined), použijeme prvý hárok ako zálohu.
+        if (!sheet) {
+            console.warn("Aktívny hárok nebol v Exceli definovaný. Používam prvý hárok (Index 0).");
             sheet = workbook.sheet(0);
         }
+        
+        console.log(`Pracujem s hárkom: "${sheet.name()}"`);
+        // =================================================================
 
         // Načítanie čísla spisu
+        let cisloSpisu = '';
         try {
             const spisCell = sheet.cell("C3");
             cisloSpisu = (spisCell.value() === null || typeof spisCell.value() === 'undefined') ? '' : spisCell.value();
         } catch (e) {
-            cisloSpisu = '';
+            console.warn("Nepodarilo sa načítať číslo spisu (C3).");
         }
 
-        // Načítanie dátumu z hlavičky
+        // Načítanie dátumu z hlavičky (D1)
         let dateHeaderText = '';
         try {
             const dateCell = sheet.cell("D1");
             dateHeaderText = (dateCell.value() === null || typeof dateCell.value() === 'undefined') ? '' : dateCell.value();
         } catch (e) {}
 
+        // Parsovanie textu "na mesiac..."
         let monthYearText = dateHeaderText;
         const match = dateHeaderText.match(/na mesiac\s+(.*)/i);
         if (match && match[1]) {
             monthYearText = match[1].trim();
         }
 
-        // Rozsah dát (podľa pôvodného skriptu)
+        // Definícia rozsahu tabuľky (Podľa vášho pôvodného kódu)
         const range = sheet.range("A13:AI64");
         
         // Vytvorenie HTML tabuľky
         const table = document.createElement('table');
-        table.className = 'izs-preview-table'; // Pridáme triedu pre CSS štýlovanie
+        table.className = 'izs-preview-table'; 
         table.style.borderCollapse = 'collapse';
         table.style.width = '100%';
-        table.style.fontSize = '12px'; // Menší font pre náhľad
+        table.style.fontSize = '12px';
+        table.style.backgroundColor = '#ffffff'; 
+        table.style.color = '#000000'; 
         
         const tbody = document.createElement('tbody');
-
         const numRows = 64 - 13 + 1;
         const numCols = 35;
 
-        // Hlavička tabuľky (Spis + Mesiac)
+        // --- Hlavička tabuľky (Spis + Mesiac) ---
         const headerRow = document.createElement('tr');
         
-        const spisCell = document.createElement('td');
-        spisCell.textContent = cisloSpisu || '';
-        spisCell.setAttribute('colspan', '2');
-        spisCell.style.fontWeight = 'bold';
-        spisCell.style.padding = '8px';
-        spisCell.style.backgroundColor = '#f0f0f0';
-        headerRow.appendChild(spisCell);
+        const spisCellElem = document.createElement('td');
+        spisCellElem.textContent = cisloSpisu || '';
+        spisCellElem.setAttribute('colspan', '2');
+        spisCellElem.style.fontWeight = 'bold';
+        spisCellElem.style.padding = '8px';
+        spisCellElem.style.backgroundColor = '#f0f0f0';
+        spisCellElem.style.color = '#000000';
+        headerRow.appendChild(spisCellElem);
 
-        const dateCell = document.createElement('td');
-        dateCell.textContent = monthYearText;
-        dateCell.setAttribute('colspan', numCols - 3); // -2 za spis + korekcia
-        dateCell.style.fontWeight = 'bold';
-        dateCell.style.textAlign = 'center';
-        dateCell.style.padding = '8px';
-        dateCell.style.backgroundColor = '#f0f0f0';
-        headerRow.appendChild(dateCell);
+        const dateCellElem = document.createElement('td');
+        dateCellElem.textContent = monthYearText;
+        dateCellElem.setAttribute('colspan', numCols - 3); 
+        dateCellElem.style.fontWeight = 'bold';
+        dateCellElem.style.textAlign = 'center';
+        dateCellElem.style.padding = '8px';
+        dateCellElem.style.backgroundColor = '#f0f0f0';
+        dateCellElem.style.color = '#000000';
+        headerRow.appendChild(dateCellElem);
 
         tbody.appendChild(headerRow);
 
-        // Iterácia cez riadky a bunky
+        // --- Iterácia cez riadky a bunky ---
         for (let r = 0; r < numRows; r++) {
             const tr = document.createElement('tr');
             try {
+                // Skrytie riadkov s malou výškou (skryté riadky v Exceli)
                 const rowHeight = range.cell(r, 0).row().height();
                 if (rowHeight < 6) {
-                    tr.style.display = 'none'; // Skryť prázdne riadky
+                    tr.style.display = 'none'; 
                 }
             } catch (e) { }
 
             for (let c = 0; c < numCols; c++) {
-                if (c === 1) continue; // Preskočiť stĺpec B ak je skrytý/nepotrebný v pôvodnom skripte
+                if (c === 1) continue; // Preskočíme stĺpec B (ak je to zámer)
 
                 const cell = range.cell(r, c);
                 const td = document.createElement('td');
@@ -237,19 +266,19 @@ async function renderTableFromExcel(file) {
                 // Farba pozadia
                 const fill = safeCellStyle(cell, "fill");
                 const bg = extractColorFromFill(fill);
-                if (bg) td.style.backgroundColor = bg;
+                td.style.backgroundColor = bg ? bg : '#ffffff';
 
                 // Farba písma
                 const fontStyle = safeCellStyle(cell, "fontColor") || safeCellStyle(cell, "color") || safeCellStyle(cell, "font");
                 const fg = extractColorFromFont(fontStyle);
-                if (fg) td.style.color = fg;
+                td.style.color = fg ? fg : '#000000';
 
-                // Štýlovanie
                 td.style.border = '1px solid #ccc';
                 td.style.padding = '4px';
                 td.style.whiteSpace = 'nowrap';
 
-                if (c === 2) td.style.fontWeight = 'bold'; // Meno zamestnanca
+                // Tučné písmo pre stĺpec C (index 2 v rozsahu, v cykle je to c=2)
+                if (c === 2) td.style.fontWeight = 'bold';
 
                 tr.appendChild(td);
             }
@@ -257,13 +286,15 @@ async function renderTableFromExcel(file) {
         }
 
         table.appendChild(tbody);
-        outputContainer.innerHTML = '';
+        modalBody.innerHTML = ''; // Vyčistenie loadera
         
-        // Pridanie ovládacieho panela pre export
+        // --- Ovládací panel pre export ---
         const controlDiv = document.createElement('div');
         controlDiv.style.marginBottom = '1rem';
         controlDiv.style.display = 'flex';
         controlDiv.style.justifyContent = 'flex-end';
+        controlDiv.style.position = 'sticky';
+        controlDiv.style.left = '0';
 
         const exportBtn = document.createElement('button');
         exportBtn.className = 'ua-btn accent';
@@ -271,39 +302,42 @@ async function renderTableFromExcel(file) {
         exportBtn.onclick = generateRozdelovnik;
 
         controlDiv.appendChild(exportBtn);
-        outputContainer.appendChild(controlDiv);
-        outputContainer.appendChild(table);
+        modalBody.appendChild(controlDiv);
+        modalBody.appendChild(table);
         
-        showToast("Náhlady vygenerovaný. Skontrolujte farby a stiahnite rozdeľovník.", TOAST_TYPE.SUCCESS);
+        showToast(`Načítaný hárok: ${sheet.name()}`, TOAST_TYPE.SUCCESS);
 
     } catch (err) {
         console.error("Chyba pri spracovaní XLSX:", err);
-        outputContainer.innerHTML = `<p style="color:red">Chyba pri spracovaní súboru: ${err.message}</p>`;
+        modalBody.innerHTML = `<p style="color:red; text-align:center;">Chyba pri spracovaní súboru: ${err.message}</p>`;
         showToast("Chyba pri spracovaní súboru.", TOAST_TYPE.ERROR);
     }
 }
 
 /* ========================================================================== */
-/* CORE LOGIC: Generating Rozdeľovník (Ported from script.js)                */
+/* CORE LOGIC: Generating Rozdeľovník (Targeting Modal Table)                */
+/* ========================================================================== */
+
+/* ========================================================================== */
+/* CORE LOGIC: Generating Rozdeľovník + Saving to DB                         */
 /* ========================================================================== */
 
 async function generateRozdelovnik() {
-    const outputContainer = document.getElementById('izs-output-container');
-    const table = outputContainer.querySelector('table');
+    const modalBody = document.getElementById('izsModalBody');
+    const table = modalBody ? modalBody.querySelector('table') : null;
 
     if (!table) {
         showToast('Chýba tabuľka s dátami.', TOAST_TYPE.ERROR);
         return;
     }
 
-    showToast('Generujem rozdeľovník...', TOAST_TYPE.INFO);
+    showToast('Generujem rozdeľovník a ukladám dáta...', TOAST_TYPE.INFO);
 
     try {
-        // ExcelJS je globálne dostupný
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Rozdeľovník');
 
-        // Získanie hlavičiek z HTML tabuľky
+        // Získanie hlavičiek
         const headerCells = table.querySelectorAll('tr:first-child td');
         const cisloSpisuText = headerCells[0] ? headerCells[0].textContent.trim() : '';
         const titleCell = headerCells[1];
@@ -319,7 +353,11 @@ async function generateRozdelovnik() {
         const { month, year, monthIndex } = dateInfo;
         const numDays = getDaysInMonth(monthIndex, year);
 
-        // --- Formátovanie Excelu (podľa pôvodného skriptu) ---
+        // --- NOVÉ: Príprava objektu pre databázu ---
+        const dbScheduleData = {}; 
+        // ------------------------------------------
+
+        // --- Formátovanie Excelu (existujúci kód) ---
         sheet.getColumn(1).width = 7;
         sheet.getColumn(2).width = 35;
         sheet.getColumn(3).width = 7;
@@ -328,44 +366,34 @@ async function generateRozdelovnik() {
 
         sheet.getCell('A1').value = cisloSpisuText;
         sheet.getCell('E1').value = 'Dátum:';
-
         sheet.mergeCells('A3:E3');
         sheet.getCell('A3').value = `Rozdeľovník služieb operátorov na mesiac ${month} ${year}`;
         sheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
         sheet.getCell('A3').font = { bold: true, size: 14 };
-
         sheet.mergeCells('A4:E4');
         sheet.getCell('A4').value = 'Koordinačného strediska IZS odboru krízového riadenia';
         sheet.getCell('A4').alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // Hlavičky tabuľky
         sheet.getCell('A7').value = 'Dátum';
         sheet.getCell('B7').value = 'Denná zmena 06:30 - 18:30';
         sheet.getCell('C7').value = 'Dátum';
         sheet.getCell('D7').value = 'Nočná zmena 18:30 - 06:30';
         sheet.getCell('E7').value = 'Poznámka';
-
         sheet.getRow(7).height = 27;
         
-        // Štýlovanie hlavičiek
-        sheet.getCell('B7').alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-        sheet.getCell('B7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } }; // Zelená
-        sheet.getCell('B7').font = { bold: true, size: 14 };
-
-        sheet.getCell('D7').alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
-        sheet.getCell('D7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC000' } }; // Oranžová
-        sheet.getCell('D7').font = { bold: true, size: 14 };
-
-        ['A7', 'C7', 'E7'].forEach(cell => {
+        // Štýlovanie hlavičky (skrátené pre prehľadnosť, zachovať pôvodné)
+        sheet.getCell('B7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } }; 
+        sheet.getCell('D7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC000' } }; 
+        ['A7', 'B7', 'C7', 'D7', 'E7'].forEach(cell => {
             sheet.getCell(cell).font = { bold: true };
-            sheet.getCell(cell).alignment = { vertical: 'top', wrapText: true };
+            sheet.getCell(cell).alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
         });
 
-        // Spracovanie riadkov zamestnancov
-        const firstDayColIndex = 2; // Index stĺpca v HTML kde začínajú dni (0-based)
-        const employeeRows = Array.from(table.querySelectorAll('tbody tr')).slice(1); // Preskočiť hlavičku
+        const firstDayColIndex = 2; 
+        const employeeRows = Array.from(table.querySelectorAll('tbody tr')).slice(1); 
         const holidayDays = [];
 
+        // --- HLAVNÝ CYKLUS PO DŇOCH ---
         for (let day = 1; day <= numDays; day++) {
             const excelRow = day + 7;
             const htmlColIndex = firstDayColIndex + (day - 1);
@@ -375,11 +403,19 @@ async function generateRozdelovnik() {
             let notesArray = [];
             let isHoliday = false;
 
+            // --- NOVÉ: Inicializácia poľa pre konkrétny deň v DB ---
+            // Kľúč bude číslo dňa (string), hodnota objekt s poľami pre dennú a nočnú
+            dbScheduleData[day] = {
+                dayShift: [],   // Denná
+                nightShift: []  // Nočná
+            };
+            // -----------------------------------------------------
+
             for (let rowIndex = 0; rowIndex < employeeRows.length; rowIndex++) {
                 const row = employeeRows[rowIndex];
                 if (!row.cells || row.cells.length < 2) continue;
 
-                const nameCell = row.cells[1]; // Predpokladáme, že meno je v 2. stĺpci (index 1)
+                const nameCell = row.cells[1]; 
                 if (!nameCell) continue;
 
                 const fullName = nameCell.textContent ? nameCell.textContent.trim() : '';
@@ -390,9 +426,7 @@ async function generateRozdelovnik() {
                 
                 if (!shiftCell) continue;
 
-                // Detekcia sviatku (žltá farba v HTML)
                 const cellBgColor = shiftCell.style.backgroundColor; 
-                // Pozor: style.backgroundColor vracia niečo ako "rgb(255, 255, 0)" alebo hex
                 if (isYellowColor(cellBgColor)) {
                     isHoliday = true;
                 }
@@ -400,7 +434,6 @@ async function generateRozdelovnik() {
                 const shiftType = shiftCell.textContent ? shiftCell.textContent.trim().toLowerCase() : '';
                 if (shiftType === '') continue;
 
-                // Biznis logika podľa farieb
                 const bgColor = shiftCell.style.backgroundColor;
                 let hasBlueBackground = isBlueColor(bgColor);
                 let hasRedBackground = isRedColor(bgColor);
@@ -412,7 +445,6 @@ async function generateRozdelovnik() {
                 } else if (hasBlueBackground) {
                     notesArray.push(`${formattedSurname}-D`);
                 } else if (shiftType === 'sd' || shiftType === 'sn') {
-                    // Získanie farby písma z HTML
                     const shiftCellColor = shiftCell.style.color || 'black';
                     const hexColor = rgbToHex(shiftCellColor);
                     
@@ -424,28 +456,34 @@ async function generateRozdelovnik() {
                     if (shiftType === 'sd') {
                         if (richTextSd.length > 0) richTextSd.push({ text: ', ', font: { color: { argb: 'FF000000' } } });
                         richTextSd.push(nameFragment);
+                        
+                        // --- NOVÉ: Pridanie do DB zoznamu pre dennú ---
+                        dbScheduleData[day].dayShift.push(employeeName);
+
                     } else if (shiftType === 'sn') {
                         if (richTextSn.length > 0) richTextSn.push({ text: ', ', font: { color: { argb: 'FF000000' } } });
                         richTextSn.push(nameFragment);
+
+                        // --- NOVÉ: Pridanie do DB zoznamu pre nočnú ---
+                        dbScheduleData[day].nightShift.push(employeeName);
                     }
                 } else {
                     notesArray.push(`${formattedSurname}-${shiftType.toUpperCase()}`);
                 }
             }
 
-            // Zápis do Excelu
             if (isHoliday) holidayDays.push(day);
 
+            // Zápis do Excel buniek
             sheet.getCell(`A${excelRow}`).value = day;
             sheet.getCell(`C${excelRow}`).value = day;
             sheet.getCell(`A${excelRow}`).alignment = { horizontal: 'center', vertical: 'top' };
             sheet.getCell(`C${excelRow}`).alignment = { horizontal: 'center', vertical: 'top' };
 
-            // Podfarbenie (Sviatky / Víkendy)
             if (isHoliday) {
                 ['A', 'B', 'C', 'D', 'E'].forEach(col => {
                     sheet.getCell(`${col}${excelRow}`).fill = {
-                        type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } // Žltá
+                        type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } 
                     };
                 });
             } else if (isWeekend(day, monthIndex, year)) {
@@ -467,34 +505,19 @@ async function generateRozdelovnik() {
             }
         }
 
-        // Legenda a podpisy (fixne)
-        const legendRow = 39; // alebo dynamicky pod tabuľkou
-        sheet.getCell('A39').value = 'čierna farba - pravidelné striedanie služieb';
-        sheet.getCell('A39').font = { bold: true };
-        sheet.getCell('D39').value = 'modrá farba - služby za neprítomných';
-        sheet.getCell('D39').font = { bold: true, color: { argb: 'FF00B0F0' } };
-
-        sheet.getCell('A42').value = 'Spracoval:';
-        sheet.getCell('C42').value = 'Schvaľuje:';
-        sheet.getCell('E42').value = 'Schvaľuje:';
-
-        sheet.getCell('A43').value = 'Mgr. Juraj Tuhársky';
-        sheet.getCell('C43').value = 'Mgr. Juraj Tuhársky';
-        sheet.getCell('E43').value = 'Mgr. Mário Banič';
-
-        sheet.getCell('A44').value = 'Ing. Silvia Sklenárová';
-        sheet.getCell('C44').value = 'vedúci koordinačného strediska IZS';
-        sheet.getCell('E44').value = 'vedúci odboru krízového riadenia';
-
-        // Orámovanie
+        // Päta a podpisy
+        addFooterSignatures(sheet); // Extrahoval som to do funkcie pre prehľadnosť, alebo ponechajte pôvodný kód
         addBorders(sheet, numDays);
 
-        // Stiahnutie súboru
+        // --- NOVÉ: Uloženie do Firestore ---
+        await saveScheduleToFirestore(year, monthIndex, month, dbScheduleData);
+        // -----------------------------------
+
         const fileName = `Rozdeľovník_${month}_${year}.xlsx`;
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), fileName); // FileSaver.js (global)
+        saveAs(new Blob([buffer]), fileName); 
 
-        showToast('Rozdeľovník úspešne stiahnutý!', TOAST_TYPE.SUCCESS);
+        showToast('Rozdeľovník stiahnutý a dáta uložené do DB!', TOAST_TYPE.SUCCESS);
 
     } catch (err) {
         console.error('Chyba pri generovaní:', err);
@@ -502,8 +525,57 @@ async function generateRozdelovnik() {
     }
 }
 
+/**
+ * Nová pomocná funkcia pre zápis do Firestore
+ */
+async function saveScheduleToFirestore(year, monthIndex, monthName, data) {
+    if (!_db) {
+        console.error("DB objekt nie je dostupný.");
+        return;
+    }
+
+    // Vytvoríme ID dokumentu, napr. "2025-0" pre Január 2025 (aby sedelo s formátom v dashboarde)
+    // monthIndex je 0-based (Január = 0)
+    const docId = `${year}-${monthIndex}`;
+
+    try {
+        await _db.collection('publishedSchedulesIZS').doc(docId).set({
+            year: year,
+            monthIndex: monthIndex,
+            monthName: monthName,
+            days: data, // Tu je štruktúra { "1": {dayShift: [], nightShift: []}, "2": ... }
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: _activeUser ? _activeUser.email : 'unknown'
+        });
+        console.log(`Dáta pre IZS (${docId}) boli úspešne uložené.`);
+    } catch (error) {
+        console.error("Chyba pri ukladaní IZS rozpisu do DB:", error);
+        throw new Error("Nepodarilo sa uložiť dáta do databázy.");
+    }
+}
+
+// --- Pôvodná logika pre pätu (ak ste ju nemali v samostatnej funkcii, vložte ju späť do generateRozdelovnik) ---
+function addFooterSignatures(sheet) {
+    sheet.getCell('A39').value = 'čierna farba - pravidelné striedanie služieb';
+    sheet.getCell('A39').font = { bold: true };
+    sheet.getCell('D39').value = 'modrá farba - služby za neprítomných';
+    sheet.getCell('D39').font = { bold: true, color: { argb: 'FF00B0F0' } };
+
+    sheet.getCell('A42').value = 'Spracoval:';
+    sheet.getCell('C42').value = 'Schvaľuje:';
+    sheet.getCell('E42').value = 'Schvaľuje:';
+
+    sheet.getCell('A43').value = 'Mgr. Juraj Tuhársky';
+    sheet.getCell('C43').value = 'Mgr. Juraj Tuhársky';
+    sheet.getCell('E43').value = 'Mgr. Mário Banič';
+
+    sheet.getCell('A44').value = 'Ing. Silvia Sklenárová';
+    sheet.getCell('C44').value = 'vedúci koordinačného strediska IZS';
+    sheet.getCell('E44').value = 'vedúci odboru krízového riadenia';
+}
+
 /* ========================================================================== */
-/* HELPER FUNCTIONS                                                          */
+/* HELPER FUNCTIONS (Rovnaké ako predtým)                                    */
 /* ========================================================================== */
 
 function addBorders(sheet, numDays) {
@@ -517,10 +589,9 @@ function addBorders(sheet, numDays) {
 
             if (row === 7) border.top = mediumBorder;
             if (row === numDays + 7) border.bottom = mediumBorder;
-            if (col === 1) border.left = mediumBorder; // A
-            if (col === 5) border.right = mediumBorder; // E
+            if (col === 1) border.left = mediumBorder; 
+            if (col === 5) border.right = mediumBorder; 
             
-            // Hrubé vertikálne čiary
             if (col === 1) border.right = mediumBorder;
             if (col === 2) { border.left = mediumBorder; border.right = mediumBorder; }
             if (col === 3) { border.left = mediumBorder; border.right = mediumBorder; }
@@ -532,14 +603,11 @@ function addBorders(sheet, numDays) {
     }
 }
 
-// --- Color Helpers ---
-
 function normalizeHexOrArgb(input) {
     if (!input) return null;
     if (typeof input === 'object') return null;
     let hex = String(input).replace(/^#/, '').trim();
-    
-    if (hex.length === 8) { // ARGB
+    if (hex.length === 8) {
         const a = parseInt(hex.slice(0, 2), 16) / 255;
         const r = parseInt(hex.slice(2, 4), 16);
         const g = parseInt(hex.slice(4, 6), 16);
@@ -562,10 +630,7 @@ function extractColorFromFill(fill) {
             if (typeof fill.fgColor.rgb === 'string') candidate = fill.fgColor.rgb;
             else if (typeof fill.fgColor.argb === 'string') candidate = fill.fgColor.argb;
         }
-        // Jednoduchá implementácia Theme colors (ak treba)
         if (!candidate && fill.color && fill.color.theme !== undefined) {
-             // Tu by bola zložitá konverzia theme, pre stručnosť vynechávam
-             // Ak to je kritické, skopírujte celú funkciu z pôvodného script.js
              return null; 
         }
     } catch (e) {}
@@ -589,8 +654,6 @@ function safeCellStyle(cell, prop) {
         try { const s = cell.style(); return s ? s[prop] : null; } catch (e2) { return null; }
     }
 }
-
-// --- String & Date Helpers ---
 
 function parseMonthYear(text) {
     const monthsMap = {
@@ -647,14 +710,12 @@ function rgbToHex(rgb) {
     return (r + g + b).toUpperCase();
 }
 
-// --- Color Checkers (for business logic) ---
-
 function isYellowColor(rgbString) {
     if (!rgbString) return false;
     const parts = rgbString.match(/(\d+),\s*(\d+),\s*(\d+)/);
     if (parts) {
         const r = parseInt(parts[1]), g = parseInt(parts[2]), b = parseInt(parts[3]);
-        return (r > 200 && g > 200 && b < 100); // Cca žltá
+        return (r > 200 && g > 200 && b < 100); 
     }
     return false;
 }
@@ -674,7 +735,7 @@ function isBlueColor(rgbString) {
     const parts = rgbString.match(/(\d+),\s*(\d+),\s*(\d+)/);
     if (parts) {
         const r = parseInt(parts[1]), g = parseInt(parts[2]), b = parseInt(parts[3]);
-        return (r < 50 && g > 100 && b > 200); // Cca modrá
+        return (r < 50 && g > 100 && b > 200); 
     }
     return false;
 }

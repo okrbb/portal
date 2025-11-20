@@ -773,34 +773,33 @@ async function initializeDashboardCalendar() {
                 week:  'týždeň'
             },
             height: 'auto',
+            // Obmedzenie počtu udalostí na deň, aby sa bunka príliš nenatiahla (vytvorí "+x more")
+            dayMaxEvents: 4, 
 
-            // --- NOVÉ: Interakcia myšou (Hover) ---
+            // --- Interakcia myšou (Hover) ---
             eventMouseEnter: function(info) {
-                // 1. Získame dáta (zoznam mien) z extendedProps
                 const employeeList = info.event.extendedProps.employeeNames || [];
-                const groupName = info.event.title;
+                const groupName = info.event.extendedProps.tooltipTitle || info.event.title || ''; 
 
                 if (employeeList.length === 0) return;
 
-                // 2. Vytvoríme HTML pre tooltip
                 const tooltip = document.createElement('div');
                 tooltip.className = 'calendar-tooltip';
-                tooltip.id = 'current-calendar-tooltip'; // ID pre ľahké odstránenie
+                tooltip.id = 'current-calendar-tooltip';
                 
-                let namesHtml = employeeList.map(name => `• ${name}`).join('\n');
-                tooltip.innerHTML = `<strong>${groupName}</strong>${namesHtml}`;
+                let namesHtml = employeeList.map(name => `• ${name}`).join('<br>');
+                
+                // Rozlíšenie farby hlavičky podľa typu udalosti (voliteľné)
+                tooltip.innerHTML = `<strong>${groupName}</strong><div style="margin-top:4px;">${namesHtml}</div>`;
 
                 document.body.appendChild(tooltip);
 
-                // 3. Pozícia tooltipu (podľa kurzora)
-                // Použijeme pageX/Y z jsEvent
                 const padding = 15;
                 tooltip.style.left = (info.jsEvent.pageX + padding) + 'px';
                 tooltip.style.top = (info.jsEvent.pageY + padding) + 'px';
             },
 
             eventMouseLeave: function(info) {
-                // Odstránenie tooltipu
                 const tooltip = document.getElementById('current-calendar-tooltip');
                 if (tooltip) {
                     tooltip.remove();
@@ -815,6 +814,7 @@ async function initializeDashboardCalendar() {
                 let monthsToQuery = new Set();
                 let currentDate = new Date(start);
                 
+                // Zistíme, ktoré mesiace (ID dokumentov) potrebujeme načítať
                 while (currentDate < end) {
                     const docId = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
                     monthsToQuery.add(docId);
@@ -827,11 +827,22 @@ async function initializeDashboardCalendar() {
 
                 try {
                     const docIds = Array.from(monthsToQuery);
-                    const promises = docIds.map(docId => db.collection("publishedSchedules").doc(docId).get());
-                    const docSnapshots = await Promise.all(promises);
+                    
+                    // 1. Načítanie POHOTOVOSTI (publishedSchedules)
+                    const promisesPohotovost = docIds.map(docId => db.collection("publishedSchedules").doc(docId).get());
+                    
+                    // 2. Načítanie IZS (publishedSchedulesIZS)
+                    const promisesIZS = docIds.map(docId => db.collection("publishedSchedulesIZS").doc(docId).get());
+
+                    // Spustíme všetko naraz
+                    const [snapshotsPohotovost, snapshotsIZS] = await Promise.all([
+                        Promise.all(promisesPohotovost),
+                        Promise.all(promisesIZS)
+                    ]);
 
                     let allCalendarEvents = [];
 
+                    // --- A. SPRACOVANIE POHOTOVOSTI ---
                     const GROUP_COLORS = {
                         "Skupina 1": "#dd590d",
                         "Skupina 2": "#4CAF50",
@@ -845,29 +856,26 @@ async function initializeDashboardCalendar() {
                         return `${y}-${m}-${d}`;
                     };
 
-                    for (const doc of docSnapshots) {
+                    for (const doc of snapshotsPohotovost) {
                         if (!doc.exists) continue;
 
                         const schedule = doc.data();
                         const dutyAssignments = schedule.dutyAssignments || {};
-                        const serviceOverrides = schedule.serviceOverrides || {}; // Načítame výmeny
+                        const serviceOverrides = schedule.serviceOverrides || {};
                         
                         const docYear = schedule.year;
                         const docMonth = schedule.month; 
-
                         const monthStartDate = new Date(docYear, docMonth, 1);
                         const monthEndDate = new Date(docYear, docMonth + 1, 0);
 
                         for (const weekKey in dutyAssignments) {
                             const [year, weekNum] = weekKey.split('-').map(Number);
-                            
                             const weekStartDate_ISO = getDateOfISOWeek(weekNum, year);
                             const weekEndDate_ISO = new Date(weekStartDate_ISO);
                             weekEndDate_ISO.setDate(weekStartDate_ISO.getDate() + 6); 
 
                             const finalStartDate = new Date(Math.max(weekStartDate_ISO.getTime(), monthStartDate.getTime()));
                             const finalEndDate = new Date(Math.min(weekEndDate_ISO.getTime(), monthEndDate.getTime()));
-
                             const calendarEndDate = new Date(finalEndDate);
                             calendarEndDate.setDate(calendarEndDate.getDate() + 1);
 
@@ -878,34 +886,119 @@ async function initializeDashboardCalendar() {
                                 const groupName = firstAssignment.skupina || "Neznáma skupina";
                                 const groupColor = GROUP_COLORS[groupName] || '#808080';
 
-                                // --- NOVÉ: Spracovanie mien a výmen (Overrides) ---
                                 const employeeNames = [];
                                 const weekOverrides = serviceOverrides[weekKey] || {};
 
                                 weekAssignments.forEach(assignment => {
-                                    let displayMeno = assignment.meno;
-                                    
-                                    // Kontrola výmeny (swap/sub)
+                                    // 1. Získame najprv celé meno (pôvodné alebo override)
+                                    let fullName = assignment.meno;
+                                    let suffix = ''; // Pripravíme si príponu (Zástup/Výmena)
+
                                     if (weekOverrides[assignment.id]) {
                                         const overrideData = weekOverrides[assignment.id];
-                                        displayMeno = overrideData.meno || 'Neznámy';
-                                        // Voliteľné: pridať značku (Zástup)
-                                        if (overrideData.type === 'sub') displayMeno += ' (Zástup)';
-                                        if (overrideData.type === 'swap') displayMeno += ' (Výmena)';
+                                        fullName = overrideData.meno || 'Neznámy';
+                                        
+                                        if (overrideData.type === 'sub') suffix = ' (Zástup)';
+                                        if (overrideData.type === 'swap') suffix = ' (Výmena)';
                                     }
-                                    employeeNames.push(displayMeno);
+
+                                    // 2. Extrahujeme iba priezvisko (posledné slovo v reťazci)
+                                    // Rozdelíme podľa medzier a vezmeme posledný prvok
+                                    const nameParts = fullName.trim().split(/\s+/);
+                                    const surname = nameParts.length > 0 ? nameParts[nameParts.length - 1] : fullName;
+
+                                    // 3. Do zoznamu vložíme iba priezvisko + príponu
+                                    employeeNames.push(surname + suffix);
                                 });
-                                // -------------------------------------------------
+
+                                // NOVÝ KÓD (Iterácia po dňoch)
+
+                                // Vytvoríme kópiu dátumu začiatku, aby sme s ním mohli pracovať v cykle
+                                let currentLoopDate = new Date(finalStartDate);
+
+                                // Cyklus beží, kým je aktuálny dátum menší ako koniec intervalu
+                                // (calendarEndDate je v pôvodnom kóde už posunutý o +1 deň, takže < je správne)
+                                while (currentLoopDate < calendarEndDate) {
+                                    
+                                    const dateStr = formatLocalDate(currentLoopDate);
+
+                                    allCalendarEvents.push({
+                                        start: dateStr,
+                                        end: dateStr, // Pre background event stačí rovnaký start/end pre jeden deň
+                                        display: 'background',
+                                        backgroundColor: groupColor,
+                                        // Pridáme triedu, aby sme vedeli tieto pásiky špecificky štýlovať (zaoblenie atď.)
+                                        classNames: ['pohotovost-strip-day'], 
+                                        allDay: true,
+                                        extendedProps: { 
+                                            tooltipTitle: 'Pohotovosť:',
+                                            employeeNames: employeeNames }
+                                    });
+
+                                    // Posun na ďalší deň
+                                    currentLoopDate.setDate(currentLoopDate.getDate() + 1);
+                                }
+                            }
+                        }
+                    }
+
+                    // --- B. SPRACOVANIE IZS ---
+                    for (const doc of snapshotsIZS) {
+                        if (!doc.exists) continue;
+                        
+                        const data = doc.data();
+                        const year = data.year;
+                        const monthIndex = data.monthIndex; 
+                        const daysMap = data.days || {};
+
+                        // Iterujeme cez dni v dokumente
+                        for (const [dayStr, shifts] of Object.entries(daysMap)) {
+                            const day = parseInt(dayStr, 10);
+                            
+                            // 1. DENNÁ SLUŽBA (06:30 - 18:30)
+                            if (shifts.dayShift && shifts.dayShift.length > 0) {
+                                const startD = new Date(year, monthIndex, day, 6, 30);
+                                const endD = new Date(year, monthIndex, day, 18, 30);
 
                                 allCalendarEvents.push({
-                                    start: formatLocalDate(finalStartDate),
-                                    end: formatLocalDate(calendarEndDate),
+                                    start: startD.toISOString(),
+                                    end: endD.toISOString(),
+                                    allDay: true,
+                                    
                                     display: 'background', 
-                                    backgroundColor: groupColor,
-                                    title: groupName,
-                                    // Uložíme mená do extendedProps
+                                    classNames: ['izs-strip-day'],
+                                    
                                     extendedProps: {
-                                        employeeNames: employeeNames
+                                        tooltipTitle: 'IZS denná:',
+                                        employeeNames: shifts.dayShift.map(name => {
+                                            return name.toLowerCase().split(' ').map(word => 
+                                                word.charAt(0).toUpperCase() + word.slice(1)
+                                            ).join(' ');
+                                    })
+                                    }
+                                });
+                            }
+
+                            // 2. NOČNÁ SLUŽBA
+                            if (shifts.nightShift && shifts.nightShift.length > 0) {
+                                const startN = new Date(year, monthIndex, day, 18, 30);
+                                const endN = new Date(year, monthIndex, day, 23, 59); 
+
+                                allCalendarEvents.push({
+                                    start: startN.toISOString(),
+                                    end: endN.toISOString(),
+                                    allDay: true,
+                                    
+                                    display: 'background',
+                                    classNames: ['izs-strip-night'],
+                                    
+                                    extendedProps: {
+                                        tooltipTitle: 'IZS nočná:',
+                                        employeeNames: shifts.nightShift.map(name => {
+                                            return name.toLowerCase().split(' ').map(word => 
+                                                word.charAt(0).toUpperCase() + word.slice(1)
+                                            ).join(' ');
+                                        })
                                     }
                                 });
                             }
@@ -915,7 +1008,7 @@ async function initializeDashboardCalendar() {
                     successCallback(allCalendarEvents);
 
                 } catch (err) {
-                    console.error("Chyba pri spracovaní dát rozpisov:", err);
+                    console.error("Chyba pri spracovaní dát rozpisov (Pohotovosť + IZS):", err);
                     failureCallback(err);
                 }
             }
