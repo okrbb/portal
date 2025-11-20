@@ -118,7 +118,7 @@
 
             <header class="employee-header">
                 <div class="employee-name-section">
-                    <h1 id="module-title">Prehľad služieb</h1>
+                    <h1 id="module-title">Prehľad udalostí</h1>
                 </div>
     
                 <div class="header-actions">
@@ -156,20 +156,38 @@
                         <div class="dashboard-main">
                             <!-- Kalendár a zoznam vedľa seba -->
                             <div class="dashboard-row">
-                                <div class="dashboard-card dashboard-calendar-card" id="calendar-placeholder">
+    
+                                <div class="dashboard-right-col">
+                                    
+                                    <div class="dashboard-card welcome-card" id="welcome-card-container">
+                                        <div class="welcome-content">
+                                            <h3 id="welcome-greeting">Načítavam...</h3>
+                                            <p id="welcome-date">...</p>
+                                            <p id="welcome-meniny" style="font-size: 0.85rem; color: var(--color-orange-accent); margin-top: 2px; font-weight: 600; min-height: 20px;"></p>
+                                            <p id="welcome-sviatok" style="font-size: 0.85rem; color: #4CAF50; margin-top: 9px; font-weight: 600; min-height: 20px;"></p>
+                                        </div>
+                                        <i class="fas fa-sun welcome-icon" id="welcome-icon"></i>
+                                        <span id="welcome-temp" class="welcome-temp">--°C</span>
+                                    </div>
+
+                                    <div class="dashboard-card dashboard-duty-card" id="duty-list">
+                                        <h2>Zamestnanci v pohotovosti (dnes)</h2>
+                                        <ul id="duty-list-items">
+                                            <li>Načítavam...</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                 <div class="dashboard-card dashboard-calendar-card" id="calendar-placeholder">
                                     <h2>Kalendár</h2>
                                     <div id="dashboard-calendar-render-area"></div>
                                 </div>
-                                <div class="dashboard-card dashboard-duty-card" id="duty-list">
-                                    <h2>Zamestnanci v pohotovosti (dnes)</h2>
-                                    <ul id="duty-list-items">
-                                        <li>Načítavam...</li>
-                                    </ul>
-                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- KARTA: Cestovný príkaz -->
                 <div id="cestovny-prikaz-module" class="module-content hidden">
                     <div class="cp-module-layout">
@@ -298,6 +316,7 @@
                         </div> 
                     </div> 
                 </div>
+
                 <!-- KARTA: Rozpis pohotovosti -->
                 <div id="pohotovost-module" class="module-content hidden">
                     <div class="duty-schedule-container">
@@ -363,6 +382,7 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- KARTA: Rozpis služieb IZS -->
                 <div id="izs-module" class="module-content hidden">
                     <div class="ua-container" style="flex-direction: column;"> 
@@ -389,6 +409,34 @@
                         </div>
                     </div>
                 </div>
+                <!-- Rozpis IZS: -->
+                        <div id="previewModal" class="modal-overlay hidden">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h2>Náhľad dokumentu</h2>
+                                                <button id="closeModalButton" class="modal-close">&times;</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <iframe id="pdfPreviewFrame" width="100%" height="600px" style="border: 1px solid var(--color-border); border-radius: var(--radius-sm); background-color: #fff;"></iframe>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button id="downloadPdfButton" class="ua-btn accent">Stiahnuť PDF</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="izsPreviewModal" class="modal-overlay hidden">
+                                        <div class="modal-content" style="max-width: 95%; height: 90vh;">
+                                            <div class="modal-header">
+                                                <h2>Náhľad Plánu služieb</h2>
+                                                <button id="izsCloseModalBtn" class="modal-close">&times;</button>
+                                            </div>
+                                            <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;">
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div id="izs-module" class="module-content hidden"></div>
+
                 <!-- KARTA: Príspevky UA -->
                 <div id="ua-contributions-module" class="module-content hidden">
                     <div class="ua-container">
@@ -436,6 +484,7 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Karta: Zamestnanci -->
                 <div id="admin-panel-module" class="module-content hidden">
                     <div class="admin-panel-layout-main-only">
@@ -489,35 +538,6 @@
             </div>
         </main>
     </div>
-    <!-- Rozpis IZS: -->
-    <div id="previewModal" class="modal-overlay hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>Náhľad dokumentu</h2>
-                            <button id="closeModalButton" class="modal-close">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <iframe id="pdfPreviewFrame" width="100%" height="600px" style="border: 1px solid var(--color-border); border-radius: var(--radius-sm); background-color: #fff;"></iframe>
-                        </div>
-                        <div class="modal-footer">
-                            <button id="downloadPdfButton" class="ua-btn accent">Stiahnuť PDF</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="izsPreviewModal" class="modal-overlay hidden">
-                    <div class="modal-content" style="max-width: 95%; height: 90vh;">
-                        <div class="modal-header">
-                            <h2>Náhľad Plánu služieb</h2>
-                            <button id="izsCloseModalBtn" class="modal-close">&times;</button>
-                        </div>
-                        <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;">
-                            </div>
-                    </div>
-                </div>
-                <div id="izs-module" class="module-content hidden"></div>
-    
-    
     <!-- Zamestnanci: -->
     <div id="delete-employee-overlay" class="delete-modal-overlay hidden">
         <div class="delete-modal">
@@ -563,6 +583,7 @@
         </div>
     </div>
     </div>
+    
     <!-- Login: -->
     <div id="forgot-password-modal" class="modal-overlay hidden">
         <div class="modal-content" style="max-width: 400px;">
@@ -604,6 +625,31 @@
         </div>
     </div>
 
+    <!-- Nástenka -->
+    <div id="announcement-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-bullhorn"></i> Upraviť oznam</h2>
+                <button id="close-announcement-modal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 10px; color: var(--color-text-secondary);">
+                    Tento oznam sa zobrazí všetkým používateľom na hlavnej nástenke.
+                </p>
+                <form id="announcement-form">
+                    <div class="form-group">
+                        <label for="announcement-text">Text oznamu:</label>
+                        <textarea id="announcement-text" rows="6" placeholder="Sem napíšte text oznamu..." style="width: 100%;"></textarea>
+                    </div>
+                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem; display: flex; justify-content: space-between;">
+                        <button type="button" id="btn-delete-announcement" class="ua-btn delete-style">Zmazať oznam</button>
+                        <button type="submit" class="ua-btn accent">Zverejniť</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -629,6 +675,8 @@
     <script type="module" src="./js/emp_module.js"></script>
     <script type="module" src="./js/schd_module.js"></script>
     <script type="module" src="./js/edit_module.js"></script>
+
+    <script type="module" src="./js/widget.js"></script>
     
     <script type="module" src="./js/mainWizard.js"></script>
 </body>
