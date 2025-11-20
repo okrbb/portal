@@ -15,6 +15,9 @@ import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
 import { initializeAdminModule, displayEmployeeDetails, activateGlobalExport } from './emp_module.js';
 import { initializeEditModule, toggleEditMode } from './edit_module.js';
+import { updateWelcomeWidget } from './widget.js';
+import { renderAdminWidget } from './admin_widget.js';
+import { renderAnnouncementWidget } from './announcements.js';
 
 // === 3. IMPORTOVANIE CENTRÁLNYCH PRÍSTUPOV ===
 import { Permissions } from './accesses.js';
@@ -91,13 +94,24 @@ async function handleLogin() {
                     }
                     
                     // ÚSPECH
+                    
+                    // 1. Vytvoríme dočasný objekt používateľa pre potreby logovania
+                    const tempUserForLogs = {
+                        uid: authUser.uid,
+                        email: authUser.email,
+                        ...userData,
+                        // Musíme vyskladať displayName, lebo v DB sú polia oddelené
+                        displayName: `${userData.titul || ''} ${userData.meno} ${userData.priezvisko}`.trim()
+                    };
+
+                    // 2. Okamžite aktualizujeme logovací modul, aby vedel, kto sa loguje
+                    updateLogsUser(tempUserForLogs); 
+
+                    // 3. Teraz zapíšeme log (už bude mať správne meno)
                     await logUserAction("LOGIN", "Úspešné prihlásenie", true, null);
+                    
                     loginOverlay.classList.add('hidden'); 
-                    resolve({ 
-                        uid: authUser.uid, 
-                        email: authUser.email, 
-                        ...userData 
-                    });
+                    resolve(tempUserForLogs);
 
                 } catch (error) {
                     console.error("[MW] Chyba pri overovaní oprávnení:", error);
@@ -206,7 +220,7 @@ if (reloadBtn) {
 // ===================================
 
 const moduleTitles = {
-    'dashboard-module': 'Prehľad služieb', 
+    'dashboard-module': 'Prehľad udalostí', 
     'cestovny-prikaz-module': 'Cestovný príkaz',
     'pohotovost-module': 'Rozpis pohotovosti',
     'izs-module': 'Rozpis služieb IZS',
@@ -730,9 +744,6 @@ function getDateOfISOWeek(w, y) {
 /**
  * Inicializuje FullCalendar.
  */
-/**
- * Inicializuje FullCalendar.
- */
 async function initializeDashboardCalendar() {
     const calendarEl = document.getElementById('dashboard-calendar-render-area');
     if (!calendarEl) {
@@ -762,6 +773,40 @@ async function initializeDashboardCalendar() {
                 week:  'týždeň'
             },
             height: 'auto',
+
+            // --- NOVÉ: Interakcia myšou (Hover) ---
+            eventMouseEnter: function(info) {
+                // 1. Získame dáta (zoznam mien) z extendedProps
+                const employeeList = info.event.extendedProps.employeeNames || [];
+                const groupName = info.event.title;
+
+                if (employeeList.length === 0) return;
+
+                // 2. Vytvoríme HTML pre tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'calendar-tooltip';
+                tooltip.id = 'current-calendar-tooltip'; // ID pre ľahké odstránenie
+                
+                let namesHtml = employeeList.map(name => `• ${name}`).join('\n');
+                tooltip.innerHTML = `<strong>${groupName}</strong>${namesHtml}`;
+
+                document.body.appendChild(tooltip);
+
+                // 3. Pozícia tooltipu (podľa kurzora)
+                // Použijeme pageX/Y z jsEvent
+                const padding = 15;
+                tooltip.style.left = (info.jsEvent.pageX + padding) + 'px';
+                tooltip.style.top = (info.jsEvent.pageY + padding) + 'px';
+            },
+
+            eventMouseLeave: function(info) {
+                // Odstránenie tooltipu
+                const tooltip = document.getElementById('current-calendar-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            },
+            // ---------------------------------------
             
             events: async function(fetchInfo, successCallback, failureCallback) {
                 
@@ -775,10 +820,10 @@ async function initializeDashboardCalendar() {
                     monthsToQuery.add(docId);
                     currentDate.setMonth(currentDate.getMonth() + 1);
                 }
+                // Pridanie koncového mesiaca pre istotu
                 const endMonthDate = new Date(end);
                 endMonthDate.setDate(endMonthDate.getDate() - 1);
                 monthsToQuery.add(`${endMonthDate.getFullYear()}-${endMonthDate.getMonth()}`);
-
 
                 try {
                     const docIds = Array.from(monthsToQuery);
@@ -787,14 +832,12 @@ async function initializeDashboardCalendar() {
 
                     let allCalendarEvents = [];
 
-                    // Definícia farieb pre skupiny
                     const GROUP_COLORS = {
                         "Skupina 1": "#dd590d",
                         "Skupina 2": "#4CAF50",
                         "Skupina 3": "#a855f7"
                     };
 
-                    // Pomocná funkcia pre formátovanie dátumu bez posunu časového pásma
                     const formatLocalDate = (date) => {
                         const y = date.getFullYear();
                         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -807,6 +850,7 @@ async function initializeDashboardCalendar() {
 
                         const schedule = doc.data();
                         const dutyAssignments = schedule.dutyAssignments || {};
+                        const serviceOverrides = schedule.serviceOverrides || {}; // Načítame výmeny
                         
                         const docYear = schedule.year;
                         const docMonth = schedule.month; 
@@ -819,13 +863,11 @@ async function initializeDashboardCalendar() {
                             
                             const weekStartDate_ISO = getDateOfISOWeek(weekNum, year);
                             const weekEndDate_ISO = new Date(weekStartDate_ISO);
-                            weekEndDate_ISO.setDate(weekStartDate_ISO.getDate() + 6); // Nedeľa
+                            weekEndDate_ISO.setDate(weekStartDate_ISO.getDate() + 6); 
 
-                            // Orezanie podľa začiatku a konca mesiaca
                             const finalStartDate = new Date(Math.max(weekStartDate_ISO.getTime(), monthStartDate.getTime()));
                             const finalEndDate = new Date(Math.min(weekEndDate_ISO.getTime(), monthEndDate.getTime()));
 
-                            // FullCalendar potrebuje END date +1 deň, aby zobrazil celú nedeľu
                             const calendarEndDate = new Date(finalEndDate);
                             calendarEndDate.setDate(calendarEndDate.getDate() + 1);
 
@@ -836,20 +878,39 @@ async function initializeDashboardCalendar() {
                                 const groupName = firstAssignment.skupina || "Neznáma skupina";
                                 const groupColor = GROUP_COLORS[groupName] || '#808080';
 
+                                // --- NOVÉ: Spracovanie mien a výmen (Overrides) ---
+                                const employeeNames = [];
+                                const weekOverrides = serviceOverrides[weekKey] || {};
+
+                                weekAssignments.forEach(assignment => {
+                                    let displayMeno = assignment.meno;
+                                    
+                                    // Kontrola výmeny (swap/sub)
+                                    if (weekOverrides[assignment.id]) {
+                                        const overrideData = weekOverrides[assignment.id];
+                                        displayMeno = overrideData.meno || 'Neznámy';
+                                        // Voliteľné: pridať značku (Zástup)
+                                        if (overrideData.type === 'sub') displayMeno += ' (Zástup)';
+                                        if (overrideData.type === 'swap') displayMeno += ' (Výmena)';
+                                    }
+                                    employeeNames.push(displayMeno);
+                                });
+                                // -------------------------------------------------
+
                                 allCalendarEvents.push({
-                                    // POUŽITIE novej formátovacej funkcie namiesto toISOString()
                                     start: formatLocalDate(finalStartDate),
                                     end: formatLocalDate(calendarEndDate),
-                                    
                                     display: 'background', 
                                     backgroundColor: groupColor,
-                                    title: groupName 
+                                    title: groupName,
+                                    // Uložíme mená do extendedProps
+                                    extendedProps: {
+                                        employeeNames: employeeNames
+                                    }
                                 });
                             }
                         }
                     }
-
-successCallback(allCalendarEvents);
 
                     successCallback(allCalendarEvents);
 
@@ -866,7 +927,6 @@ successCallback(allCalendarEvents);
         calendarEl.innerHTML = `<p style="color: red; padding: 1rem;">Chyba: Nepodarilo sa načítať kalendár.</p>`;
     }
 }
-
 
 /**
  * Načíta zamestnancov, ktorí majú dnes pohotovosť.
@@ -942,15 +1002,6 @@ async function loadDashboardDutyToday(db) {
             const employeeInfo = allEmployeesData.get(finalEmployeeId);
             const displayInfo = (employeeInfo && employeeInfo.displayTelefon) ? employeeInfo.displayTelefon : 'Telefón neuvedený';
             const isReporting = reportersForWeek.includes(finalEmployeeId);
-
-            // Filtrácia pre vedúceho oddelenia (ak nie je vedúci odboru)
-            // Logika: Ak je vedúci oddelenia, vidí len svojich. Vedúci odboru vidí všetkých.
-            if (activeUser.funkcia === 'vedúci oddelenia') {
-                if (employeeInfo && employeeInfo.oddelenie !== activeUser.oddelenie) {
-                    continue; // Preskočí zamestnanca, ak nie je z jeho oddelenia
-                }
-            }
-
 
             finalEmployees.push({
                 name: finalEmployeeName,
@@ -1227,9 +1278,12 @@ async function initializeApp() {
         }
         
         updateSidebarUser(activeUser);
+        updateWelcomeWidget(activeUser);
+        renderAnnouncementWidget(db, activeUser);
+        renderAdminWidget(db, activeUser);
         
         if (titleElement) {
-            titleElement.textContent = moduleTitles['dashboard-module'] || 'Prehľad služieb';
+            titleElement.textContent = moduleTitles['dashboard-module'] || 'Prehľad udalostí';
         }
         
         // Predvolené skrytie tlačidiel pre ne-vedúcich (inicializácia)
