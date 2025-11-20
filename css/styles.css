@@ -1661,7 +1661,7 @@ input[type="text"], select, textarea {
 
     /* 2. Zmení výplň na pásik */
     top: auto !important;       /* Odpojí od vrchu bunky */
-    bottom: 0 !important;       /* Pripne na spodok bunky */
+    top: 36px !important;       /* Pripne na spodok bunky */
     height: 6px !important;     /* Výška pásika (upravte podľa potreby, napr. 4px až 10px) */
     
     /* 3. Dizajnové vylepšenia (voliteľné) */
@@ -1734,4 +1734,243 @@ input[type="text"], select, textarea {
 
 #forgot-password-modal {
     z-index: 10001 !important; /* Musí byť viac ako 9999 (Login) */
+}
+
+/* =================================== */
+/* === TOOLTIP PRE KALENDÁR (HOVER) === */
+/* =================================== */
+
+.calendar-tooltip {
+    position: absolute;
+    background: rgba(17, 24, 39, 0.95); /* Tmavé pozadie */
+    border: 1px solid var(--color-orange-accent);
+    color: var(--color-text-primary);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    z-index: 10000;
+    pointer-events: none; /* Aby myš neinteragovala s bublinou */
+    box-shadow: var(--shadow-lg);
+    max-width: 250px;
+    white-space: pre-wrap; /* Zachovanie riadkovania */
+    backdrop-filter: blur(4px);
+    animation: fadeInTooltip 0.2s ease;
+}
+
+.calendar-tooltip strong {
+    color: var(--color-orange-accent);
+    display: block;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 2px;
+}
+
+@keyframes fadeInTooltip {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================================== */
+/* === DASHBOARD LAYOUT ÚPRAVA === */
+/* =================================== */
+
+/* Wrapper pre pravý stĺpec (aby boli karty pod sebou) */
+.dashboard-right-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md); /* Medzera medzi privítaním a zoznamom */
+    min-width: 280px;
+    max-width: 400px;
+}
+
+/* Reset pôvodnej karty, aby sa prispôsobila novému kontajneru */
+.dashboard-duty-card {
+    flex: 1; /* Roztiahne sa na zvyšok výšky */
+    width: 100%;
+    max-width: 100%; /* Reset obmedzenia šírky */
+}
+
+/* === ŠTÝL PRE KARTU PRIVÍTANIA === */
+.welcome-card {
+    background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(188, 135, 0, 0.1) 100%);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100px;
+    border-left: 4px solid var(--color-orange-accent); /* Zlatý prúžok vľavo */
+    border-top: 1px solid var(--color-border); /* Prepísanie horného borderu z bežnej karty */
+}
+
+.welcome-content h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.welcome-content p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.welcome-icon {
+    font-size: 2.5rem;
+    color: var(--color-orange-accent);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.welcome-icon-wrapper {
+    display: flex;
+    flex-direction: column; /* Zoradí ikonu a text pod seba */
+    align-items: center;    /* Vycentruje ich vodorovne */
+    justify-content: center;
+    min-width: 60px;        /* Aby to neskákalo pri zmene čísla */
+}
+
+.welcome-temp {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Jemný tieň pre lepšiu čitateľnosť */
+}
+
+/* Responzivita pre mobil */
+@media (max-width: 1200px) {
+    .dashboard-right-col {
+        max-width: 100%; /* Na mobile na celú šírku */
+        width: 100%;
+    }
+}
+
+/* === ADMIN WIDGET (Stav systému) === */
+
+.admin-logs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px; /* Aby sa zoznam príliš nenatiahol */
+    overflow-y: auto;
+}
+
+.admin-logs-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-logs-list li:last-child {
+    border-bottom: none;
+}
+
+.log-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--color-orange-accent); /* Zvýraznenie času a mena */
+    font-weight: 600;
+}
+
+.log-action {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.admin-alert-box {
+    background: rgba(229, 62, 62, 0.1); /* Jemná červená */
+    border: 1px solid #E53E3E;
+    color: #fc8181;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.5s ease;
+}
+
+.admin-alert-box i {
+    font-size: 1.2rem;
+}
+
+/* =================================== */
+/* === WIDGET OZNAMY (NÁSTENKA) === */
+/* =================================== */
+
+.announcement-card {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    /* Modrý prúžok pre info/oznamy */
+    border-left: 4px solid #3182ce; 
+    position: relative;
+    transition: all var(--transition-normal);
+    margin-bottom: var(--spacing-md);
+    /* Skryté, kým sa nenačíta obsah */
+    display: none; 
+}
+
+.announcement-card.visible {
+    display: block;
+    animation: slideUp 0.4s ease;
+}
+
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.announcement-header h3 {
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.announcement-header i {
+    color: #3182ce; /* Modrá ikona */
+}
+
+.announcement-date {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.announcement-content {
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap; /* Zachová riadkovanie */
+}
+
+.announcement-edit-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    padding: 4px;
+}
+
+.announcement-edit-btn:hover {
+    color: var(--color-orange-accent);
 }
