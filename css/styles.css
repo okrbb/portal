@@ -1,0 +1,2203 @@
+/* =====================================================================
+   OKR PORTÁL 2025 - PROFESIONÁLNE USPORIADANÉ CSS
+   Vytvorené: 20.11.2025
+   Autor: majky
+   =====================================================================
+
+   ŠTRUKTÚRA SÚBORU:
+   -----------------------------------------------------------------------
+
+   📌 ZÁKLAD
+      1. CSS Premenné (:root, @property)
+      2. Globálny reset (*, body, typography)
+      3. Scrollbar
+      4. Utility classes
+
+   📌 LAYOUT
+      5. Portal Container
+      6. Mobilné menu tlačidlá
+      7. Sidebar (ľavý) - navigácia
+      8. Main Content (stredná časť)
+      9. Right Sidebar - zamestnanci
+
+   📌 KOMPONENTY
+      10. Vyhľadávanie
+      11. Modály (delete, password, document viewer)
+      12. Formulárové prvky
+      13. Tlačidlá
+      14. Toast notifikácie
+
+   📌 MODULY APLIKÁCIE
+      15. Dashboard (kalendár, stats, widgety)
+      16. UA Modul (príspevky na stravné)
+      17. Pohotovosť (duty schedule)
+      18. Cestovný príkaz (CP)
+      19. Admin Panel
+
+   📌 ŠPECIALIZOVANÉ
+      20. Login a autentifikácia
+      21. FullCalendar custom styling
+
+   📌 RESPONZIVITA
+      22. Tablet (max-width: 1024px)
+      23. Mobile (max-width: 768px)
+
+   📌 ANIMÁCIE
+      24. Keyframes a transitions
+
+   =====================================================================
+*/
+
+
+/* =================================== */
+/* OKR portal 2025                     */
+/* =================================== */
+
+:root {
+    /* ... (Premenné bez zmeny) ... */
+    --color-blue-dark: #0A2C55;
+    --color-orange-accent: #bc8700;
+    --color-orange-hover: #ffc933;
+    --color-bg: #111827;
+    --color-bg-light: #1F2937;
+    --color-border: #374151;
+    --color-text-primary: #c7c8ca;
+    --color-text-secondary: #9CA3AF;
+    --color-text-dark: #0A2C55;
+    --font-primary: 'Space Grotesk', -apple-system, sans-serif;
+    --font-secondary: 'Inter', -apple-system, sans-serif;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* =================================== */
+/* GLOBAL RESET & BASE STYLES */
+/* =================================== */
+
+@property --grad-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-secondary);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--color-text-primary);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 10px; border: 2px solid var(--color-bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-orange-accent); }
+
+.hidden { display: none !important; }
+
+/* =================================== */
+/* === ZMENA: PORTAL CONTAINER === */
+/* =================================== */
+
+.portal-container {
+    /* === ZMENA: Už nie je grid, je to len wrapper === */
+    position: relative;
+    height: 100vh;
+    width: 100%;
+}
+
+/* =================================== */
+/* === NOVÉ: Mobilné Hamburger Tlačidlá === */
+/* =================================== */
+.mobile-menu-toggle {
+    display: none; /* Skryté na desktope */
+    position: fixed;
+    top: var(--spacing-sm);
+    z-index: 100;
+    background: var(--color-orange-accent);
+    color: var(--color-text-dark);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-fast);
+}
+.mobile-menu-toggle:hover {
+    background: var(--color-orange-hover);
+    transform: scale(1.05);
+}
+#mobile-menu-left-toggle { left: var(--spacing-sm); }
+#mobile-menu-right-toggle { right: var(--spacing-sm); }
+
+
+/* =================================== */
+/* === ZMENA: 1. STĹPEC: SIDEBAR (ĽAVÝ) - PLÁVAJÚCI === */
+/* =================================== */
+
+.sidebar {
+    /* === ZMENA: Pozíciovanie === */
+    position: fixed;
+    top: var(--spacing-lg);
+    left: var(--spacing-md);
+    width: 216px;
+    height: calc(100vh - var(--spacing-lg) * 2);
+    z-index: 20;
+
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    
+    /* === ZMENA: Efekt skla === */
+    background: rgba(31, 41, 55, 0.8); /* --color-bg-light s 80% priehľadnosťou */
+    border: 1px solid rgba(55, 65, 81, 0.5); /* --color-border s 50% priehľadnosťou */
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-lg);
+    border-right: 1px solid rgba(55, 65, 81, 0.5); /* Ponecháme, ale priesvitný */
+    
+    transition: transform 0.3s ease; /* Pre mobilné zobrazenie */
+}
+
+.sidebar-header .logo {
+    display: flex;
+    flex-direction: column-reverse; /* <--- ZMENA: Zoradí prvky pod seba v opačnom poradí */
+    align-items: center; /* <--- PONECHANÉ: Centrovanie na stred */
+    /* justify-content: space-between; <-- ODSTRÁNENÉ: Už nie je relevantné */
+    gap: var(--spacing-lg); /* <--- PRIDANÉ: Malá medzera medzi textom a logom */
+    margin-bottom: var(--spacing-lg);
+    padding: 0; 
+    background: none;
+    box-shadow: none;
+    cursor: pointer; 
+}
+.logo .logo-img { 
+    width: 50px;
+    height: 50px;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.logo:hover .logo-img {
+    transform: scale(2.9) rotate(360deg);
+    filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
+    position: relative; 
+    z-index: 10; 
+}
+.logo h2 {
+    color: var(--color-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Štýl pre vyhľadávanie (v pravom paneli) */
+.search-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md); 
+}
+.search-container.hidden { display: none; }
+.search-container input[type="text"] {
+    width: 100%;
+    background: var(--color-bg); 
+    border: 1px solid var(--color-border); 
+    border-radius: var(--radius-md); 
+    padding: var(--spacing-sm); 
+    color: var(--color-text-primary); 
+    font-family: var(--font-secondary); 
+    font-size: 0.95rem;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast); 
+    outline: none; 
+}
+.search-container input[type="text"]::placeholder { color: var(--color-text-secondary); }
+.search-container input[type="text"]:focus {
+    border-color: var(--color-orange-accent); 
+    box-shadow: 0 0 0 2px var(--color-orange-accent); 
+}
+
+/* Animácia menu */
+@keyframes fill-border-reverse {
+    from { --grad-angle: 0deg; }
+    to { --grad-angle: -360deg; }
+}
+
+.main-menu {
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    overflow: visible; 
+}
+.main-menu ul { list-style: none; }
+.main-menu li { margin-bottom: var(--spacing-sm); }
+.main-menu li:last-child { margin-bottom: 0; }
+.main-menu li a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    color: var(--color-text-secondary);
+    background: transparent;
+    font-weight: 500;
+    position: relative; 
+    z-index: 2; 
+    text-decoration: none; 
+    overflow: hidden; 
+}
+.main-menu li a i { font-size: 1.1rem; }
+.main-menu li a:hover:not(.active) {
+    background: var(--color-bg-light); 
+    color: var(--color-text-primary); 
+    transform: translateX(4px);
+    box-shadow: var(--shadow-sm);
+}
+.main-menu li a.active {
+    color: var(--color-orange-accent); 
+    background: transparent; 
+    box-shadow: none;
+    transform: translateX(4px); 
+}
+.main-menu li a.active::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    background: var(--color-bg-light); 
+    border-radius: calc(var(--radius-md) - 2px); 
+    z-index: -1; 
+}
+.main-menu li a.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: var(--radius-md);
+    background: conic-gradient(
+        from 90deg at 50% 50%, 
+        var(--color-orange-accent) var(--grad-angle), 
+        transparent 0deg 
+    );
+    z-index: -2; 
+    animation: fill-border-reverse 0.8s linear forwards;
+}
+
+/* Päta sidebaru */
+.sidebar-footer {
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 0; 
+    background: transparent;
+}
+.user-initials {
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    border: 2px solid var(--color-orange-accent); 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-orange-accent);
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: var(--font-primary);
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+}
+.user-details { display: flex; flex-direction: column; }
+.user-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+}
+.user-position {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+/* =================================== */
+/* === ZMENA: MAIN CONTENT (Rolovateľná oblasť) === */
+/* =================================== */
+
+.main-content {
+    /* === ZMENA: Toto je teraz hlavná rolovateľná vrstva === */
+    width: 100%;
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    overflow: auto; /* Kľúčové: Tento stĺpec roluje */
+    
+    /* === ZMENA: Padding na OBOCH stranách === */
+    /* Vypočet: šírka panela + medzera + vnútorná medzera obsahu */
+    padding-left: calc(216px + var(--spacing-xs) + var(--spacing-xl));
+    padding-right: calc(270px + var(--spacing-md) + var(--spacing-lg));
+    padding-top: var(--spacing-sm);
+}
+
+/* Hlavička obsahu */
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* === ZMENA: Margin je 0, padding v .main-content robí odsadenie === */
+    margin: 0 0 var(--spacing-lg) 0; 
+    padding: var(--spacing-lg);
+    
+    background: rgba(31, 41, 55, 0.8);
+    border: 1px solid rgba(55, 65, 81, 0.5);
+    border-radius: var(--radius-lg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    
+    box-shadow: var(--shadow-md);
+    position: sticky; 
+    top: var(--spacing-sm); 
+    z-index: 10;
+}
+.employee-name-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md); 
+}
+.employee-badge {
+    width: 60px; 
+    height: 60px;
+    background: var(--color-orange-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.2);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.employee-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 184, 0, 0.4);
+    background: var(--color-orange-hover);
+}
+.employee-badge i {
+    font-size: 1.8rem; 
+    color: var(--color-text-dark); 
+}
+
+/* =================================== */
+/* === ZMENA: 3. STĹPEC: SIDEBAR (PRAVÝ) - PLÁVAJÚCI === */
+/* =================================== */
+
+.sidebar-right {
+    /* === ZMENA: Pozíciovanie === */
+    position: fixed; 
+    top: var(--spacing-lg); 
+    right: var(--spacing-md); 
+    width: 270px; 
+    height: calc(100vh - var(--spacing-lg) * 2); 
+    z-index: 20; 
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    
+    /* === EFEKT SKLA (Zostáva) === */
+    background: rgba(31, 41, 55, 0.8); 
+    border: 1px solid rgba(55, 65, 81, 0.5); 
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-lg); 
+    border-radius: var(--radius-lg); 
+    border-left: none; 
+    
+    transition: transform 0.3s ease; /* Pre mobilné zobrazenie */
+}
+
+.employee-list-container {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; 
+    min-height: 0; 
+}
+
+.sidebar-right h2 {
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 0; /* <-- ZMENA: Odsadenie rieši gap */
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+    background: transparent;
+}
+
+/* =================================== */
+/* === ZMENA: RESPONZIVITA (Mobil) === */
+/* =================================== */
+
+@media (max-width: 1200px) { 
+    .sidebar-right {
+        display: none; /* Pravý panel sa skryje */
+    }
+    .sidebar {
+        position: fixed; /* Ľavý panel zostáva viditeľný */
+    }
+    .main-content {
+        /* Obsah má padding už len pre ľavý panel */
+        padding-left: calc(216px + var(--spacing-lg) + var(--spacing-xl));
+        padding-right: var(--spacing-xl); /* Reset */
+    }
+}
+
+@media (max-width: 900px) {
+    /* === ZMENA: Kompletný mobilný layout === */
+    
+    .mobile-menu-toggle {
+        display: block; /* Zobraziť hamburgery */
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px; /* Trochu užší na mobile */
+        height: 100vh;
+        z-index: 1000; /* Nad všetkým */
+        border-radius: 0; /* Plná výška */
+        box-shadow: var(--shadow-lg);
+        
+        /* Skryté mimo obrazovky */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    .sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-right {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100vh;
+        z-index: 1000;
+        border-radius: 0;
+        box-shadow: var(--shadow-lg);
+
+        /* Skryté mimo obrazovky */
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+    .sidebar-right.is-open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        /* Obsah zaberá 100% a roluje sa */
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+        height: 100vh; 
+        overflow: auto; 
+    }
+    
+    .employee-header {
+        /* Hlavička už nie je sticky, lebo by sa prekrývala s mobilnými tlačidlami */
+        position: static; 
+        margin-top: 60px; /* Priestor pre hamburgery */
+    }
+    
+    .employee-name-section h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .employee-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .employee-badge {
+        margin-top: var(--spacing-md);
+    }
+
+    /* Zmenšíme karty na mobile */
+    .cp-module-layout,
+    .dashboard-container,
+    .ua-container,
+    .duty-schedule-container {
+        flex-direction: column;
+    }
+    .duty-groups-sidebar {
+        flex: 0 0 auto; /* Reset pevnej šírky */
+    }
+}
+
+/* =================================== */
+/* ŠTÝLY PRE MODÁLY (Bez zmeny) */
+/* =================================== */
+
+.delete-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10000; animation: fadeIn 0.2s ease;
+}
+.delete-modal {
+    background: var(--color-bg-light); border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg); width: 90%; max-width: 450px;
+    text-align: center; animation: slideUp 0.3s ease;
+}
+.delete-modal i { font-size: 2.5rem; color: #E53E3E; margin-bottom: var(--spacing-sm); }
+.delete-modal h3 { font-size: 1.4rem; margin-bottom: var(--spacing-xs); color: var(--color-text-primary); }
+.delete-modal p { color: var(--color-text-secondary); margin-bottom: var(--spacing-lg); font-size: 0.95rem; line-height: 1.5; }
+.modal-actions { display: flex; justify-content: center; gap: var(--spacing-sm); }
+.modal-btn {
+    border: none; border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: all var(--transition-fast); min-width: 120px;
+}
+.modal-btn.cancel { background: var(--color-border); color: var(--color-text-primary); }
+.modal-btn.cancel:hover { background: #4B5563; }
+.modal-btn.delete { background: #C53030; color: white; position: relative; overflow: hidden; }
+.modal-btn.delete:hover { background: #E53E3E; }
+.modal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.modal-btn .btn-loader {
+    display: none; width: 18px; height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: white;
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;
+}
+.modal-btn.loading .btn-text { display: none; }
+.modal-btn.loading .btn-loader { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9000; animation: fadeIn 0.2s ease;
+}
+.modal-overlay.hidden { display: none !important; }
+.modal-content {
+    background: var(--color-bg-light); border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
+    width: 90%; max-width: 900px; display: flex; flex-direction: column;
+    animation: slideUp 0.3s ease; overflow: hidden; 
+}
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--spacing-sm) var(--spacing-lg); border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg); 
+}
+.modal-header h2 { font-size: 1.4rem; color: var(--color-text-primary); margin: 0; }
+.modal-close {
+    background: none; border: none; font-size: 2rem; font-weight: 300;
+    color: var(--color-text-secondary); cursor: pointer;
+    line-height: 1; transition: all var(--transition-fast);
+}
+.modal-close:hover { color: #E53E3E; transform: rotate(90deg); }
+.modal-body { padding: var(--spacing-lg); overflow-y: auto; background: var(--color-bg); }
+.modal-body iframe {
+    width: 100%; height: 65vh; border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+.modal-footer {
+    padding: var(--spacing-sm) var(--spacing-lg); border-top: 1px solid var(--color-border);
+    display: flex; justify-content: flex-end;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+#change-password-modal input[type="password"] {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+#change-password-modal input[type="password"]:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.4);
+}
+
+#change-password-modal label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* =================================== */
+/* ŠTÝLY PRE MODULY (UA, Pohotovosť, CP, Admin) */
+/* =================================== */
+
+.content-scroll-area {
+    flex: 1; 
+    padding-bottom: var(--spacing-xl);
+    padding-top: var(--spacing-xs); 
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* === Dashboard === */
+.dashboard-container { display: flex; flex-direction: row; gap: var(--spacing-lg); }
+.dashboard-main { flex: 2; display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.dashboard-sidebar { flex: 1; }
+.dashboard-card {
+    background: var(--color-bg-light); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md); border-top: 4px solid var(--color-orange-accent);
+    transition: all var(--transition-normal); position: relative; overflow: hidden;
+}
+.dashboard-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
+    border-color: var(--color-orange-accent); 
+}
+.dashboard-card h2 {
+    color: var(--color-text-primary); font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* === Zoznamy zamestnancov (Globálne) === */
+#duty-list-items,
+#global-employees-list-items { 
+    list-style: none;
+    padding: 0;
+}
+#duty-list-items li,
+#global-employees-list-items li {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    /* === UPRAVENÉ === */
+    border-left: 4px solid transparent; /* Drží miesto pre čiaru */
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), padding-left var(--transition-fast);
+    cursor: pointer; 
+}
+#global-employees-list-items li:hover {
+    background-color: transparent; /* <-- ZMENA: Bez pozadia */
+    border-left-color: var(--color-orange-accent); /* <-- ZMENA: Zlatá čiara */
+    padding-left: calc(var(--spacing-sm) - 4px); /* <-- ZMENA: Odsadenie textu */
+}
+#duty-list-items li:last-child,
+#global-employees-list-items li:last-child {
+    border-bottom: none;
+}
+#global-employees-list-items li.active-global-item {
+    background-color: transparent; /* <-- ZMENA: Odstránené tmavé pozadie */
+    border-left: 4px solid var(--color-orange-accent);
+    padding-left: calc(var(--spacing-sm) - 4px);
+}
+#global-employees-list-items li.active-global-item .dashboard-emp-name {
+    color: var(--color-orange-accent);
+}
+.dashboard-emp-details { display: flex; flex-direction: column; line-height: 1.4; }
+.dashboard-emp-name { font-weight: 600; color: var(--color-text-primary); font-size: 0.95rem; }
+.dashboard-emp-position { font-size: 0.85rem; color: var(--color-text-secondary); font-style: italic; }
+@media (max-width: 1200px) {
+    .dashboard-container { flex-direction: column; }
+    .dashboard-main,
+    .dashboard-sidebar { flex: none; width: 100%; }
+}
+
+/* === FullCalendar === */
+#dashboard-calendar-render-area {
+    --fc-border-color: var(--color-border);
+    --fc-col-header-cell-border-color: var(--color-border);
+    --fc-daygrid-day-border-color: var(--color-border);
+    --fc-list-border-color: var(--color-border);
+    --fc-scrollgrid-border-color: var(--color-border);
+    --fc-table-border-color: var(--color-border);
+    --fc-text-color: var(--color-text-primary);
+    --fc-day-text-color: var(--color-text-primary);
+    --fc-list-day-text-color: var(--color-orange-accent); 
+    --fc-col-header-cell-text-color: #000000; 
+    --fc-button-text-color: var(--color-text-primary);
+    --fc-button-bg-color: var(--color-border);
+    --fc-button-border-color: var(--color-border);
+    --fc-button-hover-bg-color: #4B5563;
+    --fc-button-hover-border-color: #4B5563;
+    --fc-button-active-bg-color: #525f73;
+    --fc-button-active-border-color: #525f73;
+    --fc-day-today-bg-color: var(--color-orange-accent) 
+}
+.fc .fc-toolbar-title { color: var(--color-text-primary); font-family: var(--font-primary); }
+.fc-event-main { color: white !important; }
+
+/* === Modul: Príspevky UA === */
+.ua-container { display: flex; flex-direction: row; gap: var(--spacing-lg); }
+.ua-card {
+    background: var(--color-bg-light); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md); border-top: 4px solid var(--color-orange-accent); 
+    transition: all var(--transition-normal); position: relative; overflow: hidden; flex: 1; 
+}
+.ua-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
+    border-color: var(--color-orange-accent); 
+}
+#emailForm { display: flex; flex-direction: column; }
+#generateEmailBtn { align-self: flex-end; }
+.ua-card h2 {
+    color: var(--color-text-primary); font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+.ua-card p { color: var(--color-text-secondary); margin-bottom: var(--spacing-md); }
+.form-group { margin-bottom: var(--spacing-md); }
+.form-group:last-child { margin-bottom: 0; }
+.form-group label {
+    display: block; font-weight: 500;
+    color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);
+}
+.ua-btn {
+    border: none; border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.95rem; font-weight: 700; font-family: var(--font-secondary);
+    cursor: pointer; transition: all var(--transition-fast);
+}
+.ua-btn.primary { background: var(--color-blue-dark); color: var(--color-text-primary); }
+.ua-btn.primary:hover { background: #0D3E79; }
+.ua-btn.accent { background: var(--color-orange-accent); color: var(--color-text-dark); }
+.ua-btn.accent:hover { background: var(--color-orange-hover); }
+.ua-btn.delete-style { background: #C53030; color: white; }
+.ua-btn.delete-style:hover { background: #E53E3E; }
+.ua-btn.default {
+    background: transparent; color: var(--color-text-secondary); font-weight: 500; 
+    min-width: 100px; text-align: center; position: relative;
+    z-index: 2; overflow: hidden; border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+.ua-btn.default:hover {
+    background: transparent; color: var(--color-text-primary); 
+    border-color: var(--color-orange-accent); 
+}
+input[type="text"], select, textarea {
+    width: 100%; background: var(--color-bg); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--spacing-sm);
+    color: var(--color-text-primary); font-family: var(--font-secondary);
+    font-size: 1rem; margin-bottom: var(--spacing-sm); resize: none;
+}
+.ua-card input[type="text"]:focus,
+.ua-card select:focus,
+.ua-card textarea:focus {
+    outline: none; border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px var(--color-orange-accent);
+}
+.ua-card select {
+    -webkit-appearance: none; -moz-appearance: none; appearance: none; 
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23c7c8ca' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.75rem center;
+    background-size: 1em; padding-right: 2.5rem;
+}
+.ua-card select option { background: var(--color-bg-light); color: var(--color-text-primary); }
+.ua-card select option:hover,
+.ua-card select option:checked { background: var(--color-border) !important; color: var(--color-text-primary) !important; }
+.process-results { margin-top: var(--spacing-lg); }
+.process-results.hidden { display: none; }
+.process-results h4 {
+    color: var(--color-text-secondary); font-size: 1rem; font-weight: 500;
+    margin-bottom: var(--spacing-xs); padding-bottom: var(--spacing-xs);
+}
+#processResultsList {
+    list-style: none; padding: var(--spacing-sm); background: var(--color-bg); 
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    max-height: 180px; overflow-y: auto; 
+}
+#processResultsList li {
+    padding: var(--spacing-xs) 0; border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-primary); font-size: 0.9rem;
+    display: flex; justify-content: space-between; align-items: center;
+}
+#processResultsList li:last-child { border-bottom: none; }
+#processResultsList li strong {
+    color: var(--color-orange-accent); font-weight: 700;
+    font-size: 1rem; margin-left: var(--spacing-sm);
+}
+#processResultsList.empty {
+    color: var(--color-text-secondary); text-align: center;
+    padding-top: var(--spacing-lg); height: auto;
+}
+.file-upload-section { display: flex; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); }
+.drop-zone {
+    width: 100%; border: 2px dashed var(--color-border); 
+    border-radius: var(--radius-md); padding: var(--spacing-lg) var(--spacing-md);
+    text-align: center; cursor: pointer; transition: all var(--transition-fast);
+    background: var(--color-bg); position: relative; 
+}
+.drop-zone:hover,
+.drop-zone.dragover { background-color: var(--color-bg-hover); border-color: var(--color-orange-accent); }
+.drop-zone p { margin: 0; color: var(--color-text-secondary); }
+.drop-zone p strong { color: var(--color-text-primary); }
+.drop-zone input[type="file"] {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; z-index: 10; 
+}
+.file-actions { display: flex; gap: var(--spacing-sm); justify-content: flex-end; }
+.file-name-display { display: none; }
+.file-name-display span {
+    font-weight: 600; color: var(--color-text-primary); flex-grow: 1; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+}
+.file-name-display.hidden { display: none; }
+.drop-zone.file-selected p:nth-child(2) {
+    font-size: 1.1rem; font-weight: 600;
+    color: var(--color-text-primary); word-break: break-all; 
+}
+
+/* === Modul: Rozpis pohotovosti === */
+.duty-schedule-container { display: flex; flex-direction: row; gap: var(--spacing-lg); height: 100%; }
+.duty-groups-sidebar {
+    flex: 0 0 306px; background: var(--color-bg-light);
+    border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    padding: var(--spacing-lg); box-shadow: var(--shadow-md);
+    border-top: 4px solid var(--color-orange-accent);
+    display: flex; flex-direction: column; overflow-y: auto; 
+    transition: all var(--transition-normal);
+}
+.duty-groups-sidebar:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
+    border-color: var(--color-orange-accent); 
+}
+.duty-groups-sidebar h2 {
+    color: var(--color-text-primary); font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm); padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+#duty-groups-list { display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+.duty-group-card {
+    background: transparent; border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md);
+    transition: all var(--transition-fast);
+}
+.duty-group-card:hover {
+    box-shadow: var(--shadow-md); border-color: var(--color-orange-accent);
+    transform: translateY(-2px);
+}
+.duty-group-card h3 {
+    color: var(--color-orange-accent); font-size: 1.1rem;
+    margin-bottom: var(--spacing-xs); cursor: grab;
+}
+.duty-group-card ul { list-style: none; padding-left: 0; }
+.duty-group-card li { color: var(--color-text-primary); font-size: 0.9rem; line-height: 1.5; }
+.duty-hint-box {
+    margin-top: auto; padding: var(--spacing-sm); background: var(--color-bg);
+    border-radius: var(--radius-md); border: 1px solid var(--color-border);
+    display: flex; align-items: flex-start; gap: var(--spacing-sm);
+}
+.duty-hint-box i { color: var(--color-orange-accent); font-size: 1.1rem; padding-top: 4px; }
+.duty-hint-box span { color: var(--color-text-secondary); font-size: 0.85rem; line-height: 1.5; }
+.duty-schedule-main { flex: 1; display: flex; flex-direction: column; gap: var(--spacing-lg); min-width: 0; }
+.duty-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap;
+    padding: var(--spacing-lg); background: var(--color-bg-light); 
+    border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md); gap: var(--spacing-md);
+    border-top: 4px solid var(--color-orange-accent);
+    transition: all var(--transition-normal);
+}
+.duty-controls:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
+    border-color: var(--color-orange-accent); 
+}
+.duty-controls-selectors { display: flex; gap: var(--spacing-sm); }
+.duty-controls-actions { display: flex; gap: var(--spacing-sm); }
+.duty-controls-selectors select {
+    width: auto; min-width: 150px; background: var(--color-bg);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: var(--spacing-sm); color: var(--color-text-primary);
+    font-family: var(--font-secondary); font-size: 1rem; margin-bottom: 0; 
+    -webkit-appearance: none; -moz-appearance: none; appearance: none; 
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23c7c8ca' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.75rem center;
+    background-size: 1em; padding-right: 2.5rem;
+}
+.duty-controls-selectors select:focus {
+    outline: none; border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px var(--color-orange-accent);
+}
+.duty-weeks-container { display: flex; gap: var(--spacing-lg); overflow-x: auto; padding: var(--spacing-xs); padding-bottom: var(--spacing-lg); }
+.duty-week-card {
+    flex: 0 0 220px; background: var(--color-bg-light);
+    border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md); transition: all var(--transition-fast);
+    display: flex; flex-direction: column; height: 300px; 
+}
+.duty-week-card:hover {
+    border-color: var(--color-orange-accent); }
+.duty-week-header {
+    padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.duty-week-header h4 { font-size: 1.1rem; color: var(--color-text-primary); margin: 0; }
+.duty-week-header span { font-size: 0.85rem; color: var(--color-text-secondary); }
+.duty-week-dropzone {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: var(--spacing-md); text-align: center; color: var(--color-text-secondary);
+    border: 2px dashed transparent; transition: all var(--transition-fast);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.duty-week-dropzone i { font-size: 1.5rem; margin-bottom: var(--spacing-xs); }
+.duty-week-dropzone span { font-size: 0.9rem; }
+.duty-week-card.drag-over .duty-week-dropzone {
+    border-color: var(--color-orange-accent); background: var(--color-bg);
+    color: var(--color-orange-accent);
+}
+#duty-list-items li.reporting {
+    border-left: 4px solid var(--color-orange-accent); 
+}
+#duty-list-items li.reporting .dashboard-emp-name {
+    color: var(--color-orange-hover); font-weight: 700; 
+}
+.duty-group-card.is-assigned {
+    opacity: 0.5; background: var(--color-bg);
+    border-color: var(--color-border); cursor: not-allowed;
+}
+.duty-group-card.is-assigned:hover { transform: none; box-shadow: none; }
+.duty-group-card li.reporting { color: var(--color-orange-accent); font-weight: 700; }
+.duty-week-assigned-group {
+    flex: 1; display: flex; flex-direction: column; gap: 8px; 
+    padding: var(--spacing-sm); overflow-y: auto; 
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.employee-item-calendar {
+    background-color: var(--color-bg); color: var(--color-text-primary); 
+    padding: 10px 12px; border-radius: var(--radius-md);
+    border: 1px solid var(--color-border); cursor: pointer;
+    font-size: 0.9rem; font-weight: 500;
+    transition: all var(--transition-fast); user-select: none;
+    display: flex; justify-content: space-between; align-items: center; 
+}
+.employee-item-calendar:hover {
+    border-color: var(--color-orange-accent);
+    background-color: var(--color-bg-light); 
+    transform: translateX(2px);
+}
+.swap-icon { color: var(--color-orange-hover); font-size: 0.8rem; opacity: 0.7; margin-left: 8px; }
+.employee-item-calendar.reporting {
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 10px -2px var(--color-orange-accent);
+    background-color: rgba(188, 135, 0, 0.1); 
+    color: var(--color-orange-hover);
+    font-weight: 700;
+}
+.employee-item-calendar.swap-selected {
+    border-color: #e67e22; box-shadow: 0 0 12px 0px #e67e22;
+    border-width: 2px; animation: pulse-swap-dark 1s infinite alternate;
+}
+@keyframes pulse-swap-dark {
+  from { box-shadow: 0 0 8px -2px #e67e22; background-color: var(--color-bg); }
+  to { box-shadow: 0 0 15px 0px #e67e22; background-color: rgba(230, 126, 34, 0.1); }
+}
+
+/* --- Farby pre názvy skupín (Pohotovosť) --- */
+
+/* Skupina 1 - Oranžo-červená*/
+.duty-group-card[data-group-name="Skupina 1"] h3 {
+    color: #dd590d; 
+}
+
+/* Skupina 2 - Zelená */
+.duty-group-card[data-group-name="Skupina 2"] h3 {
+    color: #4CAF50;
+}
+
+/* Skupina 3 - Fialová */
+.duty-group-card[data-group-name="Skupina 3"] h3 {
+    color: #a855f7;
+}
+
+/* === Modul: Cestovný príkaz (CP) === */
+.cp-module-layout { display: grid; grid-template-columns: minmax(350px, 1.2fr) 2fr; gap: var(--spacing-lg); }
+.cp-employee-info-col { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+@media (max-width: 1200px) { .cp-module-layout { grid-template-columns: 1fr; } }
+.cp-fieldset-wrapper { margin-top: var(--spacing-lg); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-border); }
+.cp-legend {
+    font-family: var(--font-primary); font-size: 1.25rem; font-weight: 700;
+    color: var(--color-text-primary); margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm); border-bottom: 2px solid var(--color-bg); 
+    width: 100%;
+}
+.cp-employee-card {
+    background: var(--color-bg); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--spacing-md);
+    margin-top: var(--spacing-sm); box-shadow: var(--shadow-sm);
+}
+.cp-employee-card p {
+    margin: 0 0 12px 0; font-size: 0.875rem;
+    color: var(--color-text-secondary); line-height: 1.6;
+}
+.cp-employee-card p:last-child { margin-bottom: 0; }
+.cp-employee-card strong { display: block; color: var(--color-text-primary); font-weight: 600; margin-bottom: 4px; }
+.blurred-text {
+    color: transparent; text-shadow: 0 0 5px var(--color-text-secondary);
+    transition: all 0.3s ease; cursor: help; user-select: none; 
+}
+.blurred-text:hover { color: var(--color-text-primary); text-shadow: none; cursor: default; user-select: auto; }
+.form-group-cp { margin-bottom: var(--spacing-md); }
+.form-group-cp label {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 8px;
+    font-weight: 600; font-size: 0.875rem; color: var(--color-text-secondary);
+}
+.label-required { color: var(--color-orange-accent); }
+.form-group-cp input[type="text"],
+.form-group-cp input[type="date"],
+.form-group-cp select,
+.cp-vyuctovanie-riadok input[type="text"] {
+    width: 100%; background: var(--color-bg); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--spacing-sm);
+    color: var(--color-text-primary); font-family: var(--font-secondary);
+    font-size: 1rem; margin-bottom: 0; 
+}
+.form-group-cp input:focus,
+.form-group-cp select:focus,
+.cp-vyuctovanie-riadok input:focus {
+    outline: none; border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.4);
+}
+.cp-select-wrapper { position: relative; }
+.cp-select-wrapper select {
+    -webkit-appearance: none; -moz-appearance: none;
+    appearance: none; padding-right: 2.5rem;
+}
+.cp-select-wrapper::after {
+    content: ''; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 6px solid var(--color-text-secondary); pointer-events: none;
+}
+.cp-time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+.cp-time-block {
+    background: var(--color-bg); border-radius: var(--radius-md);
+    padding: var(--spacing-md); border: 1px solid var(--color-border);
+}
+.cp-time-block-title {
+    font-family: var(--font-primary); font-size: 1.1rem; font-weight: 600;
+    color: var(--color-text-primary); margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-border);
+}
+.cp-columns-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+.cp-accounting-container { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.cp-vyuctovanie-riadok {
+    display: grid; grid-template-columns: 100px 1fr 1fr 1fr;
+    gap: var(--spacing-sm); align-items: center; padding: var(--spacing-sm);
+    background: var(--color-bg); border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+.cp-row-label { font-weight: 600; color: var(--color-text-secondary); font-size: 0.875rem; }
+@media (max-width: 768px) { .cp-vyuctovanie-riadok { grid-template-columns: 1fr; } }
+.cp-button-container { display: flex; justify-content: flex-end; gap: var(--spacing-sm); margin-top: var(--spacing-lg); }
+.cp-form-start { margin-top: 0; border-top: none; }
+
+/* === Modul: Admin (Zamestnanci) === */
+.admin-panel-layout-main-only { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--spacing-lg); }
+.card {
+    background: var(--color-bg-light); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md); transition: all var(--transition-normal);
+    position: relative; overflow: hidden;
+    border-top: 4px solid var(--color-orange-accent);
+}
+.card::before { content: none; }
+.card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-orange-accent);
+}
+.card-header {
+    display: flex; align-items: center; gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+.card-header i { font-size: 1.5rem; color: var(--color-orange-accent); }
+.card-header h2 { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin: 0; }
+.clickable-card-title { cursor: pointer; transition: all var(--transition-fast); }
+.clickable-card-title:hover { color: var(--color-orange-accent); }
+.info-list { display: grid; grid-template-columns: 140px 1fr; gap: var(--spacing-md); }
+.info-list dt { font-weight: 600; color: var(--color-text-secondary); font-size: 0.9rem; }
+.info-list dd {
+    font-weight: 500; color: var(--color-text-primary);
+    padding: var(--spacing-xs) var(--spacing-md); background: var(--color-bg); 
+    border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+}
+.info-block { margin-bottom: var(--spacing-lg); }
+.info-block h3 {
+    font-size: 0.9rem; font-weight: 700; color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-sm);
+}
+.info-block p + h3 { margin-top: var(--spacing-md); }
+.info-block p {
+    padding: var(--spacing-sm) var(--spacing-md); background: var(--color-bg);
+    border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+    color: var(--color-text-primary); font-weight: 500;
+}
+.salary-grade {
+    font-size: 1.35rem !important; font-weight: 800 !important;
+    color: var(--color-orange-accent) !important; font-family: var(--font-primary);
+}
+.salary-tariff {
+    filter: blur(5px); transition: filter var(--transition-normal);
+    cursor: help; color: var(--color-text-secondary);
+}
+.salary-grade:hover .salary-tariff { filter: blur(0); }
+.info-block ul li:hover .salary-tariff { filter: blur(0); }
+.info-block ul {
+    list-style: none; padding: var(--spacing-md); background: var(--color-bg);
+    border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+    margin-bottom: var(--spacing-xs);
+}
+.info-block ul li {
+    background: none; border: none; border-radius: 0; padding: 0; margin: 0;
+    position: relative; padding-left: 2.5rem; margin-bottom: var(--spacing-sm);
+    color: var(--color-text-primary);
+}
+.info-block ul li:last-child { margin-bottom: 0; }
+.info-block ul li.list-subheading {
+    background: none !important; border: none !important; padding-left: 0;
+    margin-top: var(--spacing-md); margin-bottom: var(--spacing-sm);
+    font-weight: 700; color: var(--color-text-primary);
+}
+.info-block ul li.list-subheading::before { content: none !important; }
+.info-block ul li::before {
+    content: ''; position: absolute; left: var(--spacing-md);
+    color: var(--color-orange-accent); font-weight: 700;
+}
+.full-width-card {
+    grid-column: 1 / -1; max-height: calc(100vh - 200px);
+    display: flex; flex-direction: column;
+}
+.scrollable-content { flex: 1; overflow-y: auto; padding-right: var(--spacing-sm); }
+.card-close-btn {
+    position: absolute; top: var(--spacing-md); right: var(--spacing-md);
+    width: 40px; height: 40px; background: rgba(245, 87, 108, 0.1);
+    border: 1px solid rgba(245, 87, 108, 0.2); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all var(--transition-fast);
+    z-index: 10;
+}
+.card-close-btn:hover { background: #f5576c; transform: rotate(90deg); }
+.card-close-btn i { color: #f5576c; font-size: 1.25rem; }
+.card-close-btn:hover i { color: var(--color-text-primary); }
+@media (max-width: 1200px) { .cards-container { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+    .cards-container { grid-template-columns: 1fr; }
+    .info-list { grid-template-columns: 1fr; gap: var(--spacing-sm); }
+    .info-list dt { font-size: 0.8rem; }
+}
+
+/* =================================== */
+/* === Toast Notifikácie (Opravené) === */
+/* =================================== */
+
+/* Kontajner - fixná pozícia vpravo dole */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column; /* Nové sa pridávajú na koniec (dole), staré sa posúvajú hore */
+    gap: 10px; /* Medzera medzi notifikáciami */
+    pointer-events: none; /* Kliknutia prejdú cez prázdne miesta kontajnera */
+}
+
+/* Samotná notifikácia */
+.oznamenie {
+    /* ZMENA: Musí byť relative, aby sa ukladali pod seba vo flexboxe */
+    position: relative; 
+    pointer-events: auto; /* Aby sa dalo kliknúť na notifikáciu (napr. zavretie) */
+    
+    /* Vzhľad */
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-family: var(--font-secondary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text-dark);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    
+    /* Zarovnanie vpravo a šírka */
+    min-width: 300px;
+    max-width: 400px;
+    margin-left: auto; 
+
+    /* Animácia príchodu - začína mimo obrazovky vpravo */
+    transform: translateX(120%); 
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+}
+
+/* Stav po zobrazení */
+.oznamenie.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Farby podľa typu */
+.oznamenie.success { background-color: #4CAF50; color: white; border: none; }
+.oznamenie.error { background-color: #E53E3E; color: white; border: none; }
+.oznamenie.info { background-color: var(--color-orange-accent); color: var(--color-text-dark); }
+
+/* =================================== */
+/* DASHBOARD ROW - Kalendár a zoznam vedľa seba */
+/* =================================== */
+
+.dashboard-row {
+    display: flex;
+    gap: var(--spacing-md);
+    width: 100%;
+    align-items: flex-start;
+}
+
+.dashboard-calendar-card {
+    flex: 2;
+    min-width: 0;
+}
+
+.dashboard-duty-card {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.dashboard-duty-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dashboard-duty-card ul li {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    background: var(--color-bg-light);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--color-orange-accent);
+    transition: var(--transition-fast);
+}
+
+.dashboard-duty-card ul li:hover {
+    transform: translateX(4px);
+}
+
+/* Responzívnosť - na menších obrazovkách pod seba */
+@media (max-width: 1200px) {
+    .dashboard-row {
+        flex-direction: column;
+    }
+
+    .dashboard-duty-card {
+        max-width: 100%;
+    }
+}
+
+/* === OPRAVA: Čierna farba pre názvy dní v kalendári === */
+#dashboard-calendar-render-area .fc-col-header-cell-content {
+    color: #000000 !important;
+}
+
+.fc .fc-col-header-cell-content {
+    color: #000000 !important;
+}
+
+.fc-theme-standard .fc-scrollgrid .fc-col-header-cell {
+    color: #000000 !important;
+}
+
+/* --- NOVÉ: Kontajner pre notifikácie --- */
+/* Kontajner - fixná pozícia, aby bol vždy navrchu */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px; /* Alebo left: 50% + transform pre center */
+    z-index: 99999; /* Veľmi vysoké číslo, aby prekryl modály */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Kliknutia prejdú cez prázdny kontajner */
+}
+
+
+
+/* Animácia príchodu */
+.oznamenie.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* === EDITOVACÍ MÓD === */
+
+/* Zelený štýl pre aktívny edit mód (tlačidlo Uložiť) */
+.employee-badge.active-edit-mode {
+    background-color: #4CAF50 !important; /* Zelená */
+    color: white !important;
+    /* Zelená žiara (opravená z pôvodnej červenej) */
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    transform: scale(1.1);
+    transition: all var(--transition-fast);
+}
+
+/* Hover efekt - rovnako ako pri delete tlačidle */
+.employee-badge.active-edit-mode:hover {
+    background-color: #66BB6A !important; /* Svetlejšia zelená pri nabehnutí */
+    transform: scale(1.15); /* Mierne väčšie zväčšenie */
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); /* Intenzívnejšia zelená žiara */
+}
+
+.employee-badge.active-edit-mode i {
+    color: white !important;
+}
+
+/* Špecifický štýl pre tlačidlo Vymazať zamestnanca (červené) */
+#delete-employee-btn {
+    background-color: #C53030; /* Základná červená (Delete štýl) */
+    color: white;
+    margin-right: 8px; /* Odstup od ostatných tlačidiel */
+    transition: all var(--transition-fast);
+}
+
+#delete-employee-btn:hover {
+    background-color: #E53E3E; /* Svetlejšia červená pri nabehnutí myšou */
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(229, 62, 62, 0.6); /* Červená žiara */
+}
+
+#delete-employee-btn i {
+    color: white !important; /* Ikona bude biela */
+}
+
+/* Štýly pre inputy v edit móde */
+.info-list input,
+.info-block input,
+.employee-job-code-wrapper input {
+    width: 100%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    color: var(--color-text-primary);
+    font-family: var(--font-secondary);
+    font-size: 0.9rem;
+}
+
+.info-list input:focus,
+.info-block input:focus,
+.employee-job-code-wrapper input:focus {
+    border-color: var(--color-orange-accent);
+    outline: none;
+}
+
+.edit-select {
+    width: 100%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    color: var(--color-text-primary);
+    margin-bottom: 10px;
+}
+
+.edit-allowances-grid {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 8px;
+    align-items: center;
+}
+.edit-allowances-grid label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+/* Tlačidlo Zrušiť editovanie */
+#cancel-edit-btn {
+    background-color: #4B5563; /* Tmavšia sivá pre odlíšenie od Save tlačidla */
+    color: white;
+    margin-right: 8px; /* Malá medzera od tlačidla Uložiť */
+    transition: all var(--transition-fast);
+}
+
+#cancel-edit-btn:hover {
+    background-color: #6B7280; /* Svetlejšia sivá pri hoveri */
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+#cancel-edit-btn i {
+    color: white !important;
+    font-size: 1.5rem;
+}
+
+/* === SKELETON LOADING === */
+.skeleton {
+    background: linear-gradient(90deg, var(--color-bg-light) 25%, var(--color-border) 50%, var(--color-bg-light) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+    color: transparent !important; /* Skryje text */
+    min-height: 20px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Aplikácia na zoznam zamestnancov */
+.skeleton-list-item {
+    height: 45px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-md);
+}
+
+/* =================================== */
+/* LOGIN MODAL - HIGH-TECH */
+/* =================================== */
+
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Tmavomodrá z loga + priehľadnosť */
+    background: rgba(10, 44, 85, 0.5); 
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.login-modal {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-orange-accent);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 440px;
+    text-align: center;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-modal .logo {
+    margin-bottom: var(--spacing-lg); 
+}
+
+/* Štýl pre inputy */
+.login-modal input[type="password"],
+.login-modal input[type="email"] {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    transition: all var(--transition-fast);
+    margin-bottom: var(--spacing-sm);
+}
+
+.login-modal input[type="password"]:focus,
+.login-modal input[type="email"]:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.2);
+}
+
+/* Štýl pre tlačidlo */
+.login-modal button {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-orange-accent);
+    color: var(--color-text-dark); 
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    margin-top: var(--spacing-md);
+    box-shadow: 0 4px 15px rgba(255, 184, 0, 0.2);
+}
+
+.login-modal button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 184, 0, 0.3);
+    background: var(--color-orange-hover);
+}
+
+/* Chybové hlásenie */
+.login-error {
+    color: #fc8181;
+    background: rgba(254, 178, 178, 0.1);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-top: var(--spacing-md);
+    display: none; /* Dôležité: predvolene je skryté */
+    border: 1px solid rgba(254, 178, 178, 0.2);
+    font-size: 0.9rem;
+}
+
+/* --- ZMENA: Štýly pre OEČ a Kód v hlavičke karty --- */
+.employee-ids-container {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column; /* Pod sebou */
+    align-items: flex-end;  /* Zarovnanie doprava */
+    gap: 4px;               /* Medzera medzi riadkami */
+}
+
+.id-row {
+    display: block;
+    width: 100px;           /* Fixná šírka (cca na 8-10 číslic) */
+    text-align: right;      /* Text vnútri zarovnaný doprava */
+    white-space: nowrap;
+}
+
+.id-row.oec-text {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.id-row.kod-text {
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+/* Inputy v edit móde vo vnútri tohto kontajnera */
+.employee-ids-container input {
+    width: 100px !important; /* Vynútená šírka rovnaká ako text */
+    text-align: right !important;
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    height: auto !important;
+    font-size: 0.9rem !important;
+    background: var(--color-bg) !important;
+    border: 1px solid var(--color-border);
+}
+
+.employee-ids-container input:focus {
+    border-color: var(--color-orange-accent);
+    outline: none;
+}
+
+/* Indikácia, že iniciály sú klikateľné (len pre vedúceho) */
+.user-initials.clickable-logs {
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    border: 2px solid transparent; /* Príprava na hover efekt */
+}
+
+.user-initials.clickable-logs:hover {
+    transform: scale(1.1);
+    background-color: var(--color-orange-accent); /* Zvýraznenie farbou */
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+/* Indikácia prebiehajúceho sťahovania */
+.user-initials.downloading {
+    cursor: wait;
+    opacity: 0.7;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* =================================== */
+/* === DIZAJN KALENDÁRA - PÁSIK === */
+/* =================================== */
+.fc .fc-day-today {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+    background-color: var(--color-orange-accent); /* Oranžová farba kruhu */
+    color: var(--color-text-dark);                /* Tmavá farba čísla pre kontrast */
+    
+    border-radius: 50%;       /* Urobí z toho kruh */
+    width: 30px;              /* Pevná šírka */
+    height: 30px;             /* Pevná výška */
+    
+    /* Zarovnanie čísla presne do stredu kruhu */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Jemné odsadenie od rohu a zvýraznenie */
+    margin: 4px;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(188, 135, 0, 0.5); /* Jemná žiara */
+}
+
+/* Všeobecné nastavenie pre Background Events (Pohotovosť) */
+.fc-bg-event {
+    opacity: 0.5 !important;
+    
+    /* 1. POZÍCIA: POHOTOVOSŤ (Hore pod číslom) */
+    top: 34px !important;       
+    
+    height: 9px !important;     
+    left: 2px !important;       
+    right: 2px !important;      
+    border-radius: 4px;         
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2); 
+    z-index: 1; /* Základná vrstva */
+}
+
+/* Ak chcete, aby sa pri nabehnutí myšou pásik trochu zväčšil */
+.fc-bg-event:hover {
+    height: 18px !important;
+    transition: height 0.2s ease;
+}
+
+/* ========================================= */
+/* OPRAVA VZHĽADU INPUTU - ZABUDNUTÉ HESLO   */
+/* ========================================= */
+
+.forgot-password-wrapper {
+    text-align: right;
+    margin-bottom: var(--spacing-md);
+    margin-top: -5px;
+}
+
+#forgot-password-link {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+#forgot-password-link:hover {
+    color: var(--color-orange-accent);
+    text-decoration: underline;
+}
+
+#forgot-password-form input[type="email"] {
+    width: 100%;
+    background: var(--color-bg);        /* Tmavé pozadie (#111827) */
+    border: 1px solid var(--color-border); /* Tmavosivý rámik */
+    border-radius: var(--radius-md);    /* Zaoblené rohy (8px) */
+    padding: var(--spacing-sm);         /* Vnútorné odsadenie (1rem) */
+    color: var(--color-text-primary);   /* Svetlosivý text */
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+/* Efekt po kliknutí do poľa (Focus) */
+#forgot-password-form input[type="email"]:focus {
+    border-color: var(--color-orange-accent); /* Oranžová farba rámika */
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2); /* Jemná oranžová žiara */
+}
+
+/* Úprava textu labelu "E-mail:" nad poľom, aby ladil */
+#forgot-password-form label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* =================================== */
+/* OPRAVA: ZABUDOL SOM HESLO Z-INDEX   */
+/* =================================== */
+
+#forgot-password-modal {
+    z-index: 10001 !important; /* Musí byť viac ako 9999 (Login) */
+}
+
+/* =================================== */
+/* === TOOLTIP PRE KALENDÁR (HOVER) === */
+/* =================================== */
+
+.calendar-tooltip {
+    position: absolute;
+    background: rgba(17, 24, 39, 0.95); /* Tmavé pozadie */
+    border: 1px solid var(--color-orange-accent);
+    color: var(--color-text-primary);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    z-index: 10000;
+    pointer-events: none; /* Aby myš neinteragovala s bublinou */
+    box-shadow: var(--shadow-lg);
+    max-width: 250px;
+    
+    /* --- OPRAVA ZAROVNANIA --- */
+    white-space: normal;  /* Zmenené z pre-wrap (zruší zbytočné medzery z kódu) */
+    text-align: left;     /* Zarovná všetok text doľava */
+    /* ------------------------ */
+
+    backdrop-filter: blur(4px);
+    animation: fadeInTooltip 0.2s ease;
+}
+
+.calendar-tooltip strong {
+    color: var(--color-orange-accent);
+    display: block;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 2px;
+    
+    /* Pre istotu aj tu zarovnanie vľavo */
+    text-align: left; 
+}
+
+@keyframes fadeInTooltip {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================================== */
+/* === DASHBOARD LAYOUT ÚPRAVA === */
+/* =================================== */
+
+/* Wrapper pre pravý stĺpec (aby boli karty pod sebou) */
+.dashboard-right-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md); /* Medzera medzi privítaním a zoznamom */
+    min-width: 280px;
+    max-width: 400px;
+}
+
+/* Reset pôvodnej karty, aby sa prispôsobila novému kontajneru */
+.dashboard-duty-card {
+    flex: 1; /* Roztiahne sa na zvyšok výšky */
+    width: 100%;
+    max-width: 100%; /* Reset obmedzenia šírky */
+}
+
+/* === ŠTÝL PRE KARTU PRIVÍTANIA === */
+.welcome-card {
+    background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(188, 135, 0, 0.1) 100%);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100px;
+    border-left: 4px solid var(--color-orange-accent); /* Zlatý prúžok vľavo */
+    border-top: 1px solid var(--color-border); /* Prepísanie horného borderu z bežnej karty */
+}
+
+.welcome-content h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.welcome-content p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.welcome-icon {
+    font-size: 2.5rem;
+    color: var(--color-orange-accent);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.welcome-icon-wrapper {
+    display: flex;
+    flex-direction: column; /* Zoradí ikonu a text pod seba */
+    align-items: center;    /* Vycentruje ich vodorovne */
+    justify-content: center;
+    min-width: 60px;        /* Aby to neskákalo pri zmene čísla */
+}
+
+.welcome-temp {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Jemný tieň pre lepšiu čitateľnosť */
+}
+
+/* Responzivita pre mobil */
+@media (max-width: 1200px) {
+    .dashboard-right-col {
+        max-width: 100%; /* Na mobile na celú šírku */
+        width: 100%;
+    }
+}
+
+/* === ADMIN WIDGET (Stav systému) === */
+
+.admin-logs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px; /* Aby sa zoznam príliš nenatiahol */
+    overflow-y: auto;
+}
+
+.admin-logs-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-logs-list li:last-child {
+    border-bottom: none;
+}
+
+.log-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--color-orange-accent); /* Zvýraznenie času a mena */
+    font-weight: 600;
+}
+
+.log-action {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.admin-alert-box {
+    background: rgba(229, 62, 62, 0.1); /* Jemná červená */
+    border: 1px solid #E53E3E;
+    color: #fc8181;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.5s ease;
+}
+
+.admin-alert-box i {
+    font-size: 1.2rem;
+}
+
+/* =================================== */
+/* === WIDGET OZNAMY (NÁSTENKA) === */
+/* =================================== */
+
+.announcement-card {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    /* Modrý prúžok pre info/oznamy */
+    border-left: 4px solid #3182ce; 
+    position: relative;
+    transition: all var(--transition-normal);
+    margin-bottom: var(--spacing-md);
+    /* Skryté, kým sa nenačíta obsah */
+    display: none; 
+}
+
+.announcement-card.visible {
+    display: block;
+    animation: slideUp 0.4s ease;
+}
+
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.announcement-header h3 {
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.announcement-header i {
+    color: #3182ce; /* Modrá ikona */
+}
+
+.announcement-date {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.announcement-content {
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap; /* Zachová riadkovanie */
+}
+
+.announcement-edit-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    padding: 4px;
+}
+
+.announcement-edit-btn:hover {
+    color: var(--color-orange-accent);
+}
+
+/* =================================== */
+/* ÚPRAVA ROZOSTUPOV V KALENDÁRI       */
+/* =================================== */
+
+/* 1. Posunutie guličiek (udalostí) nižšie */
+.fc-daygrid-day-events {
+    /* Pôvodne je to hneď pod číslom dňa. 
+       Pridaním margin-top vytvoríme medzeru pre pásik + extra vzduch. */
+    margin-top: 15px !important; 
+    
+    /* Voliteľné: Ak chcete, aby guličky mali odstup aj od seba navzájom */
+    padding-top: 5px; 
+}
+
+/* 2. (Voliteľné) Jemné posunutie pásika vyššie */
+/* Ak chcete, aby bol pásik bližšie k číslu dňa a ďalej od guličky, 
+   upravte existujúcu triedu .fc-bg-event takto: */
+.fc-bg-event {
+    /* Zmeňte pôvodných 36px na napr. 32px */
+    top: 34px !important; 
+}
+
+/* =================================== */
+/* === IZS PÁSIKY V KALENDÁRI === */
+/* =================================== */
+
+/* 2. POZÍCIA: IZS Denná - Zelená (Stred) */
+/* Výpočet: 34px (pohotovosť) + 6px (výška) + 3px (medzera) = 43px */
+.izs-strip-day {
+    top: 63px !important; 
+    left: 2px !important;
+    right: 66% !important;
+    background-color: #4FC3F7 !important;
+    border-radius: 4px;
+    opacity: 0.5 !important;
+    height: 9px !important;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    z-index: 2; 
+}
+
+/* 3. POZÍCIA: IZS Nočná - Žltá (Dole) */
+/* Výpočet: 43px (denná) + 6px (výška) + 3px (medzera) = 52px */
+.izs-strip-night {
+    top: 72px !important; 
+    left: 66% !important;
+    right: 2px !important;
+    background-color: #FFC000 !important;
+    border-radius: 4px;
+    opacity: 0.5 !important;
+    height: 9px !important;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    z-index: 3; 
+}
+
+/* Hover efekt ostáva rovnaký */
+.izs-strip-day:hover,
+.izs-strip-night:hover {
+    height: 18px !important;
+    z-index: 18;
+    transition: height 0.2s ease;
+}
+
+/* === ÚPRAVA: POHOTOVOSTNÉ PÁSIKY PO DŇOCH === */
+.pohotovost-strip-day {
+    /* Pozícia zdedená z .fc-bg-event (top: 34px), tu môžeme doladiť okraje */
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+    border-radius: 4px !important; /* Zaoblenie pre každý deň */
+    left: 11% !important;
+    right: 11% !important;
+    opacity: 1 !important;
+    /* Ak chcete, aby reagovali na hover rovnako ako IZS */
+    transition: height 0.2s ease;
+    z-index: 1;
+}
+
+.pohotovost-strip-day:hover {
+    height: 18px !important;
+    z-index: 10;
+}
+
+/* =================================== */
+/* === FILTRE KALENDÁRA === */
+/* =================================== */
+
+.calendar-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-header-row h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.calendar-filters {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    user-select: none;
+    transition: color var(--transition-fast);
+}
+
+.filter-label:hover {
+    color: var(--color-text-primary);
+}
+
+/* Skryjeme defaultný checkbox */
+.filter-label input[type="checkbox"] {
+    display: none;
+}
+
+/* Dizajn farebnej bodky */
+.filter-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid transparent;
+    transition: all var(--transition-fast);
+    opacity: 0.4; /* Defaultne vypnuté/stlmené */
+    background-color: var(--color-border);
+}
+
+/* Farby pre bodky */
+.dot-orange { background-color: #dd590d; } /* Pohotovosť */
+.dot-blue   { background-color: #4FC3F7; } /* IZS Denná */
+.dot-yellow { background-color: #FFC000; } /* IZS Nočná */
+
+/* Stav: ZASKRTNUTÉ (Aktívne) */
+.filter-label input[type="checkbox"]:checked + .filter-dot {
+    opacity: 1;
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+/* Špecifické žiary pre aktívne stavy */
+.filter-label input[type="checkbox"]:checked + .dot-orange { box-shadow: 0 0 8px rgba(221, 89, 13, 0.4); }
+.filter-label input[type="checkbox"]:checked + .dot-blue   { box-shadow: 0 0 8px rgba(79, 195, 247, 0.4); }
+.filter-label input[type="checkbox"]:checked + .dot-yellow { box-shadow: 0 0 8px rgba(255, 192, 0, 0.4); }
+
+/* Responzivita filtrov */
+@media (max-width: 600px) {
+    .calendar-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .calendar-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
