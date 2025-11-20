@@ -1,3 +1,54 @@
+/* =====================================================================
+   OKR PORTÁL 2025 - PROFESIONÁLNE USPORIADANÉ CSS
+   Vytvorené: 20.11.2025
+   Autor: majky
+   =====================================================================
+
+   ŠTRUKTÚRA SÚBORU:
+   -----------------------------------------------------------------------
+
+   📌 ZÁKLAD
+      1. CSS Premenné (:root, @property)
+      2. Globálny reset (*, body, typography)
+      3. Scrollbar
+      4. Utility classes
+
+   📌 LAYOUT
+      5. Portal Container
+      6. Mobilné menu tlačidlá
+      7. Sidebar (ľavý) - navigácia
+      8. Main Content (stredná časť)
+      9. Right Sidebar - zamestnanci
+
+   📌 KOMPONENTY
+      10. Vyhľadávanie
+      11. Modály (delete, password, document viewer)
+      12. Formulárové prvky
+      13. Tlačidlá
+      14. Toast notifikácie
+
+   📌 MODULY APLIKÁCIE
+      15. Dashboard (kalendár, stats, widgety)
+      16. UA Modul (príspevky na stravné)
+      17. Pohotovosť (duty schedule)
+      18. Cestovný príkaz (CP)
+      19. Admin Panel
+
+   📌 ŠPECIALIZOVANÉ
+      20. Login a autentifikácia
+      21. FullCalendar custom styling
+
+   📌 RESPONZIVITA
+      22. Tablet (max-width: 1024px)
+      23. Mobile (max-width: 768px)
+
+   📌 ANIMÁCIE
+      24. Keyframes a transitions
+
+   =====================================================================
+*/
+
+
 /* =================================== */
 /* OKR portal 2025                     */
 /* =================================== */
@@ -1655,25 +1706,24 @@ input[type="text"], select, textarea {
     box-shadow: 0 0 10px rgba(188, 135, 0, 0.5); /* Jemná žiara */
 }
 
+/* Všeobecné nastavenie pre Background Events (Pohotovosť) */
 .fc-bg-event {
-    /* 1. Zabezpečí sýtu farbu (vypne priehľadnosť) */
-    opacity: 1 !important;
-
-    /* 2. Zmení výplň na pásik */
-    top: auto !important;       /* Odpojí od vrchu bunky */
-    top: 36px !important;       /* Pripne na spodok bunky */
-    height: 6px !important;     /* Výška pásika (upravte podľa potreby, napr. 4px až 10px) */
+    opacity: 0.5 !important;
     
-    /* 3. Dizajnové vylepšenia (voliteľné) */
-    left: 2px !important;       /* Jemné odsadenie zľava */
-    right: 2px !important;      /* Jemné odsadenie sprava */
-    border-radius: 4px;         /* Zaoblené rohy pásika */
-    box-shadow: 0 -1px 2px rgba(0,0,0,0.2); /* Jemný tieň pre 3D efekt */
+    /* 1. POZÍCIA: POHOTOVOSŤ (Hore pod číslom) */
+    top: 34px !important;       
+    
+    height: 9px !important;     
+    left: 2px !important;       
+    right: 2px !important;      
+    border-radius: 4px;         
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2); 
+    z-index: 1; /* Základná vrstva */
 }
 
 /* Ak chcete, aby sa pri nabehnutí myšou pásik trochu zväčšil */
 .fc-bg-event:hover {
-    height: 10px !important;
+    height: 18px !important;
     transition: height 0.2s ease;
 }
 
@@ -1753,7 +1803,12 @@ input[type="text"], select, textarea {
     pointer-events: none; /* Aby myš neinteragovala s bublinou */
     box-shadow: var(--shadow-lg);
     max-width: 250px;
-    white-space: pre-wrap; /* Zachovanie riadkovania */
+    
+    /* --- OPRAVA ZAROVNANIA --- */
+    white-space: normal;  /* Zmenené z pre-wrap (zruší zbytočné medzery z kódu) */
+    text-align: left;     /* Zarovná všetok text doľava */
+    /* ------------------------ */
+
     backdrop-filter: blur(4px);
     animation: fadeInTooltip 0.2s ease;
 }
@@ -1764,6 +1819,9 @@ input[type="text"], select, textarea {
     margin-bottom: 4px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 2px;
+    
+    /* Pre istotu aj tu zarovnanie vľavo */
+    text-align: left; 
 }
 
 @keyframes fadeInTooltip {
@@ -1973,4 +2031,85 @@ input[type="text"], select, textarea {
 
 .announcement-edit-btn:hover {
     color: var(--color-orange-accent);
+}
+
+/* =================================== */
+/* ÚPRAVA ROZOSTUPOV V KALENDÁRI       */
+/* =================================== */
+
+/* 1. Posunutie guličiek (udalostí) nižšie */
+.fc-daygrid-day-events {
+    /* Pôvodne je to hneď pod číslom dňa. 
+       Pridaním margin-top vytvoríme medzeru pre pásik + extra vzduch. */
+    margin-top: 15px !important; 
+    
+    /* Voliteľné: Ak chcete, aby guličky mali odstup aj od seba navzájom */
+    padding-top: 5px; 
+}
+
+/* 2. (Voliteľné) Jemné posunutie pásika vyššie */
+/* Ak chcete, aby bol pásik bližšie k číslu dňa a ďalej od guličky, 
+   upravte existujúcu triedu .fc-bg-event takto: */
+.fc-bg-event {
+    /* Zmeňte pôvodných 36px na napr. 32px */
+    top: 34px !important; 
+}
+
+/* =================================== */
+/* === IZS PÁSIKY V KALENDÁRI === */
+/* =================================== */
+
+/* 2. POZÍCIA: IZS Denná - Zelená (Stred) */
+/* Výpočet: 34px (pohotovosť) + 6px (výška) + 3px (medzera) = 43px */
+.izs-strip-day {
+    top: 63px !important; 
+    left: 2px !important;
+    right: 66% !important;
+    background-color: #4FC3F7 !important;
+    border-radius: 4px;
+    opacity: 0.5 !important;
+    height: 9px !important;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    z-index: 2; 
+}
+
+/* 3. POZÍCIA: IZS Nočná - Žltá (Dole) */
+/* Výpočet: 43px (denná) + 6px (výška) + 3px (medzera) = 52px */
+.izs-strip-night {
+    top: 72px !important; 
+    left: 66% !important;
+    right: 2px !important;
+    background-color: #FFC000 !important;
+    border-radius: 4px;
+    opacity: 0.5 !important;
+    height: 9px !important;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    z-index: 3; 
+}
+
+/* Hover efekt ostáva rovnaký */
+.izs-strip-day:hover,
+.izs-strip-night:hover {
+    height: 18px !important;
+    z-index: 18;
+    transition: height 0.2s ease;
+}
+
+/* === ÚPRAVA: POHOTOVOSTNÉ PÁSIKY PO DŇOCH === */
+.pohotovost-strip-day {
+    /* Pozícia zdedená z .fc-bg-event (top: 34px), tu môžeme doladiť okraje */
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+    border-radius: 4px !important; /* Zaoblenie pre každý deň */
+    left: 11% !important;
+    right: 11% !important;
+    opacity: 1 !important;
+    /* Ak chcete, aby reagovali na hover rovnako ako IZS */
+    transition: height 0.2s ease;
+    z-index: 1;
+}
+
+.pohotovost-strip-day:hover {
+    height: 18px !important;
+    z-index: 10;
 }
