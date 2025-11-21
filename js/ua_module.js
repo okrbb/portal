@@ -302,7 +302,9 @@ S pozdravom`;
                 }
 
                 const subject = emailSubject.value;
-                const body = emailBody.value;
+                
+                let rawBody = emailBody.value;
+                const bodyForMailto = rawBody.replace(/\r?\n/g, "\r\n");
                 const email = emailData[selectedObec] || '';
                 
                 generateExcelForObec(selectedObec); 
@@ -366,4 +368,5 @@ S pozdravom`;
             console.error('Kritická chyba: Nepodarilo sa načítať dáta z Firestore (kolekcia towns_em).', e);
             alert('CHYBA: Nepodarilo sa načítať databázu e-mailov z Firestore. Modul Príspevky UA sa nemôže spustiť. Skontrolujte konzolu (F12) a pripojenie k internetu.');
         });
+
 }
