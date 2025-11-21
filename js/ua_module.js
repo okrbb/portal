@@ -302,21 +302,29 @@ S pozdravom`;
                 }
 
                 const subject = emailSubject.value;
-                
+                // Získame text tela e-mailu
                 let rawBody = emailBody.value;
+
+                // OPRAVA: Normalizácia koncov riadkov pre Windows/Outlook (CRLF)
+                // Toto pomôže e-mailovému klientovi správne pochopiť odseky
                 const bodyForMailto = rawBody.replace(/\r?\n/g, "\r\n");
+
                 const email = emailData[selectedObec] || '';
                 
                 generateExcelForObec(selectedObec); 
 
-                navigator.clipboard.writeText(body).then(() => {
+                // Kopírovanie do schránky (používame pôvodný text, tam stačí \n)
+                navigator.clipboard.writeText(rawBody).then(() => {
                     showToast('Telo e-mailu skopírované. Otváram e-mailového klienta...', TOAST_TYPE.SUCCESS);
                 }).catch(err => {
                     console.error('Chyba: Nepodarilo sa skopírovať text do schránky: ', err);
                     showToast('Chyba: Telo e-mailu sa nepodarilo skopírovať.', TOAST_TYPE.ERROR);
                 });
 
-                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                // Vytvorenie mailto odkazu s opraveným kódovaním riadkov
+                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyForMailto)}`;
+                
+                // Otvorenie klienta
                 window.location.href = mailtoLink;
             });
 
@@ -370,3 +378,4 @@ S pozdravom`;
         });
 
 }
+
