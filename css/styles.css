@@ -2201,3 +2201,33 @@ input[type="text"], select, textarea {
         justify-content: space-between;
     }
 }
+
+/* Voliteľné doplnenie do styles.css */
+#bbk-file-list-ul li {
+    padding: 8px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-text-primary);
+}
+
+/* Štýl pre inputy v hlavičke karty (BB Kraj) */
+.header-input {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px 10px;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    font-family: var(--font-secondary);
+    width: 100%;
+    margin-bottom: 0 !important; /* Prepíše globálny margin pre inputy */
+    transition: border-color var(--transition-fast);
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2);
+}
