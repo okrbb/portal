@@ -67,6 +67,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#" data-target="bbk-module">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>Rozpis pohotovosti BB kraj</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" data-target="izs-module">
                             <i class="fas fa-calendar-days"></i>
                             <span>Rozpis služieb IZS</span>
@@ -455,6 +461,54 @@
                                         </div>
                                     </div>
                                     <div id="izs-module" class="module-content hidden"></div>
+                
+                <!-- KARTA: Rozpis pohotovosti BB kraj -->
+                <div id="bbk-module" class="module-content hidden">
+                    <div class="ua-container" style="flex-direction: column;">
+                        
+                        <div class="ua-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                                
+                                <div style="flex: 1; min-width: 250px;">
+                                    <h2 style="margin: 0; border: none; padding: 0;">Rozpis pohotovosti BB kraj</h2>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="display: flex; flex-direction: column; width: 100px;">
+                                        <label for="bbk-year-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Rok</label>
+                                        <input type="number" id="bbk-year-input" placeholder="Rok" class="header-input">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; width: 100px;">
+                                        <label for="bbk-week-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Týždeň</label>
+                                        <input type="number" id="bbk-week-input" min="1" max="53" placeholder="Týždeň" class="header-input">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="file-upload-section" style="flex-direction: column; align-items: stretch;">
+                                <div id="bbk-drop-zone" class="drop-zone">
+                                    <p><strong>Kliknite alebo presuňte súbory .xlsx sem</strong></p>
+                                    <p>(Môžete vybrať viac súborov naraz)</p>
+                                    <input type="file" id="bbk-file-input" accept=".xlsx" multiple style="display: none;"> 
+                                </div>
+                            </div>
+
+                            <div class="file-actions" style="margin-top: 1.5rem;">
+                                <button id="bbk-process-btn" class="ua-btn accent" disabled>
+                                    <i class="fas fa-file-export"></i> Spracovať a stiahnuť
+                                </button>
+                                <button id="bbk-clear-btn" class="ua-btn delete-style">Vymazať všetko</button>
+                            </div>
+
+                            <div id="bbk-file-list" class="process-results hidden" style="margin-top: 1rem;">
+                                <h4>Zoznam súborov na spracovanie:</h4>
+                                <ul id="bbk-file-list-ul" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--color-border); padding: 10px; border-radius: 4px;"></ul>
+                            </div>
+                            
+                            <div id="bbk-status-msg" style="margin-top:10px; text-align:center; font-weight:bold;"></div>
+                        </div>
+                    </div>
+                </div> 
 
                 <!-- KARTA: Príspevky UA -->
                 <div id="ua-contributions-module" class="module-content hidden">
