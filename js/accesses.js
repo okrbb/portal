@@ -45,6 +45,20 @@ export const Permissions = {
                 if (user.kod === '28845' || user.id === '28845') return true;
                 if (user.kod === '28852' || user.id === '28852') return true;
                 return false;
+            
+            // --- AKTUALIZOVANÉ PRE BB KRAJ ---
+            case 'bbk-module':
+                // 1. Pôvodné výnimky (konkrétni ľudia)
+                if (user.kod === '28845' || user.id === '28845') return true;
+                if (user.kod === '28852' || user.id === '28852') return true;
+                
+                // 2. NOVÉ: Prístup pre všetkých operátorov linky 112
+                if (user.funkcia && user.funkcia.toLowerCase().includes('operátor linky 112')) {
+                    return true;
+                }
+                
+                return false;
+            // --------------------------------
 
             case 'ua-contributions-module':
                 if (user.id === '28841' || user.kod === '28841') return true;

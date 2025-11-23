@@ -11,6 +11,7 @@ import { debounce, handleError, showToast, TOAST_TYPE } from './utils.js';
 // === 2. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
 import { initializeCPModule, displayCPEmployeeDetails } from './cp_module.js';
 import { initializeSCHDModule } from './schd_module.js';
+import { initializeBBKModule } from './schd_bbkraj_module.js';
 import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
 import { initializeAdminModule, displayEmployeeDetails, activateGlobalExport } from './emp_module.js';
@@ -238,6 +239,7 @@ const searchInput = document.getElementById('global-employee-search');
 let isAdminModuleInitialized = false; 
 let isCPModuleInitialized = false;
 let isSCHDModuleInitialized = false; 
+let isBBKModuleInitialized = false;
 let isIZSModuleInitialized = false;
 let isUAModuleInitialized = false;
 
@@ -310,6 +312,18 @@ menuLinks.forEach(link => {
             
             if (oecElement) {
                 oecElement.remove();
+            }
+        }
+
+        // Vnútri if (targetId === 'bbk-module'...)
+        if (targetId === 'bbk-module' && !isBBKModuleInitialized) {
+            try {
+                if (db) {
+                    initializeBBKModule(db, activeUser);
+                    isBBKModuleInitialized = true;
+                }
+            } catch (e) {
+                console.error("Chyba pri inicializácii BBK modulu:", e);
             }
         }
 
