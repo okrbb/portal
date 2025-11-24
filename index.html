@@ -220,7 +220,9 @@
                         <div class="cp-employee-info-col">
                             <div class="dashboard-card" id="cp-employee-detail-card">
                                 <div class="cp-fieldset-wrapper cp-form-start">
-                                    <legend class="cp-legend">Detail zamestnanca</legend>
+                                    <legend class="cp-legend">Zamestnanec
+                                    <i class="fas fa-pen-to-square edit-iban-icon" id="btn-edit-iban" title="Upraviť IBAN zamestnanca"></i>
+                                    </legend>
                                     <div id="cp-employee-details" class="cp-employee-card">
                                         <p>Vyberte zamestnanca z globálneho zoznamu vpravo kliknutím.</p>
                                     </div>
@@ -715,12 +717,36 @@
                         <textarea id="announcement-text" rows="6" placeholder="Sem napíšte text oznamu..." style="width: 100%;"></textarea>
                     </div>
                     <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem; display: flex; justify-content: space-between;">
-                        <button type="button" id="btn-delete-announcement" class="ua-btn delete-style">Zmazať oznam</button>
-                        <button type="submit" class="ua-btn accent">Zverejniť</button>
+                        <button type="button" id="btn-delete-announcement" class="ua-btn default delete-hover">Zmazať oznam</button>
+                        <button type="submit" class="ua-btn default">Zverejniť</button>
                     </div>
                 </form>
             </div>
         </div>
+    </div>
+
+     <!-- IBAN -->
+    <div id="iban-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Upraviť IBAN</h2>
+            <button id="close-iban-modal" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 15px; color: var(--color-text-secondary);">
+                Zadajte číslo účtu (IBAN) pre vybraného zamestnanca.
+            </p>
+            <form id="iban-form">
+                <div class="form-group">
+                    <label for="iban-input">IBAN:</label>
+                    <input type="text" id="iban-input" placeholder="SK00 0000 0000 0000 0000 0000">
+                </div>
+                <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem;">
+                    <button type="submit" class="ua-btn default" style="width: 100%;">Uložiť</button>
+                </div>
+            </form>
+        </div>
+    </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
