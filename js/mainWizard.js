@@ -1239,6 +1239,10 @@ function setupPasswordChangeLogic() {
                     // B. Zmena hesla
                     await user.updatePassword(newPass);
 
+                    // --- NOVÉ: Logovanie úspechu ---
+                    await logUserAction("ZMENA_HESLA", "Používateľ si úspešne zmenil heslo.", true);
+                    // ------------------------------
+
                     // Úspech
                     showToast("Heslo bolo úspešne zmenené.", "success"); // Použitie stringu 'success' ak TOAST_TYPE nie je dostupný v scope
                     changePassModal.classList.add('hidden');
@@ -1251,6 +1255,11 @@ function setupPasswordChangeLogic() {
                     if (error.code === 'auth/wrong-password') msg = "Zadali ste nesprávne súčasné heslo.";
                     else if (error.code === 'auth/weak-password') msg = "Nové heslo je príliš slabé.";
                     else if (error.code === 'auth/too-many-requests') msg = "Príliš veľa pokusov. Skúste to neskôr.";
+
+                    // --- NOVÉ: Logovanie chyby ---
+                    // Logujeme aj špecifickú správu (msg), aby admin vedel, prečo to zlyhalo
+                    await logUserAction("ZMENA_HESLA", "Zlyhal pokus o zmenu hesla", false, msg);
+                    // ----------------------------
                     
                     showError(msg);
                 } finally {
