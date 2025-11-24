@@ -2237,3 +2237,19 @@ input[type="text"], select, textarea {
     border-color: #E53E3E !important; /* Červené orámovanie */
     /* color: #E53E3E !important;        /* (Voliteľné) Zmení aj farbu textu na červenú pre lepší efekt */
 }
+
+/* === Editácia IBAN v CP module === */
+.edit-iban-icon {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-left: 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    opacity: 0.7;
+}
+
+.edit-iban-icon:hover {
+    color: var(--color-orange-accent);
+    opacity: 1;
+    transform: scale(1.1);
+}
