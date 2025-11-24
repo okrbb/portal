@@ -334,8 +334,8 @@
                                 </div>
                                 
                                 <div class="cp-button-container">
-                                    <button type="button" id="btn-clear-cp-form" class="ua-btn delete-style"><span>Vymazať formulár</span></button>
-                                    <button type="submit" id="generate-btn" class="ua-btn accent">Generovať cestovný príkaz</span></button>
+                                    <button type="button" id="btn-clear-cp-form" class="ua-btn default delete-hover"><span>Vymazať formulár</span></button>
+                                    <button type="submit" id="generate-btn" class="ua-btn default">Generovať cestovný príkaz</span></button>
                                 </div>
                             </form>
                         </div> 
@@ -382,8 +382,8 @@
                                 </div>
                                 <div class="duty-controls-actions">
                                     <button id="duty-preview-btn" class="ua-btn default">Náhľad rozpisu</button>
-                                    <button id="duty-download-btn" class="ua-btn accent">Stiahnuť výkaz</button>
-                                    <button id="duty-delete-btn" class="ua-btn delete-style">Vymazať rozpis</button>
+                                    <button id="duty-download-btn" class="ua-btn default">Stiahnuť výkaz</button>
+                                    <button id="duty-delete-btn" class="ua-btn default delete-hover">Vymazať rozpis</button>
                                 </div>
                             </div>
                             
@@ -429,7 +429,7 @@
 
                             <div class="file-actions" style="margin-top: 1.5rem;">
                                 <button id="izs-process-btn" class="ua-btn default">Spracovať</button>
-                                <button id="izs-clear-btn" class="ua-btn default">Vymazať</button>
+                                <button id="izs-clear-btn" class="ua-btn default delete-hover">Vymazať</button>
                             </div>
                         </div>
                     </div>
@@ -487,17 +487,17 @@
 
                             <div class="file-upload-section" style="flex-direction: column; align-items: stretch;">
                                 <div id="bbk-drop-zone" class="drop-zone">
-                                    <p><strong>Kliknite alebo presuňte súbory .xlsx sem</strong></p>
-                                    <p>(Môžete vybrať viac súborov naraz)</p>
+                                    <p><strong>Presuňte súbory .xlsx sem alebo kliknite pre výber súboru</strong></p>
+                                    <p>(môžete vybrať viac súborov naraz)</p>
                                     <input type="file" id="bbk-file-input" accept=".xlsx" multiple style="display: none;"> 
                                 </div>
                             </div>
 
                             <div class="file-actions" style="margin-top: 1.5rem;">
-                                <button id="bbk-process-btn" class="ua-btn accent" disabled>
-                                    <i class="fas fa-file-export"></i> Spracovať a stiahnuť
+                                <button id="bbk-process-btn" class="ua-btn default" disabled>
+                                    Spracovať a stiahnuť
                                 </button>
-                                <button id="bbk-clear-btn" class="ua-btn delete-style">Vymazať všetko</button>
+                                <button id="bbk-clear-btn" class="ua-btn default delete-hover">Vymazať všetko</button>
                             </div>
 
                             <div id="bbk-file-list" class="process-results hidden" style="margin-top: 1rem;">
@@ -528,7 +528,7 @@
                                 </div>
                                 <div class="file-actions">
                                     <button id="processBtn" class="ua-btn default">Spracovať</button>
-                                    <button id="clearBtn" class="ua-btn default">Vymazať</button>
+                                    <button id="clearBtn" class="ua-btn default delete-hover">Vymazať</button>
                                 </div>
                                 <div id="processResultsDisplay" class="process-results"> <h4>Výsledky spracovania:</h4>
                                     <ul id="processResultsList">
