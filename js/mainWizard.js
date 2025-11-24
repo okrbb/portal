@@ -1180,20 +1180,22 @@ function setupPasswordChangeLogic() {
     const changePassForm = document.getElementById('change-password-form');
     const passErrorMsg = document.getElementById('password-error-msg');
 
-    // Debuggovanie - ak niečo chýba, vypíše chybu do konzoly (F12)
+    // Debuggovanie
     if (!changePassBtn) console.error("Chyba: Tlačidlo #change-password-btn sa nenašlo.");
     if (!changePassModal) console.error("Chyba: Modál #change-password-modal sa nenašiel.");
 
     if (changePassBtn && changePassModal) {
         // 1. Otvorenie modálu
-        // Použijeme .onclick namiesto addEventListener, aby sme predišli duplicite pri reloade
         changePassBtn.onclick = (e) => {
             e.preventDefault();
-            console.log("Kliknuté na zmenu hesla");
             changePassModal.classList.remove('hidden');
             
             if(changePassForm) changePassForm.reset();
-            if(passErrorMsg) passErrorMsg.style.display = 'none';
+            // Skryjeme starú chybu pri otvorení
+            if(passErrorMsg) {
+                passErrorMsg.style.display = 'none';
+                passErrorMsg.textContent = '';
+            }
         };
 
         // 2. Zatvorenie modálu
@@ -1208,11 +1210,14 @@ function setupPasswordChangeLogic() {
             changePassForm.onsubmit = async (e) => {
                 e.preventDefault();
                 
+                // Skryjeme predchádzajúcu chybu pri novom pokuse
+                if(passErrorMsg) passErrorMsg.style.display = 'none';
+
                 const currentPass = document.getElementById('current-password').value;
                 const newPass = document.getElementById('new-password').value;
                 const confirmPass = document.getElementById('confirm-password').value;
                 
-                // Validácie
+                // Lokálne validácie (okamžitá odozva)
                 if (newPass !== confirmPass) {
                     showError("Nové heslá sa nezhodujú.");
                     return;
@@ -1226,41 +1231,58 @@ function setupPasswordChangeLogic() {
                     const user = firebase.auth().currentUser;
                     if (!user) throw new Error("Používateľ nie je prihlásený.");
 
-                    // Loading stav tlačidla (voliteľné)
+                    // Loading stav tlačidla
                     const submitBtn = changePassForm.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = "Mením heslo...";
+                    submitBtn.textContent = "Overujem...";
                     submitBtn.disabled = true;
 
-                    // A. Re-autentifikácia (bezpečnosť)
+                    // A. Re-autentifikácia (Overenie starého hesla)
                     const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
                     await user.reauthenticateWithCredential(credential);
 
                     // B. Zmena hesla
+                    submitBtn.textContent = "Ukladám...";
                     await user.updatePassword(newPass);
 
-                    // --- NOVÉ: Logovanie úspechu ---
+                    // Logovanie úspechu
                     await logUserAction("ZMENA_HESLA", "Používateľ si úspešne zmenil heslo.", true);
-                    // ------------------------------
 
-                    // Úspech
-                    showToast("Heslo bolo úspešne zmenené.", "success"); // Použitie stringu 'success' ak TOAST_TYPE nie je dostupný v scope
+                    // Úspech UI
+                    showToast("Heslo bolo úspešne zmenené.", TOAST_TYPE.SUCCESS);
                     changePassModal.classList.add('hidden');
                     changePassForm.reset();
 
                 } catch (error) {
                     console.error("Chyba pri zmene hesla:", error);
+                    
+                    // --- PREKLAD CHÝB PRE POUŽÍVATEĽA ---
                     let msg = "Nepodarilo sa zmeniť heslo.";
                     
-                    if (error.code === 'auth/wrong-password') msg = "Zadali ste nesprávne súčasné heslo.";
-                    else if (error.code === 'auth/weak-password') msg = "Nové heslo je príliš slabé.";
-                    else if (error.code === 'auth/too-many-requests') msg = "Príliš veľa pokusov. Skúste to neskôr.";
+                    switch (error.code) {
+                        case 'auth/wrong-password':
+                            msg = "Zadali ste nesprávne súčasné heslo.";
+                            break;
+                        case 'auth/weak-password':
+                            msg = "Nové heslo je príliš slabé (vyžaduje sa aspoň 6 znakov).";
+                            break;
+                        case 'auth/too-many-requests':
+                            msg = "Príliš veľa neúspešných pokusov. Skúste to neskôr.";
+                            break;
+                        case 'auth/requires-recent-login':
+                            msg = "Pre bezpečnosť sa musíte odhlásiť a znova prihlásiť, aby ste mohli zmeniť heslo.";
+                            break;
+                        case 'auth/network-request-failed':
+                            msg = "Chyba pripojenia. Skontrolujte internet.";
+                            break;
+                        default:
+                            // Ak je to iná chyba, zobrazíme aspoň originálnu správu, aby vedel čo sa deje
+                            msg = `Chyba: ${error.message}`;
+                    }
 
-                    // --- NOVÉ: Logovanie chyby ---
-                    // Logujeme aj špecifickú správu (msg), aby admin vedel, prečo to zlyhalo
+                    // Logovanie chyby
                     await logUserAction("ZMENA_HESLA", "Zlyhal pokus o zmenu hesla", false, msg);
-                    // ----------------------------
                     
+                    // Zobrazenie chyby vo formulári
                     showError(msg);
                 } finally {
                      // Reset tlačidla
@@ -1274,10 +1296,14 @@ function setupPasswordChangeLogic() {
         }
     }
 
+    // Pomocná funkcia na zobrazenie chyby v červenom boxe v modále
     function showError(msg) {
         if (passErrorMsg) {
             passErrorMsg.textContent = msg;
             passErrorMsg.style.display = 'block';
+            // Jemné zatrasenie pre vizuálny efekt (voliteľné)
+            passErrorMsg.classList.add('shake');
+            setTimeout(() => passErrorMsg.classList.remove('shake'), 500);
         } else {
             alert(msg);
         }
