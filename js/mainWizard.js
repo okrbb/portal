@@ -1217,7 +1217,7 @@ function setupPasswordChangeLogic() {
                 const newPass = document.getElementById('new-password').value;
                 const confirmPass = document.getElementById('confirm-password').value;
                 
-                // Lokálne validácie (okamžitá odozva)
+                // Lokálne validácie
                 if (newPass !== confirmPass) {
                     showError("Nové heslá sa nezhodujú.");
                     return;
@@ -1260,6 +1260,7 @@ function setupPasswordChangeLogic() {
                     
                     switch (error.code) {
                         case 'auth/wrong-password':
+                        case 'auth/invalid-credential': // <--- PRIDANÉ: Zachytáva novší typ chyby pre zlé heslo
                             msg = "Zadali ste nesprávne súčasné heslo.";
                             break;
                         case 'auth/weak-password':
@@ -1275,7 +1276,7 @@ function setupPasswordChangeLogic() {
                             msg = "Chyba pripojenia. Skontrolujte internet.";
                             break;
                         default:
-                            // Ak je to iná chyba, zobrazíme aspoň originálnu správu, aby vedel čo sa deje
+                            // Fallback pre neznáme chyby
                             msg = `Chyba: ${error.message}`;
                     }
 
@@ -1296,12 +1297,10 @@ function setupPasswordChangeLogic() {
         }
     }
 
-    // Pomocná funkcia na zobrazenie chyby v červenom boxe v modále
     function showError(msg) {
         if (passErrorMsg) {
             passErrorMsg.textContent = msg;
             passErrorMsg.style.display = 'block';
-            // Jemné zatrasenie pre vizuálny efekt (voliteľné)
             passErrorMsg.classList.add('shake');
             setTimeout(() => passErrorMsg.classList.remove('shake'), 500);
         } else {
