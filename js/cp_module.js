@@ -73,6 +73,23 @@ export function initializeCPModule(db, activeUser, employeesData) {
     attachMealCalculationListeners();
 }
 
+const editIbanBtn = document.getElementById('btn-edit-iban');
+    if (editIbanBtn) {
+        editIbanBtn.addEventListener('click', openIbanModal);
+    }
+
+    const ibanForm = document.getElementById('iban-form');
+    if (ibanForm) {
+        ibanForm.addEventListener('submit', handleIbanSave);
+    }
+
+    const closeIbanBtn = document.getElementById('close-iban-modal');
+    if (closeIbanBtn) {
+        closeIbanBtn.addEventListener('click', () => {
+            document.getElementById('iban-modal').classList.add('hidden');
+        });
+    }
+
 /**
  * Zobrazí detaily vybraného zamestnanca v karte.
  * @param {string|null} empId - ID zamestnanca. Ak je null, zobrazí sa hláška.
@@ -140,6 +157,85 @@ function populateTimeSelects() {
 
         select.value = item.defaultTime;
     });
+}
+
+/**
+ * Otvorí modálne okno pre IBAN
+ */
+function openIbanModal() {
+    if (!selectedEmployeeId) {
+        showToast("Najprv vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
+        return;
+    }
+
+    const emp = _allEmployeesData.get(selectedEmployeeId);
+    if (!emp) return;
+
+    // Kontrola oprávnení (voliteľné, ak chcete obmedziť editáciu)
+    if (!Permissions.canViewCP(_localActiveUser, emp)) {
+         showToast("Nemáte oprávnenie upravovať tohto zamestnanca.", TOAST_TYPE.ERROR);
+         return;
+    }
+
+    const modal = document.getElementById('iban-modal');
+    const input = document.getElementById('iban-input');
+
+    if (modal && input) {
+        input.value = emp.iban || ''; // Predvyplniť existujúci IBAN
+        modal.classList.remove('hidden');
+        input.focus();
+    }
+}
+
+/**
+ * Spracuje uloženie IBANu do databázy
+ */
+async function handleIbanSave(e) {
+    e.preventDefault();
+
+    if (!selectedEmployeeId || !_dbReference) return;
+
+    const input = document.getElementById('iban-input');
+    const newIban = input.value.trim();
+    const modal = document.getElementById('iban-modal');
+    const submitBtn = modal.querySelector('button[type="submit"]');
+
+    // Jednoduchá validácia (nesmie byť prázdne, ak to je povinné)
+    if (newIban.length > 0 && newIban.length < 15) { 
+         showToast("IBAN sa zdá byť príliš krátky.", TOAST_TYPE.INFO);
+         // Necháme prejsť, len upozorníme, alebo dajte return pre striktnosť
+    }
+
+    try {
+        submitBtn.textContent = 'Ukladám...';
+        submitBtn.disabled = true;
+
+        // 1. Update v Firestore
+        await _dbReference.collection('employees').doc(selectedEmployeeId).update({
+            iban: newIban
+        });
+
+        // 2. Update lokálnych dát
+        const emp = _allEmployeesData.get(selectedEmployeeId);
+        if (emp) {
+            emp.iban = newIban;
+            _allEmployeesData.set(selectedEmployeeId, emp);
+        }
+
+        // 3. Refresh UI
+        displayCPEmployeeDetails(selectedEmployeeId);
+
+        // 4. Zavrieť a hláška
+        modal.classList.add('hidden');
+        showToast("IBAN bol úspešne aktualizovaný.", TOAST_TYPE.SUCCESS);
+
+    } catch (error) {
+        console.error("Chyba pri ukladaní IBAN:", error);
+        showToast("Nepodarilo sa uložiť IBAN. Skúste to znova.", TOAST_TYPE.ERROR);
+    } finally {
+        submitBtn.textContent = 'Uložiť';
+        submitBtn.disabled = false;
+    }
 }
 
 /**
