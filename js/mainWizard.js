@@ -110,6 +110,28 @@ async function handleLogin() {
 
                     // 3. Teraz zapíšeme log (už bude mať správne meno)
                     await logUserAction("LOGIN", "Úspešné prihlásenie", true, null);
+
+                    // 1. Spustíme animáciu zobrazenia aplikácie
+                    const portalContainer = document.querySelector('.portal-container');
+                    if (portalContainer) {
+                        // Malé oneskorenie pre plynulosť
+                        requestAnimationFrame(() => {
+                            portalContainer.classList.add('app-visible');
+                        });
+                    }
+
+                    // 2. Spustíme animáciu zmiznutia loginu
+                    loginOverlay.classList.add('fade-out');
+
+                    // 3. Úplné odstránenie loginu z DOMu až po skončení animácie (napr. 500ms)
+                    setTimeout(() => {
+                        loginOverlay.classList.add('hidden'); // Pridá display: none
+                        // Pre istotu odoberieme fade-out, ak by sa modal znova použil (napr. po odhlásení)
+                        loginOverlay.classList.remove('fade-out'); 
+                    }, 500);
+
+                    resolve(tempUserForLogs);
+                    // === KONIEC NOVÉHO KÓDU ===
                     
                     loginOverlay.classList.add('hidden'); 
                     resolve(tempUserForLogs);
