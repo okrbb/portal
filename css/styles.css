@@ -122,17 +122,6 @@ h1, h2, h3, h4, h5, h6 {
 .hidden { display: none !important; }
 
 /* =================================== */
-/* === ZMENA: PORTAL CONTAINER === */
-/* =================================== */
-
-.portal-container {
-    /* === ZMENA: Už nie je grid, je to len wrapper === */
-    position: relative;
-    height: 100vh;
-    width: 100%;
-}
-
-/* =================================== */
 /* === NOVÉ: Mobilné Hamburger Tlačidlá === */
 /* =================================== */
 .mobile-menu-toggle {
@@ -711,30 +700,34 @@ h1, h2, h3, h4, h5, h6 {
     list-style: none;
     padding: 0;
 }
-#duty-list-items li,
-#global-employees-list-items li {
-    padding: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    font-size: 0.95rem;
-    /* === UPRAVENÉ === */
-    border-left: 4px solid transparent; /* Drží miesto pre čiaru */
-    transition: background-color var(--transition-fast), border-color var(--transition-fast), padding-left var(--transition-fast);
-    cursor: pointer; 
+#global-employees-list-items li, 
+#duty-list-items li {
+    /* Reset pôvodných borderov */
+    border-bottom: none;
+    border-left: none; /* Odstránime starý border */
+    
+    /* NOVÉ: Vzhľad bubliny */
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
 }
-#global-employees-list-items li:hover {
-    background-color: transparent; /* <-- ZMENA: Bez pozadia */
-    border-left-color: var(--color-orange-accent); /* <-- ZMENA: Zlatá čiara */
-    padding-left: calc(var(--spacing-sm) - 4px); /* <-- ZMENA: Odsadenie textu */
+#global-employees-list-items li:hover, 
+#duty-list-items li:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(5px);
+    border-color: rgba(188, 135, 0, 0.3); /* Jemný zlatý okraj */
 }
 #duty-list-items li:last-child,
 #global-employees-list-items li:last-child {
     border-bottom: none;
 }
 #global-employees-list-items li.active-global-item {
-    background-color: transparent; /* <-- ZMENA: Odstránené tmavé pozadie */
-    border-left: 4px solid var(--color-orange-accent);
-    padding-left: calc(var(--spacing-sm) - 4px);
+    background: linear-gradient(90deg, rgba(188, 135, 0, 0.15) 0%, transparent 100%);
+    border-left: 3px solid #bc8700; /* Zlatý prúžok vľavo */
+    border-color: rgba(188, 135, 0, 0.2);
 }
 #global-employees-list-items li.active-global-item .dashboard-emp-name {
     color: var(--color-orange-accent);
@@ -1475,21 +1468,46 @@ input[type="text"], select, textarea {
     font-size: 1.5rem;
 }
 
-/* === SKELETON LOADING === */
-.skeleton {
-    background: linear-gradient(90deg, var(--color-bg-light) 25%, var(--color-border) 50%, var(--color-bg-light) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: var(--radius-sm);
-    color: transparent !important; /* Skryje text */
-    min-height: 20px;
-    margin-bottom: 8px;
-    display: block;
+/* =================================== */
+/* SKELETON LOADING STYLES             */
+/* =================================== */
+
+.skeleton-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+.skeleton-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.skeleton-line {
+    height: 14px;
+    background: #1f2937; /* Základná farba (tmavšia) */
+    background-image: linear-gradient(
+        90deg,
+        #1f2937 0px,
+        #374151 60px, /* Svetlejší prechod */
+        #1f2937 120px
+    );
+    background-size: 600px;
+    border-radius: 4px;
+    animation: skeleton-shimmer 2s infinite linear;
+}
+
+.skeleton-line.short { width: 40%; }
+.skeleton-line.medium { width: 70%; }
+.skeleton-line.long { width: 90%; }
+
+@keyframes skeleton-shimmer {
+    0% { background-position: -300px 0; }
+    100% { background-position: 300px 0; }
 }
 
 /* Aplikácia na zoznam zamestnancov */
@@ -2252,4 +2270,99 @@ input[type="text"], select, textarea {
     color: var(--color-orange-accent);
     opacity: 1;
     transform: scale(1.1);
+}
+
+/* =================================== */
+/* === ANIMÁCIE PRIHLÁSENIA (NOVÉ) === */
+/* =================================== */
+
+/* 1. PORTAL CONTAINER - Východiskový stav (Skrytý) */
+/* Toto zabezpečí, že za loginom nič nevidno, len farbu pozadia */
+.portal-container {
+    /* Pôvodné štýly z styles.css */
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    
+    /* === NOVÉ: Nastavenie pre animáciu === */
+    opacity: 0;                    /* Úplne priehľadné */
+    filter: blur(20px);            /* Silne rozmazané */
+    transform: scale(0.92);        /* Mierne zmenšené (efekt hĺbky) */
+    transition: 
+        opacity 0.8s ease-out, 
+        filter 0.8s ease-out, 
+        transform 0.8s cubic-bezier(0.19, 1, 0.22, 1); /* Moderná krivka pohybu */
+    pointer-events: none;          /* Nedá sa kliknúť kým nie je viditeľné */
+}
+
+/* 2. PORTAL CONTAINER - Stav po prihlásení (Viditeľný) */
+/* Túto triedu pridáme cez JavaScript */
+.portal-container.app-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* 3. LOGIN OVERLAY - Animácia zmiznutia */
+.login-overlay {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    /* Pôvodné štýly ostávajú zachované */
+}
+
+/* Trieda pre fade-out efekt loginu */
+.login-overlay.fade-out {
+    opacity: 0;
+    transform: scale(1.1); /* Jemné zväčšenie pri zmiznutí (pohltenie diváka) */
+    pointer-events: none;
+}
+
+/* =================================== */
+/* MODERN GLASSMORPHISM UPDATES        */
+/* =================================== */
+
+/* Vylepšenie pre Sidebar a Sidebar-Right */
+.sidebar, .sidebar-right {
+    /* Jemnejší border (biela s nízkou opacitou pre 'light' efekt na hrane) */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15); /* Horná hrana svetlejšia - simuluje svetlo */
+    
+    /* Vylepšený tieň pre hĺbku */
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.3),
+        0 2px 4px -1px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Vnútorný odlesk */
+        
+    /* Ponecháme váš blur */
+    background: rgba(31, 41, 55, 0.75);
+    backdrop-filter: blur(16px) saturate(180%); /* Saturate vytiahne farby pozadia cez sklo */
+}
+
+/* Vylepšenie kariet (Dashboard, Admin panel) */
+.dashboard-card, .ua-card, .duty-groups-sidebar, .duty-controls, .duty-week-card, .card {
+    background: rgba(31, 41, 55, 0.6); /* Viac priehľadné */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px); /* Jemný blur aj na kartách */
+}
+
+/* Hover efekt pre karty */
+.dashboard-card:hover, .ua-card:hover, .card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(188, 135, 0, 0.4); /* Vaša orange-accent farba */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Vylepšenie inputov (aby vyzerali zapustene) */
+input[type="text"], input[type="password"], input[type="email"], select, textarea {
+    background: rgba(17, 24, 39, 0.6) !important; /* Tmavšie polopriehľadné */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--color-text-primary);
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    background: rgba(17, 24, 39, 0.9) !important;
+    border-color: var(--color-orange-accent) !important;
+    box-shadow: 0 0 0 3px rgba(188, 135, 0, 0.15) !important;
 }
