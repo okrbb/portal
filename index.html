@@ -84,12 +84,6 @@
                             <span>Príspevky UA</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#" data-target="admin-panel-module">
-                            <i class="fas fa-users"></i>
-                            <span>Zamestnanci</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
 
@@ -128,18 +122,6 @@
                 </div>
     
                 <div class="header-actions">
-                    <div class="employee-badge hidden" id="cancel-edit-btn" title="Zrušiť zmeny bez uloženia">
-                        <i class="fas fa-times"></i>
-                    </div>
-                    <div class="employee-badge hidden" id="add-employee-btn" title="Pridať nového zamestnanca">
-                        <i class="fa-solid fa-plus"></i>
-                    </div>
-                    <div class="employee-badge hidden" id="delete-employee-btn" title="Vymazať zamestnanca">
-                        <i class="fa-solid fa-trash"></i>
-                    </div>
-                    <div class="employee-badge" id="edit-btn" title="Editovať zamestnancov / Uložiť zmeny">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>                 
                     <div class="employee-badge" id="export-excel-btn" title="Stiahnuť zoznam (XLSX)">
                         <i class="fas fa-id-card"></i>
                     </div>
@@ -559,74 +541,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Karta: Zamestnanci -->
-                <div id="admin-panel-module" class="module-content hidden">
-                    <div class="admin-panel-layout-main-only">
-                        <div class="cards-container">
-                            <article class="card" id="personal-info">
-                                <div class="card-header">
-                                    <i class="fas fa-user"></i>
-                                    <h2>Osobné údaje</h2>
-                                </div>
-                                <dl class="info-list">
-                                    <dt>Titul</dt><dd>---</dd>
-                                    <dt>Meno</dt><dd>---</dd>
-                                    <dt>Priezvisko</dt><dd>---</dd>
-                                    <dt>Adresa</dt><dd>---</dd>
-                                    <dt>Kontakt</dt><dd>---</dd>
-                                    <dt>Nástup</dt><dd>---</dd>
-                                </dl>
-                                <p style="padding-top: 20px; color: var(--color-text-secondary);">Vyberte zamestnanca z globálneho zoznamu vpravo.</p>
-                            </article>
-
-                            <article class="card" id="job-info">
-                                <div class="card-header">
-                                    <i class="fas fa-sitemap"></i>
-                                    <h2 id="show-service-description" class="clickable-card-title">Pracovné zaradenie</h2>
-                                </div>
-                                <div class="info-block">
-                                    <h3>Platová trieda</h3>
-                                    <p class="salary-grade">Trieda ---</p>
-                                    <h3>Funkcia</h3>
-                                    <p>---</p>
-                                    <h3>Príplatky</h3>
-                                    <p>---</p>
-                                </div>
-                            </article>
-                        </div>
-
-                        <article class="card hidden full-width-card" id="service-description-card">
-                            <button class="card-close-btn" id="close-service-description" aria-label="Zavrieť">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            <div class="card-header">
-                                <i class="fas fa-clipboard-list"></i>
-                                <h2>Opis služobnej činnosti</h2>
-                            </div>
-                            <div class="info-block scrollable-content">
-                                <p>Načítavam...</p>
-                            </div>
-                        </article>
-                    </div>
-                </div>
             </div>
         </main>
-    </div>
-    <!-- Zamestnanci: -->
-    <div id="delete-employee-overlay" class="delete-modal-overlay hidden">
-        <div class="delete-modal">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Potvrdenie akcie</h3>
-            <p>Naozaj chcete permanentne zmazať vybraného zamestnanca z databázy?</p>
-            <div class="modal-actions">
-                <button id="btn-cancel-delete-emp" class="modal-btn cancel">Zrušiť</button>
-                <button id="btn-confirm-delete-emp" class="modal-btn delete">
-                    <span class="btn-text">Áno, zmazať</span>
-                    <span class="btn-loader"></span>
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- zmena hesla -->
