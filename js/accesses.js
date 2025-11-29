@@ -105,42 +105,6 @@ export const Permissions = {
     },
 
     /**
-     * Určuje, či používateľ môže EDITOVAŤ údaje daného zamestnanca.
-     */
-    canEditEmployee: (user, targetEmp) => {
-        if (!user || !targetEmp) return false;
-        
-        if (isVeduciOdboru(user)) return true;
-
-        if (isVeduciOddelenia(user)) {
-            if (!isSameDepartment(user, targetEmp)) return false;
-            const targetFunkcia = targetEmp.funkcia?.toLowerCase();
-            if (targetFunkcia === ROLES.VEDUCI_ODBORU || targetFunkcia === ROLES.VEDUCI_ODDELENIA) {
-                return false; 
-            }
-            return true;
-        }
-
-        return false;
-    },
-
-    /**
-     * Určuje, či používateľ môže PRIDAŤ nového zamestnanca.
-     */
-    canAddEmployee: (user) => {
-        if (!user) return false;
-        return isVeduciOdboru(user) || isVeduciOddelenia(user);
-    },
-
-    /**
-     * Určuje, či používateľ môže VYMAZAŤ zamestnanca.
-     */
-    canDeleteEmployee: (user, targetEmp) => {
-        if (!user) return false;
-        return isVeduciOdboru(user);
-    },
-
-    /**
      * Určuje, či používateľ vidí detailné informácie a môže generovať CP.
      * Tu má 28852 stále prístup, aby mohol robiť CP.
      */

@@ -14,8 +14,7 @@ import { initializeSCHDModule } from './schd_module.js';
 import { initializeBBKModule } from './schd_bbkraj_module.js';
 import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
-import { initializeAdminModule, displayEmployeeDetails, activateGlobalExport } from './emp_module.js';
-import { initializeEditModule, toggleEditMode } from './edit_module.js';
+import { activateGlobalExport } from './emp_module.js';
 import { updateWelcomeWidget } from './widget.js';
 import { renderAdminWidget } from './admin_widget.js';
 import { renderAnnouncementWidget } from './announcements.js';
@@ -248,7 +247,6 @@ const moduleTitles = {
     'pohotovost-module': 'Rozpis pohotovosti',
     'izs-module': 'Rozpis služieb IZS',
     'ua-contributions-module': 'Vyplatenie príspevkov za ubytovanie',
-    'admin-panel-module': 'Zamestnanci'
 };
 
 const titleElement = document.getElementById('module-title');
@@ -264,19 +262,6 @@ let isSCHDModuleInitialized = false;
 let isBBKModuleInitialized = false;
 let isIZSModuleInitialized = false;
 let isUAModuleInitialized = false;
-
-
-const editBtn = document.querySelector('#edit-btn');
-if (editBtn) {
-    editBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (typeof toggleEditMode === 'function') {
-            toggleEditMode();
-        } else {
-            console.error("edit.js nie je načítaný!");
-        }
-    });
-}
 
 // --- Listener pre logo ---
 if (logoElement) {
@@ -317,26 +302,6 @@ menuLinks.forEach(link => {
         const headerNameSection = document.querySelector('.employee-name-section');
         let oecElement = headerNameSection.querySelector('.employee-oec-subtitle');
 
-        if (targetId === 'admin-panel-module' && activeUser && activeUser.displayName) {
-            titleElement.textContent = activeUser.displayName;
-            
-            if (!oecElement) {
-                oecElement = document.createElement('p');
-                oecElement.className = 'employee-oec-subtitle';
-                oecElement.style.cssText = "margin-top: -8px; font-size: 1.1rem; color: var(--color-text-secondary); font-weight: 600; font-family: var(--font-primary);";
-                headerNameSection.appendChild(oecElement);
-            }
-            oecElement.textContent = `Osobné číslo: ${activeUser.oec}`; 
-            
-        } else {
-            const newTitle = moduleTitles[targetId] || link.querySelector('span').textContent;
-            titleElement.textContent = newTitle;
-            
-            if (oecElement) {
-                oecElement.remove();
-            }
-        }
-
         // Vnútri if (targetId === 'bbk-module'...)
         if (targetId === 'bbk-module' && !isBBKModuleInitialized) {
             try {
@@ -356,41 +321,11 @@ menuLinks.forEach(link => {
         });
         
         // Zobrazenie alebo skrytie akčných tlačidiel podľa modulu/oprávnení
-        const editBtn = document.getElementById('edit-btn');
-        const addBtn = document.getElementById('add-employee-btn');
-        const deleteBtn = document.getElementById('delete-employee-btn');
         const exportBtn = document.getElementById('export-excel-btn');
-        const cancelBtn = document.getElementById('cancel-edit-btn');
-        
-        // Všetky tlačidlá edit/add/delete/cancel sú skryté v predvolenom nastavení
-        [editBtn, addBtn, deleteBtn, cancelBtn].forEach(btn => { if(btn) btn.classList.add('hidden'); });
 
         // Export tlačidlo (vždy, ak má user právo exportovať)
         if (exportBtn) {
             exportBtn.classList.toggle('hidden', !Permissions.canExportEmployees(activeUser));
-        }
-
-        // Tlačidlo Pridať zamestnanca (len v Admin module a ak má právo)
-        if (targetId === 'admin-panel-module' && addBtn) {
-            addBtn.classList.toggle('hidden', !Permissions.canAddEmployee(activeUser));
-        }
-
-        // Inicializácia Admin modulu
-        if (targetId === 'admin-panel-module' && !isAdminModuleInitialized) {
-            if (!activeUser) {
-                console.error("Admin modul sa nemôže načítať, používateľ nie je definovaný.");
-                return;
-            }
-            try {
-                if (db) {
-                    initializeAdminModule(db, activeUser, allEmployeesData); 
-                    isAdminModuleInitialized = true;
-                } else {
-                     console.error("Chyba: DB nie je inicializované pre Admin modul.");
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii emp_module.js:", e);
-            }
         }
         
         // Inicializácia CP modulu
@@ -535,60 +470,7 @@ function autoDisplayEmployeeDetails(empId, employee) {
     const activeModule = document.querySelector('.module-content:not(.hidden)');
     if (!activeModule) return;
 
-    // 3. Kontrola oprávnení v závislosti od modulu (použitie Permissions)
-    
-    // Reset stavu tlačidiel pre editovanie pri každom novom výbere
-    const editBtn = document.getElementById('edit-btn');
-    const deleteBtn = document.getElementById('delete-employee-btn');
-    const addBtn = document.getElementById('add-employee-btn');
-    
-    if (editBtn) editBtn.classList.add('hidden');
-    if (deleteBtn) deleteBtn.classList.add('hidden');
-    // addBtn neriešime tu, ten je riešený v prepínaní modulov, keďže sa viaže k modulu, nie k vybranému zamestnancovi
-
-    // V prípade, že je edit mode zapnutý na predchádzajúcom zamestnancovi a prepneme,
-    // mali by sme ho ideálne vypnúť, alebo nechať logiku v edit_module. 
-    // Tu len resetujeme viditeľnosť tlačidla Edit.
-
-    if (activeModule.id === 'admin-panel-module') {
-        
-        // Oprávnenie vidieť detaily (canViewCP používame ako proxy pre "detail view" aj v admine,
-        // keďže logika "vidí detaily" je v Permissions.canViewCP zadefinovaná pre vedúcich a vlastný profil)
-        const canView = Permissions.canViewCP(activeUser, employee);
-
-        if (canView && typeof displayEmployeeDetails === 'function') {
-            displayEmployeeDetails(employee);
-            
-            // --- NOVÁ LOGIKA: ZOBRAZENIE TLAČIDIEL PO VÝBERE ---
-
-            // 1. Tlačidlo EDITOVAŤ (ak má oprávnenie)
-            if (Permissions.canEditEmployee(activeUser, employee)) {
-                 if(editBtn) editBtn.classList.remove('hidden');
-            }
-            
-            // 2. Tlačidlo VYMAZAŤ (ak má oprávnenie)
-            if (Permissions.canDeleteEmployee(activeUser, employee)) {
-                if(deleteBtn) deleteBtn.classList.remove('hidden');
-            }
-
-            // 3. Tlačidlo PRIDAŤ (ak má oprávnenie - zobrazíme ho aj pri detaile)
-            if (Permissions.canAddEmployee(activeUser)) {
-                if(addBtn) addBtn.classList.remove('hidden');
-            }
-
-            // 4. Tlačidlo ZRUŠIŤ (zobrazíme ho vždy pri výbere, ako si žiadal)
-            if(cancelBtn) cancelBtn.classList.remove('hidden');
-            
-        } else {
-            // Zobrazenie chybovej hlášky / skrytých detailov
-            showToast(`Nemáte oprávnenie vidieť/meniť detaily zamestnanca ${employee.displayName}.`, TOAST_TYPE.ERROR);
-            
-            if (typeof displayEmployeeDetails === 'function') {
-                displayEmployeeDetails(null, true); // Zavoláme s null a flagom na zobrazenie prázdnej karty
-            }
-        }
-    } 
-    else if (activeModule.id === 'cestovny-prikaz-module') {
+    if (activeModule.id === 'cestovny-prikaz-module') {
         // V CP je povolené vidieť iba vlastné údaje + podriadených (rovnaké ako admin)
         const canView = Permissions.canViewCP(activeUser, employee);
 
@@ -1484,7 +1366,6 @@ async function initializeApp() {
         await loadDashboardDutyToday(db);
         
         initializeMobileMenu();
-        initializeEditModule(db, allEmployeesData, activeUser);
 
         setupPasswordChangeLogic();
 
