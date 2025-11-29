@@ -14,15 +14,12 @@ OKR Portál je integrovaný systém určený pre interné procesy organizácie, 
 - **Globálny zoznam zamestnancov**: Centralizovaný a prehľadný zoznam všetkých zamestnancov s real-time aktualizáciou
 
 ### Modul Ľudské Zdroje (Admin Panel)
-- **Správa zamestnancov**: Kompletná databáza s osobnými údajmi, kontaktmi a dátumom nástupu
+- **Správa zamestnancov**: Kompletná databáza s kontaktmi a dátumom nástupu
 - **Platové údaje**: Platové triedy, tarify, osobné príplatky, zmeny a pohotovosti
-- **Služobné činnosti**: Priradenie funkcií, oddelení a popis služobných činností podľa šablón
-- **Editovanie**: Real-time editácia záznamov s validáciou povinných polí
-- **Pridávanie/mazanie**: Pridanie nových zamestnancov alebo bezpečné odstránenie existujúcich záznamov s modálnym potvrdením
 - **Export logov**: Sťahovanie prístupových logov do Excel formátu
 - **Mazanie logov**: Dávkové mazanie prístupových logov s modálnym potvrdením
 
-### Modul Rozpisy Pohotovostí
+### Modul Rozpis Pohotovosti
 - **Automatické rozpisovanie**: Drag & drop rozpisovanie troch pohotovostných skupín do týždenných slotov
 - **Zastupovanie**: Dvojklikom výber zamestnanca a priradenie náhradníka
 - **Výmena**: Pravým tlačidlom myši výmena dvoch zamestnancov medzi sebou
@@ -31,6 +28,14 @@ OKR Portál je integrovaný systém určený pre interné procesy organizácie, 
 - **DOCX export**: Generovanie výkazu pohotovosti do Word dokumentu podľa šablóny
 - **Publikovanie**: Automatické ukladanie rozpisov do kolekcie `publishedSchedules` pre zobrazenie v kalendári
 - **Unicode podpora**: Zobrazovanie symbolov zastúpenia (🕒) a výmeny (⇆) v PDF exportoch
+
+### Modul Rozpis pohotovosti BB kraj
+- **Nahratie spborov**: Drag & drop pre nahratie pohotovosti jednotlivých OU
+- **Generovnie**: Vygenerovanie kompletného rozpisu pre celý kraj
+
+- ### Modul Rozpis služieb IZS
+- **Nahratie spborov**: Drag & drop pre nahratie plánu služieb
+- **Generovnie**: Vygenerovanie kompletného rozpisu pre IZS
 
 ### Modul Cestovné Príkazy
 - **Automatické vyplnenie**: Výber zamestnanca zo zoznamu s automatickým načítaním osobných údajov
