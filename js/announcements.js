@@ -1,3 +1,4 @@
+/* announcements.js - Opravená verzia */
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 import { logUserAction } from './logs_module.js';
@@ -8,32 +9,31 @@ import { logUserAction } from './logs_module.js';
  * @param {Object} user - Aktívny používateľ
  */
 export function renderAnnouncementWidget(db, user) {
-    const rightCol = document.querySelector('.dashboard-right-col');
+    // 1. Nájdeme existujúci kontajner z HTML (index.html)
+    // Pôvodne ste mali 'announcement-widget-card', v HTML je 'announcement-widget-container'
+    let card = document.getElementById('announcement-widget-container');
     
-    if (!rightCol || !db) return;
-
-    // 1. Vytvorenie kontajnera pre widget (ak ešte neexistuje)
-    let card = document.getElementById('announcement-widget-card');
+    // Ak by náhodou v HTML nebol, skúsime ho vytvoriť (fallback)
     if (!card) {
-        card = document.createElement('div');
-        card.id = 'announcement-widget-card';
-        card.className = 'announcement-card';
-        
-        // Vložíme ho ako PRVÝ element v pravom stĺpci (nad Welcome kartu)
-        // alebo ako DRUHÝ (pod Welcome kartu), záleží na preferencii.
-        // Tu ho dávam ako druhý (pod welcome), ale nad "Stav systému".
-        if (rightCol.children.length > 1) {
-            rightCol.insertBefore(card, rightCol.children[1]);
+        const rightCol = document.querySelector('.dashboard-right-col');
+        if (rightCol) {
+            card = document.createElement('div');
+            card.id = 'announcement-widget-container';
+            card.className = 'announcement-card';
+            // Vložíme na začiatok alebo na vhodné miesto
+            rightCol.insertBefore(card, rightCol.firstChild);
         } else {
-            rightCol.appendChild(card);
+            // Ak nie je ani pravý stĺpec, končíme
+            return;
         }
     }
 
     // 2. Načítanie dát z Firestore
     loadAnnouncementData(db, user, card);
 
-    // 3. Inicializácia modálneho okna (ak je užívateľ admin)
-    if (Permissions.canManageLogs(user)) { // Používame canManageLogs ako proxy pre Vedúceho odboru
+    // 3. Inicializácia modálneho okna (ak je užívateľ admin/vedúci)
+    // Toto stačí spustiť raz, ale kontrolujeme, či už nebolo spustené
+    if (Permissions.canManageLogs(user)) {
         setupAnnouncementModal(db, user);
     }
 }
@@ -43,18 +43,19 @@ export function renderAnnouncementWidget(db, user) {
  */
 async function loadAnnouncementData(db, user, cardElement) {
     try {
-        // Získame najnovší oznam
         const snapshot = await db.collection('announcements')
             .orderBy('timestamp', 'desc')
             .limit(1)
             .get();
 
         if (snapshot.empty) {
-            // Ak nie je žiadny oznam a user nie je admin, skryjeme widget
             if (!Permissions.canManageLogs(user)) {
+                // Bežný user nevidí prázdny widget
                 cardElement.style.display = 'none';
+                cardElement.classList.remove('visible');
             } else {
-                // Admin vidí prázdny widget s výzvou na pridanie
+                // Admin vidí widget s výzvou
+                cardElement.style.display = 'block';
                 renderCardContent(cardElement, null, true);
             }
             return;
@@ -63,7 +64,8 @@ async function loadAnnouncementData(db, user, cardElement) {
         const doc = snapshot.docs[0];
         const data = doc.data();
 
-        // Renderujeme obsah
+        // Zobrazíme widget
+        cardElement.style.display = 'block';
         renderCardContent(cardElement, data, Permissions.canManageLogs(user));
 
     } catch (error) {
@@ -72,10 +74,10 @@ async function loadAnnouncementData(db, user, cardElement) {
 }
 
 /**
- * Vykreslí HTML vnútro karty.
+ * Vykreslí HTML vnútro karty a pripojí listenery.
  */
 function renderCardContent(card, data, isAdmin) {
-    const text = data ? data.text : 'Zatiaľ nebol pridaný žiadny oznam.';
+    const text = data ? data.text : 'Zatiaľ nebol pridaný žiadny oznam. Kliknite pre pridanie.';
     
     let dateStr = '';
     if (data && data.timestamp) {
@@ -85,9 +87,16 @@ function renderCardContent(card, data, isAdmin) {
 
     let editBtnHtml = '';
     if (isAdmin) {
-        editBtnHtml = `<button id="edit-announcement-btn" class="announcement-edit-btn" title="Upraviť oznam"><i class="fas fa-pen"></i></button>`;
+        // Pridáme ID aj pre Delete tlačidlo, ak by sme ho chceli inline (voliteľné)
+        // Pre istotu pridáme type="button", aby to neodosielalo formuláre
+        editBtnHtml = `
+            <button type="button" id="edit-announcement-btn" class="announcement-edit-btn" title="Upraviť oznam">
+                <i class="fas fa-pen"></i>
+            </button>
+        `;
     }
 
+    // Vložíme HTML
     card.innerHTML = `
         <div class="announcement-header">
             <h3><i class="fas fa-bullhorn"></i> Nástenka</h3>
@@ -96,17 +105,21 @@ function renderCardContent(card, data, isAdmin) {
                 ${editBtnHtml}
             </div>
         </div>
-        <div class="announcement-content">${text}</div>
+        <div class="announcement-content" style="white-space: pre-wrap;">${text}</div>
     `;
 
-    // Zobrazíme kartu
-    card.classList.add('visible');
+    // Pridáme triedu pre animáciu (ak v CSS existuje)
+    setTimeout(() => card.classList.add('visible'), 50);
 
-    // Listener pre tlačidlo editácie
+    // === KĽÚČOVÉ: PRIPOJENIE LISTENERU ===
     if (isAdmin) {
         const btn = card.querySelector('#edit-announcement-btn');
         if (btn) {
-            btn.addEventListener('click', () => {
+            // Odstránime starý listener (klonovaním) pre istotu, ak by sa funkcia volala viackrát? 
+            // Nie je nutné, lebo innerHTML prepísalo DOM element, takže starý btn už neexistuje.
+            // Stačí pridať nový listener.
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Pre istotu
                 openAnnouncementModal(data ? data.text : '');
             });
         }
@@ -120,7 +133,14 @@ const formId = 'announcement-form';
 const textareaId = 'announcement-text';
 
 function setupAnnouncementModal(db, user) {
-    const modal = document.getElementById(modalId);
+    // Dynamicky vytvoríme modál, ak v HTML neexistuje (aby sme nemuseli meniť index.html)
+    let modal = document.getElementById(modalId);
+    
+    if (!modal) {
+        createModalHTML(); // Vytvoríme ho v DOMe
+        modal = document.getElementById(modalId);
+    }
+
     const closeBtn = document.getElementById('close-announcement-modal');
     const deleteBtn = document.getElementById('btn-delete-announcement');
     const form = document.getElementById(formId);
@@ -128,7 +148,14 @@ function setupAnnouncementModal(db, user) {
     if (!modal || !form) return;
 
     // Zatváranie
-    if (closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
+    if (closeBtn) {
+        closeBtn.onclick = () => modal.classList.add('hidden');
+    }
+    
+    // Zatvorenie klikom mimo
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+    };
     
     // Odoslanie (Uloženie)
     form.onsubmit = async (e) => {
@@ -141,7 +168,6 @@ function setupAnnouncementModal(db, user) {
         }
 
         try {
-            // Pridáme nový dokument (história sa zachová, zobrazujeme len najnovší)
             await db.collection('announcements').add({
                 text: text,
                 author: user.email,
@@ -161,30 +187,11 @@ function setupAnnouncementModal(db, user) {
         }
     };
 
-    // Mazanie (Skrytie)
+    // Mazanie
     if (deleteBtn) {
         deleteBtn.onclick = async () => {
             if(confirm("Naozaj chcete odstrániť aktuálny oznam?")) {
                 try {
-                    // Vložíme "prázdny" oznam alebo logiku mazania. 
-                    // Najčistejšie: Pridať dokument s príznakom deleted alebo empty text.
-                    // Pre jednoduchosť tohto riešenia: Zmažeme kolekciu (nie je ideálne) 
-                    // alebo pridáme záznam s prázdnym textom, ktorý renderer ignoruje/skryje.
-                    
-                    // Možnosť A: Pridať dokument s textom "" (prázdny string)
-                    // Renderer vyššie to potom spracuje tak, že ak je text prázdny, správa sa ako keby nebol.
-                    
-                    // Ale najlepšie je vymazať posledný dokument? 
-                    // Nie, poďme jednoduchou cestou: Pridať dokument s textom "[OZNAM BOL ODSTRÁNENÝ]" alebo proste zmazať.
-                    
-                    // PRE TENTO PRÍPAD: Vymažeme vizuálne tak, že pridáme dokument s prázdnym textom, 
-                    // a renderer upravíme, aby prázdny text nezobrazoval (resp. skryl widget).
-                    
-                    // Reálne mazanie v "append-only" logu:
-                    // Nájdeme posledný a zmažeme ho? Nie, pridáme nový "vymazávací" záznam.
-                    
-                    // Zjednodušenie: Admin chce, aby to zmizlo.
-                    // Nájdeme aktuálny viditeľný a zmažeme ho fyzicky.
                     const snapshot = await db.collection('announcements')
                         .orderBy('timestamp', 'desc')
                         .limit(1)
@@ -201,6 +208,7 @@ function setupAnnouncementModal(db, user) {
 
                 } catch (error) {
                     console.error("Chyba mazania:", error);
+                    showToast("Chyba pri mazaní.", TOAST_TYPE.ERROR);
                 }
             }
         };
@@ -211,7 +219,35 @@ function openAnnouncementModal(currentText) {
     const modal = document.getElementById(modalId);
     const textarea = document.getElementById(textareaId);
     if (modal && textarea) {
-        textarea.value = currentText === 'Zatiaľ nebol pridaný žiadny oznam.' ? '' : currentText;
+        textarea.value = (!currentText || currentText === 'Zatiaľ nebol pridaný žiadny oznam.') ? '' : currentText;
         modal.classList.remove('hidden');
+        textarea.focus();
     }
+}
+
+// Pomocná funkcia na vloženie HTML modálu do stránky (ak tam nie je)
+function createModalHTML() {
+    const modalHtml = `
+    <div id="announcement-modal" class="modal-overlay hidden" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Upraviť oznam</h2>
+                <button id="close-announcement-modal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="announcement-form">
+                    <div class="form-group">
+                        <label for="announcement-text">Text oznamu:</label>
+                        <textarea id="announcement-text" rows="5" style="width:100%; resize:vertical;" placeholder="Sem napíšte text oznamu..."></textarea>
+                    </div>
+                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem; display: flex; justify-content: space-between;">
+                        <button type="button" id="btn-delete-announcement" class="ua-btn delete-style">Odstrániť</button>
+                        <button type="submit" class="ua-btn accent">Zverejniť</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 }

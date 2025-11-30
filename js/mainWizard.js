@@ -16,8 +16,8 @@ import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
 import { activateGlobalExport } from './emp_module.js';
 import { updateWelcomeWidget } from './widget.js';
-import { renderAdminWidget } from './admin_widget.js';
 import { renderAnnouncementWidget } from './announcements.js';
+import { initializeAIModule } from './ai_module.js';
 
 // === 3. IMPORTOVANIE CENTRÁLNYCH PRÍSTUPOV ===
 import { Permissions } from './accesses.js';
@@ -245,8 +245,9 @@ const moduleTitles = {
     'dashboard-module': 'Prehľad udalostí', 
     'cestovny-prikaz-module': 'Cestovný príkaz',
     'pohotovost-module': 'Rozpis pohotovosti',
+    'bbk-module': 'Rozpis pohotovosti BB kraj', // Pridané podľa index.html
     'izs-module': 'Rozpis služieb IZS',
-    'ua-contributions-module': 'Vyplatenie príspevkov za ubytovanie',
+    'ua-contributions-module': 'Príspevky UA',  // Zmenené z "Vyplatenie..." na "Príspevky UA" podľa index.html
 };
 
 const titleElement = document.getElementById('module-title');
@@ -256,7 +257,6 @@ const contentModules = document.querySelectorAll('.module-content');
 
 const searchInput = document.getElementById('global-employee-search');
 
-let isAdminModuleInitialized = false; 
 let isCPModuleInitialized = false;
 let isSCHDModuleInitialized = false; 
 let isBBKModuleInitialized = false;
@@ -290,6 +290,24 @@ menuLinks.forEach(link => {
         const moduleName = moduleTitles[targetId] || targetId;
         logUserAction("NAVIGACIA", `Prechod na modul: ${moduleName}`);
 
+        // === NOVÉ: Zmena textu v hornom tlačidle a zatvorenie menu ===
+        const dropdownBtn = document.querySelector('.nav-dropdown-btn');
+        const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+
+        if (dropdownBtn) {
+            // Zoberieme ikonu z kliknutej položky (aby to vyzeralo pekne)
+            const iconClass = link.querySelector('i') ? link.querySelector('i').className : 'fa-solid fa-grid-2';
+            
+            // Prepíšeme HTML tlačidla (Ikona + Názov modulu + Šípka dole)
+            dropdownBtn.innerHTML = `<i class="${iconClass}"></i> ${moduleName} <i class="fas fa-chevron-down ml-2"></i>`;
+        }
+
+        // Automaticky zatvoriť menu po kliknutí
+        if (dropdownMenu) {
+            dropdownMenu.classList.remove('show');
+        }
+        // === KONIEC NOVÉHO KÓDU ===
+
         // --- KONTROLA OPRÁVNENÍ (pomocou Permissions) ---
         renderGlobalEmployeeList(targetId);
 
@@ -298,9 +316,14 @@ menuLinks.forEach(link => {
             return;
         }
         
-        // Špeciálna hlavička pre modul Zamestnanci
+        // Špeciálna hlavička pre modul Zamestnanci - OPRAVA CHYBY
         const headerNameSection = document.querySelector('.employee-name-section');
-        let oecElement = headerNameSection.querySelector('.employee-oec-subtitle');
+        let oecElement = null;
+        
+        // Kód vykonáme len ak hlavička existuje
+        if (headerNameSection) {
+            oecElement = headerNameSection.querySelector('.employee-oec-subtitle');
+        }
 
         // Vnútri if (targetId === 'bbk-module'...)
         if (targetId === 'bbk-module' && !isBBKModuleInitialized) {
@@ -629,53 +652,37 @@ function getDateOfISOWeek(w, y) {
 /**
  * Inicializuje ovládanie mobilného menu (ľavý a pravý sidebar).
  */
+/* mainWizard.js - približne riadok 515 */
+
 function initializeMobileMenu() {
-    const leftToggle = document.getElementById('mobile-menu-left-toggle');
+    // Ľavé menu už v novom dizajne nepoužívame (je skryté), riešime len pravé
     const rightToggle = document.getElementById('mobile-menu-right-toggle');
-    const leftSidebar = document.querySelector('.sidebar');
     const rightSidebar = document.querySelector('.sidebar-right');
+    const closeRightBtn = document.getElementById('close-right-sidebar'); // Pridané tlačidlo X
 
-    // 1. Ovládanie ľavého menu (Navigácia)
-    if (leftToggle && leftSidebar) {
-        leftToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // Zabráni bublaniu eventu (aby sa hneď nezavrelo)
-            leftSidebar.classList.toggle('is-open');
-            
-            // Ak otvoríme ľavé, pravé zavrieme (aby sa neprekrývali)
-            if (rightSidebar && rightSidebar.classList.contains('is-open')) {
-                rightSidebar.classList.remove('is-open');
-            }
-        });
-    }
-
-    // 2. Ovládanie pravého menu (Zamestnanci)
+    // 1. Otvorenie cez FAB tlačidlo
     if (rightToggle && rightSidebar) {
         rightToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            rightSidebar.classList.toggle('is-open');
-
-            // Ak otvoríme pravé, ľavé zavrieme
-            if (leftSidebar && leftSidebar.classList.contains('is-open')) {
-                leftSidebar.classList.remove('is-open');
-            }
+            // OPRAVA: Zmena z 'is-open' na 'active' podľa styles.css
+            rightSidebar.classList.toggle('active'); 
         });
     }
 
-    // 3. Zatvorenie menu pri kliknutí mimo (na hlavný obsah)
-    document.addEventListener('click', (e) => {
-        // Zatvorenie ľavého menu
-        if (leftSidebar && leftSidebar.classList.contains('is-open')) {
-            // Ak klik nebol v sidebare ani na tlačidle
-            if (!leftSidebar.contains(e.target) && e.target !== leftToggle && !leftToggle.contains(e.target)) {
-                leftSidebar.classList.remove('is-open');
-            }
-        }
+    // 2. Zatvorenie cez tlačidlo X vnútri panelu
+    if (closeRightBtn && rightSidebar) {
+        closeRightBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            rightSidebar.classList.remove('active');
+        });
+    }
 
-        // Zatvorenie pravého menu
-        if (rightSidebar && rightSidebar.classList.contains('is-open')) {
-            // Ak klik nebol v sidebare ani na tlačidle
+    // 3. Zatvorenie pri kliknutí mimo
+    document.addEventListener('click', (e) => {
+        if (rightSidebar && rightSidebar.classList.contains('active')) {
+            // Ak klik nebol v sidebare ani na toggle tlačidle
             if (!rightSidebar.contains(e.target) && e.target !== rightToggle && !rightToggle.contains(e.target)) {
-                rightSidebar.classList.remove('is-open');
+                rightSidebar.classList.remove('active');
             }
         }
     });
@@ -1345,7 +1352,8 @@ async function initializeApp() {
         updateSidebarUser(activeUser);
         updateWelcomeWidget(activeUser);
         renderAnnouncementWidget(db, activeUser);
-        renderAdminWidget(db, activeUser);
+        
+        initializeAIModule(db, activeUser);
         
         if (titleElement) {
             titleElement.textContent = moduleTitles['dashboard-module'] || 'Prehľad udalostí';

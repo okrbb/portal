@@ -8,6 +8,11 @@ export const firebaseConfig = {
     appId: "FIREBASE_APP_ID_PLACEHOLDER"
 };
 
+export const AI_CONFIG = {
+    API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 
+    MODEL_NAME: "MODEL_NAME_PLACEHOLDER" 
+};
+
 export const APP_CONSTANTS = {
     TOAST_DURATION: 3000,
     SEARCH_DEBOUNCE_MS: 300,
