@@ -322,6 +322,8 @@ h1, h2, h3, h4, h5, h6 {
 .main-content {
     /* === ZMENA: Toto je teraz hlavná rolovateľná vrstva === */
     width: 100%;
+    max-width: 1600px; /* Alebo iná rozumná šírka */
+    margin: 0 auto;    /* Vycentruje obsah */
     height: 100vh; 
     display: flex;
     flex-direction: column;
