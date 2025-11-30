@@ -12,10 +12,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="./css/styles.css">
-    
 </head>
 <body>
-    <!-- Prihlásenie -->
     <div id="login-modal-overlay" class="login-overlay">
         <div class="login-modal">
             <div class="logo">
@@ -35,170 +33,171 @@
         </div>
     </div>
 
-    <button class="mobile-menu-toggle" id="mobile-menu-left-toggle" aria-label="Otvoriť menu">
-        <i class="fas fa-bars"></i>
-    </button>
-    <button class="mobile-menu-toggle" id="mobile-menu-right-toggle" aria-label="Otvoriť zoznam zamestnancov">
-        <i class="fas fa-users"></i>
-    </button>
-
-    <div class="portal-container">
-        <!-- ľavý sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo" data-target="dashboard-module">
-                    <img src="./css/logo2.svg" alt="Logo Odbor Krízového Riadenia" class="logo-img">
-                    <h2>OKR portál</h2>
-                </div>
+    <nav class="top-nav">
+        <div class="nav-left sidebar-header">
+            <div class="nav-logo logo" data-target="dashboard-module">
+                <img src="./css/logo2.svg" alt="Logo" class="nav-logo-img">
             </div>
 
-            <nav class="main-menu">
-                <ul>
+            <div class="nav-dropdown-wrapper">
+                <button class="nav-dropdown-btn">
+                    <i class="fa-solid fa-grid-2"></i> Výber agendy <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <ul class="nav-dropdown-menu main-menu">
+                    <li>
+                        <a href="#" data-target="dashboard-module">
+                            <i class="fa-solid fa-users-viewfinder"></i> Prehľad udalostí 
+                        </a>
+                    </li>
                     <li>
                         <a href="#" data-target="cestovny-prikaz-module">
-                            <i class="fas fa-suitcase-rolling"></i>
-                            <span>Cestovný príkaz</span>
+                            <i class="fas fa-suitcase-rolling"></i> Cestovný príkaz
                         </a>
                     </li>
                     <li>
                         <a href="#" data-target="pohotovost-module">
-                            <i class="fas fa-phone-volume"></i>
-                            <span>Rozpis pohotovosti</span>
+                            <i class="fas fa-phone-volume"></i> Rozpis pohotovosti
                         </a>
                     </li>
                     <li>
                         <a href="#" data-target="bbk-module">
-                            <i class="fas fa-map-marked-alt"></i>
-                            <span>Rozpis pohotovosti BB kraj</span>
+                            <i class="fas fa-map-marked-alt"></i> Rozpis pohotovosti BB kraj
                         </a>
                     </li>
                     <li>
                         <a href="#" data-target="izs-module">
-                            <i class="fas fa-calendar-days"></i>
-                            <span>Rozpis služieb IZS</span>
+                            <i class="fas fa-calendar-days"></i> Rozpis služieb IZS
                         </a>
                     </li>
-                     <li>
+                    <li>
                         <a href="#" data-target="ua-contributions-module">
-                            <i class="fas fa-hand-holding-dollar"></i>
-                            <span>Príspevky UA</span>
+                            <i class="fas fa-hand-holding-dollar"></i> Príspevky UA
                         </a>
                     </li>
                 </ul>
-            </nav>
+            </div>
+        </div>
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-initials" id="sidebar-user-initials">--</div>
-                    <div class="user-details">
-                        <span class="user-name" id="sidebar-user-name">---</span>
-                        <span class="user-position" id="sidebar-user-position">---</span>
+        <div class="nav-center">
+            <div class="global-search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Hľadať zamestnanca ..." id="global-employee-search">
+            </div>
+        </div>
+
+        <div class="nav-right">
+
+            <div class="settings-dropdown-wrapper" style="position: relative;">
+                <button class="icon-btn" id="settings-toggle-btn" title="Nastavenia">
+                    <i class="fas fa-cog"></i>
+                </button>
+                
+                <div class="settings-dropdown-menu">
+                    <a href="#" id="reload-btn"><i class="fa-solid fa-arrow-rotate-right"></i> Obnoviť aplikáciu</a>
+                    <a href="#" id="change-password-btn"><i class="fas fa-key"></i> Zmeniť heslo</a>
                     </div>
+            </div>
+            <div class="nav-user-profile">
+                <div class="user-initials" id="sidebar-user-initials">--</div>
+                <div class="nav-user-details">
+                    <span class="user-name" id="sidebar-user-name">---</span>
+                    <span class="user-position" id="sidebar-user-position">---</span>
+                </div>
+                <i class="fas fa-chevron-down ml-2" style="font-size: 0.8rem; opacity: 0.7;"></i>
+                
+                <div class="profile-dropdown-menu">
+                    <a href="#" id="export-excel-btn"><i class="fas fa-id-card"></i> Zoznam zamestnancov</a>
+                    <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</a>
                 </div>
             </div>
-        </aside>
-        <!-- pravý sidebar -->
-        <aside class="sidebar-right">
-            
-            <h2>Zamestnanci - <span id="global-emp-count">...</span></h2>
+        </div>
+    </nav>
 
-            <div class="search-container">
-                <input type="text" placeholder="Vyhľadať zamestnanca..." id="global-employee-search">
+    <div class="floating-employees-toggle" id="mobile-menu-right-toggle" title="Zoznam zamestnancov">
+        <div class="floating-badge-content">
+            <i class="fas fa-users"></i>
+            <span class="floating-count-badge" id="global-emp-count">0</span>
+        </div>
+    </div>
+
+    <div class="portal-container">
+        
+        <aside class="sidebar-right" id="right-sidebar-panel">
+            <div class="sidebar-right-header">
+                <h2>Zamestnanci</h2>
+                <button class="close-sidebar-btn" id="close-right-sidebar"><i class="fas fa-times"></i></button>
             </div>
-
+            
             <div class="employee-list-container">
                 <ul id="global-employees-list-items">
                     <li>Načítavam...</li>
                 </ul>
             </div>
-
         </aside>
-        <!-- dashboard (stred) -->
-        <main class="main-content">
 
-            <header class="employee-header">
-                <div class="employee-name-section">
-                    <h1 id="module-title">Prehľad udalostí</h1>
-                </div>
-    
-                <div class="header-actions">
-                    <div class="employee-badge" id="export-excel-btn" title="Stiahnuť zoznam (XLSX)">
-                        <i class="fas fa-id-card"></i>
-                    </div>
-                    <div class="employee-badge" id="reload-btn" title="Reload">
-                        <i class="fa-solid fa-arrow-rotate-right"></i>
-                    </div>
-                    <div class="employee-badge" id="change-password-btn" title="Zmeniť heslo">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="employee-badge" id="logout-btn" title="Odhlásiť sa">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </div>
-                </div>
-            </header>
+        <main class="main-content">
 
             <div class="content-scroll-area">
 
                 <div id="dashboard-module" class="module-content">
                     <div class="dashboard-container">
                         <div class="dashboard-main">
-                            <!-- Kalendár a zoznam vedľa seba -->
-                            <div class="dashboard-row">
     
-                                <div class="dashboard-right-col">
+                                <div class="dashboard-row">
                                     
-                                    <div class="dashboard-card welcome-card" id="welcome-card-container">
-                                        <div class="welcome-content">
-                                            <h3 id="welcome-greeting">Načítavam...</h3>
-                                            <p id="welcome-date">...</p>
-                                            <p id="welcome-meniny" style="font-size: 0.85rem; color: var(--color-orange-accent); margin-top: 2px; font-weight: 600; min-height: 20px;"></p>
-                                            <p id="welcome-sviatok" style="font-size: 0.85rem; color: #4CAF50; margin-top: 9px; font-weight: 600; min-height: 20px;"></p>
+                                    <div class="dashboard-right-col">
+                                        
+                                        <div class="dashboard-card welcome-card" id="welcome-card-container">
+                                            <div class="welcome-content">
+                                                <h3 id="welcome-greeting">Načítavam...</h3>
+                                                <p id="welcome-date">...</p>
+                                                <p id="welcome-meniny" style="font-size: 0.85rem; color: var(--color-orange-accent); margin-top: 2px; font-weight: 600; min-height: 20px;"></p>
+                                                <p id="welcome-sviatok" style="font-size: 0.85rem; color: #4CAF50; margin-top: 9px; font-weight: 600; min-height: 20px;"></p>
+                                            </div>
+                                            <i class="fas fa-sun welcome-icon" id="welcome-icon"></i>
+                                            <span id="welcome-temp" class="welcome-temp">--°C</span>
                                         </div>
-                                        <i class="fas fa-sun welcome-icon" id="welcome-icon"></i>
-                                        <span id="welcome-temp" class="welcome-temp">--°C</span>
-                                    </div>
 
-                                    <div class="dashboard-card dashboard-duty-card" id="duty-list">
-                                        <h2>Zamestnanci v pohotovosti (dnes)</h2>
-                                        <ul id="duty-list-items">
-                                            <li>Načítavam...</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="dashboard-card dashboard-calendar-card" id="calendar-placeholder">
-                                    <div class="calendar-header-row">
-                                        <h2>Kalendár</h2>
-                                        <div class="calendar-filters">
-                                            <label class="filter-label" title="Zobraziť/Skryť pohotovosť">
-                                                <input type="checkbox" id="filter-pohotovost" checked>
-                                                <span class="filter-dot dot-orange"></span>
-                                                Pohotovosť
-                                            </label>
-                                            <label class="filter-label" title="Zobraziť/Skryť dennú službu">
-                                                <input type="checkbox" id="filter-izs-day" checked>
-                                                <span class="filter-dot dot-blue"></span>
-                                                IZS Denná
-                                            </label>
-                                            <label class="filter-label" title="Zobraziť/Skryť nočnú službu">
-                                                <input type="checkbox" id="filter-izs-night" checked>
-                                                <span class="filter-dot dot-yellow"></span>
-                                                IZS Nočná
-                                            </label>
+                                        <div id="announcement-widget-container" class="announcement-card">
+                                        </div>
+                                        <div class="dashboard-card dashboard-duty-card" id="duty-list">
+                                            <h2>Zamestnanci v pohotovosti (dnes)</h2>
+                                            <ul id="duty-list-items">
+                                                <li>Načítavam...</li>
+                                            </ul>
                                         </div>
                                     </div>
+
+                                    <div class="dashboard-card dashboard-calendar-card" id="calendar-placeholder">
+                                        <div class="calendar-header-row">
+                                            <h2>Kalendár</h2>
+                                            <div class="calendar-filters">
+                                                <label class="filter-label" title="Zobraziť/Skryť pohotovosť">
+                                                    <input type="checkbox" id="filter-pohotovost" checked>
+                                                    <span class="filter-dot dot-orange"></span>
+                                                    Pohotovosť
+                                                </label>
+                                                <label class="filter-label" title="Zobraziť/Skryť dennú službu">
+                                                    <input type="checkbox" id="filter-izs-day" checked>
+                                                    <span class="filter-dot dot-blue"></span>
+                                                    IZS Denná
+                                                </label>
+                                                <label class="filter-label" title="Zobraziť/Skryť nočnú službu">
+                                                    <input type="checkbox" id="filter-izs-night" checked>
+                                                    <span class="filter-dot dot-yellow"></span>
+                                                    IZS Nočná
+                                                </label>
+                                            </div>
+                                        </div>
                                         <div id="dashboard-calendar-render-area"></div>
+                                    </div>
                                 </div>
-
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- KARTA: Cestovný príkaz -->
                 <div id="cestovny-prikaz-module" class="module-content hidden">
                     <div class="cp-module-layout">
-                        
                         <div class="cp-employee-info-col">
                             <div class="dashboard-card" id="cp-employee-detail-card">
                                 <div class="cp-fieldset-wrapper cp-form-start">
@@ -211,14 +210,11 @@
                                 </div>
                             </div>
 
-                            <!-- Vyúčtovanie stravy -->
                             <div class="dashboard-card" id="cp-meal-allowance-card">
                                 <div class="cp-fieldset-wrapper cp-form-start">
                                     <legend class="cp-legend">Vyúčtovanie stravy</legend>
                                     <div id="cp-meal-calculation" class="cp-employee-card">
-                                        <div id="meal-calculation-results" style="display: none;">
-                                            <!-- Tu sa zobrazia výsledky výpočtu -->
-                                        </div>
+                                        <div id="meal-calculation-results" style="display: none;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -226,7 +222,6 @@
                         
                         <div class="dashboard-card">
                             <form id="cp-form-embedded">
-                                
                                 <div class="cp-fieldset-wrapper cp-form-start">
                                     <legend class="cp-legend">Základné údaje o ceste</legend>
                                     <div class="form-group-cp">
@@ -326,25 +321,14 @@
                     </div> 
                 </div>
 
-                <!-- KARTA: Rozpis pohotovosti -->
                 <div id="pohotovost-module" class="module-content hidden">
                     <div class="duty-schedule-container">
-                        
                         <aside class="duty-groups-sidebar">
                             <h2>Dostupné skupiny</h2>
-                            <div id="duty-groups-list">
-                                </div>
-                            <div class="duty-hint-box">
-                                <i class="fa-solid fa-info"></i>
-                                <span>Presuňte skupinu do týždňa. Rotácia sa automaticky aplikuje na nasledujúce týždne.<br>
-                                    <b style="color: var(--color-orange-accent);">Kliknutím</b> na zamestnanca pridáte/odoberiete hlásenie.<br>
-                                    <b style="color: var(--color-orange-accent);">Dvojklikom</b> na zamestnca pridáte jeho zastupovanie.<br>
-                                    <b style="color: var(--color-orange-accent);">Kliknutím pravým tlačidlom</b> vymeníte zamestnancov.</span>
-                            </div>
+                            <div id="duty-groups-list"></div>
                         </aside>
 
                         <main class="duty-schedule-main">
-                            
                             <div class="duty-controls">
                                 <div class="duty-controls-selectors">
                                     <select id="duty-month-select">
@@ -361,8 +345,7 @@
                                         <option value="10">November</option>
                                         <option value="11">December</option>
                                     </select>
-                                    <select id="duty-year-select">
-                                        </select>
+                                    <select id="duty-year-select"></select>
                                 </div>
                                 <div class="duty-controls-actions">
                                     <button id="duty-preview-btn" class="ua-btn default">Náhľad rozpisu</button>
@@ -371,12 +354,18 @@
                                 </div>
                             </div>
                             
-                            <div id="duty-weeks-container" class="duty-weeks-container">
-                                </div>
+                            <div id="duty-weeks-container" class="duty-weeks-container"></div>
+                            <div class="duty-hint-box">
+                                <i class="fa-solid fa-info"></i>
+                                <span>Presuňte skupinu do týždňa. Rotácia sa automaticky aplikuje na nasledujúce týždne.<br>
+                                    <b style="color: var(--color-orange-accent);">Kliknutím</b> na zamestnanca pridáte/odoberiete hlásenie.<br>
+                                    <b style="color: var(--color-orange-accent);">Dvojklikom</b> na zamestnca pridáte jeho zastupovanie.<br>
+                                    <b style="color: var(--color-orange-accent);">Kliknutím pravým tlačidlom</b> vymeníte zamestnancov.</span>
+                            </div>
                         </main>
                     </div>
                 </div>
-                <!-- PDF: rozpis pohotovosti -->
+
                 <div id="previewModal" class="modal-overlay hidden">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -392,12 +381,10 @@
                     </div>
                 </div>
 
-                <!-- KARTA: Rozpis služieb IZS -->
                 <div id="izs-module" class="module-content hidden">
                     <div class="ua-container" style="flex-direction: column;"> 
-                        
                         <div class="ua-card">
-                            <h2>Plán služieb</h2>
+                            <h2>Plán služieb <i class="fas fa-chevron-right title-separator"></i> Rozpis služieb</h2>
                             <p>- spracovaný súbor sa otvorí v samostatnom okne</p>
                             <div class="file-upload-section">
                                 <div id="izs-drop-zone" class="drop-zone">
@@ -418,45 +405,24 @@
                         </div>
                     </div>
                 </div>
-                <!-- Rozpis IZS: -->
-                        <div id="previewModal" class="modal-overlay hidden">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h2>Náhľad dokumentu</h2>
-                                                <button id="closeModalButton" class="modal-close">&times;</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <iframe id="pdfPreviewFrame" width="100%" height="600px" style="border: 1px solid var(--color-border); border-radius: var(--radius-sm); background-color: #fff;"></iframe>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button id="downloadPdfButton" class="ua-btn accent">Stiahnuť Rozdeľovník</button>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div id="izsPreviewModal" class="modal-overlay hidden">
-                                        <div class="modal-content" style="max-width: 95%; height: 90vh;">
-                                            <div class="modal-header">
-                                                <h2>Náhľad Plánu služieb</h2>
-                                                <button id="izsCloseModalBtn" class="modal-close">&times;</button>
-                                            </div>
-                                            <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;">
-                                                </div>
-                                        </div>
-                                    </div>
-                                    <div id="izs-module" class="module-content hidden"></div>
+                <div id="izsPreviewModal" class="modal-overlay hidden">
+                    <div class="modal-content izs-modal-window">
+                        <div class="modal-header">
+                            <h2>Náhľad Plánu služieb</h2>
+                            <button id="izsCloseModalBtn" class="modal-close">&times;</button>
+                        </div>
+                        <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;"></div>
+                    </div>
+                </div>
                 
-                <!-- KARTA: Rozpis pohotovosti BB kraj -->
                 <div id="bbk-module" class="module-content hidden">
                     <div class="ua-container" style="flex-direction: column;">
-                        
                         <div class="ua-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                                
                                 <div style="flex: 1; min-width: 250px;">
                                     <h2 style="margin: 0; border: none; padding: 0;">Rozpis pohotovosti BB kraj</h2>
                                 </div>
-
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <div style="display: flex; flex-direction: column; width: 100px;">
                                         <label for="bbk-year-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Rok</label>
@@ -494,10 +460,8 @@
                     </div>
                 </div> 
 
-                <!-- KARTA: Príspevky UA -->
                 <div id="ua-contributions-module" class="module-content hidden">
                     <div class="ua-container">
-
                         <div class="ua-card">
                              <h2>Spracovanie súborov</h2>
                                 <div class="file-upload-section">
@@ -545,7 +509,6 @@
         </main>
     </div>
 
-    <!-- zmena hesla -->
     <div id="change-password-modal" class="modal-overlay hidden">
     <div class="modal-content" style="max-width: 400px;">
         <div class="modal-header">
@@ -575,7 +538,6 @@
     </div>
     </div>
     
-    <!-- Login: -->
     <div id="forgot-password-modal" class="modal-overlay hidden">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -600,7 +562,6 @@
         </div>
     </div>
 
-    <!-- Logs: -->
     <div id="delete-logs-overlay" class="delete-modal-overlay hidden">
         <div class="delete-modal">
             <i class="fas fa-exclamation-triangle"></i>
@@ -616,53 +577,64 @@
         </div>
     </div>
 
-    <!-- Nástenka -->
-    <div id="announcement-modal" class="modal-overlay hidden">
-        <div class="modal-content" style="max-width: 500px;">
+    <div id="iban-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h2><i class="fas fa-bullhorn"></i> Upraviť oznam</h2>
-                <button id="close-announcement-modal" class="modal-close">&times;</button>
+                <h2>Upraviť IBAN</h2>
+                <button id="close-iban-modal" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="margin-bottom: 10px; color: var(--color-text-secondary);">
-                    Tento oznam sa zobrazí všetkým používateľom na hlavnej nástenke.
+                <p style="margin-bottom: 15px; color: var(--color-text-secondary);">
+                    Zadajte číslo účtu (IBAN) pre vybraného zamestnanca.
                 </p>
-                <form id="announcement-form">
+                <form id="iban-form">
                     <div class="form-group">
-                        <label for="announcement-text">Text oznamu:</label>
-                        <textarea id="announcement-text" rows="6" placeholder="Sem napíšte text oznamu..." style="width: 100%;"></textarea>
+                        <label for="iban-input">IBAN:</label>
+                        <input type="text" id="iban-input" placeholder="SK00 0000 0000 0000 0000 0000">
                     </div>
-                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem; display: flex; justify-content: space-between;">
-                        <button type="button" id="btn-delete-announcement" class="ua-btn default delete-hover">Zmazať oznam</button>
-                        <button type="submit" class="ua-btn default">Zverejniť</button>
+                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem;">
+                        <button type="submit" class="ua-btn default" style="width: 100%;">Uložiť</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-     <!-- IBAN -->
-    <div id="iban-modal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header">
-            <h2>Upraviť IBAN</h2>
-            <button id="close-iban-modal" class="modal-close">&times;</button>
+    <div id="ai-floating-btn" class="ai-fab-btn" title="AI Asistent">
+        <div class="ai-fab-icon">
+            <i class="fas fa-user-shield"></i>
         </div>
-        <div class="modal-body">
-            <p style="margin-bottom: 15px; color: var(--color-text-secondary);">
-                Zadajte číslo účtu (IBAN) pre vybraného zamestnanca.
-            </p>
-            <form id="iban-form">
-                <div class="form-group">
-                    <label for="iban-input">IBAN:</label>
-                    <input type="text" id="iban-input" placeholder="SK00 0000 0000 0000 0000 0000">
-                </div>
-                <div class="modal-footer" style="padding: 0; border: none; margin-top: 1rem;">
-                    <button type="submit" class="ua-btn default" style="width: 100%;">Uložiť</button>
-                </div>
-            </form>
-        </div>
+        <span class="status-dot-fab online"></span>
     </div>
+
+    <div id="ai-modal-overlay" class="ai-modal-overlay hidden">
+        <div class="ai-modal-window">
+            <div class="ai-modal-header">
+                <div class="ai-header-title">
+                    <i class="fas fa-user-shield"></i>
+                    <span>AI Asistent CO</span>
+                </div>
+                <div class="ai-header-controls">
+                    <button id="ai-reset-btn" class="ai-action-btn" title="Nová konverzácia">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button id="ai-close-btn" class="ai-action-btn close" title="Zavrieť">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ai-messages-container" id="ai-messages-area">
+                <div class="ai-msg ai-bot">
+                    Som virtuálny špecialista na krízové riadenie. Ako vám môžem pomôcť?
+                </div>
+            </div>
+
+            <div class="ai-input-wrapper">
+                <input type="text" id="ai-input" placeholder="Opíšte situáciu..." autocomplete="off">
+                <button id="send-ai-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -693,6 +665,61 @@
     <script type="module" src="./js/widget.js"></script>
     
     <script type="module" src="./js/mainWizard.js"></script>
-</body>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Definujeme všetky elementy naraz, aby sme predišli chybám
+            const navDropdownBtn = document.querySelector('.nav-dropdown-btn');
+            const navDropdownMenu = document.querySelector('.nav-dropdown-menu');
+            const userProfileContainer = document.querySelector('.nav-user-profile');
+            const userDropdown = document.querySelector('.profile-dropdown-menu');
+            const settingsBtn = document.getElementById('settings-toggle-btn');
+            const settingsMenu = document.querySelector('.settings-dropdown-menu');
 
+            // 1. Výber agendy
+            if (navDropdownBtn && navDropdownMenu) {
+                navDropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault(); // Zabráni prekliku, ak by tam bol odkaz
+                    navDropdownMenu.classList.toggle('show');
+                    
+                    // Zavrieť ostatné
+                    if (userDropdown) userDropdown.classList.remove('show');
+                    if (settingsMenu) settingsMenu.classList.remove('show');
+                });
+            }
+
+            // 2. Užívateľský profil
+            if (userProfileContainer && userDropdown) {
+                userProfileContainer.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                    
+                    // Zavrieť ostatné
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                    if (settingsMenu) settingsMenu.classList.remove('show');
+                });
+            }
+
+            // 3. Nastavenia
+            if (settingsBtn && settingsMenu) {
+                settingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    settingsMenu.classList.toggle('show');
+                    
+                    // Zavrieť ostatné
+                    if (userDropdown) userDropdown.classList.remove('show');
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                });
+            }
+
+            // 4. Kliknutie mimo (Zatvorenie všetkého)
+            document.addEventListener('click', () => {
+                if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                if (userDropdown) userDropdown.classList.remove('show');
+                if (settingsMenu) settingsMenu.classList.remove('show');
+            });
+        });
+    </script>
+</body>
 </html>
