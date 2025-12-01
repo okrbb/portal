@@ -2999,15 +2999,15 @@ input:focus, select:focus, textarea:focus {
     /* Zmeníme zarovnanie zo stredu (center) na vrch (flex-start) */
     align-items: flex-start !important;
     
-    /* Pridáme odstup od horného okraja okna (napr. 50px) */
-    padding-top: 50px !important;
+    /* ZMENA: Znížili sme odstup od horného okraja z 50px na 10px */
+    padding-top: 10px !important;
 }
 
 /* Voliteľné: Zväčšenie maximálnej výšky, keďže máme viac miesta */
 #previewModal .modal-content {
     max-height: 98vh !important;
-    max-width: 1200px !important; /* <--- Pridajte tento riadok (zväčší okno) */
-    width: 95% !important;        /* Poistka pre mobilné zariadenia */
+    max-width: 1200px !important; 
+    width: 95% !important;       
 }
 
 /* ========================================= */
