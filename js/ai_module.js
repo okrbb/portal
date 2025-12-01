@@ -1,24 +1,24 @@
 import { AI_CONFIG } from './config.js';
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/+esm";
+// === NOVÉ: Import OpenAI SDK pre Groq ===
+import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.0/+esm"; 
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
 /* =================================== */
-/* MODUL: AI PORADCA (RAG + Firebase)  */
+/* MODUL: AI PORADCA (Gemini + Groq Backup) */
 /* =================================== */
 
-// Konfigurácia marked (aby Enter znamenal nový riadok <br>)
-marked.use({
-    breaks: true,
-    gfm: true
-});
+marked.use({ breaks: true, gfm: true });
 
 let chatSession = null;
 let genAIModel = null;
+let groqClient = null; // Klient pre zálohu
 let currentUserContext = null;
 let firestoreDB = null; 
+let currentSystemInstruction = ""; // Uložíme si inštrukcie pre prípad fallbacku
 
 export async function initializeAIModule(db, userProfile = null) {
-    console.log('Inicializujem AI Poradcu (RAG Mode)...');
+    console.log('Inicializujem AI Poradcu...');
 
     firestoreDB = db; 
     currentUserContext = userProfile || { funkcia: 'Neznámy', meno: 'Používateľ' };
@@ -26,34 +26,39 @@ export async function initializeAIModule(db, userProfile = null) {
     setupAIInterface();
 
     try {
+        // 1. Inicializácia Gemini (Primary)
         const genAI = new GoogleGenerativeAI(AI_CONFIG.API_KEY);
         genAIModel = genAI.getGenerativeModel({ 
-            model: AI_CONFIG.MODEL_NAME, 
-            tools: [
-                {
-                    googleSearch: {} 
-                }
-            ]
+            model: AI_CONFIG.MODEL_NAME
         });
 
-        await startNewChatSession();
+        // 2. Inicializácia Groq (Backup)
+        if (AI_CONFIG.GROQ_API_KEY && AI_CONFIG.GROQ_API_KEY.length > 10) {
+            groqClient = new OpenAI({
+                apiKey: AI_CONFIG.GROQ_API_KEY,
+                baseURL: "https://api.groq.com/openai/v1",
+                dangerouslyAllowBrowser: true // Nutné pre client-side usage
+            });
+            console.log("Groq (Backup) je pripravený.");
+        }
 
-        console.log(`AI Model pripravený (${AI_CONFIG.MODEL_NAME}). Rola: ${currentUserContext.funkcia}`);
+        await startNewChatSession();
+        console.log(`AI Model pripravený (${AI_CONFIG.MODEL_NAME}).`);
+
     } catch (error) {
         console.error("AI Init Error:", error);
     }
 }
+
+// ... (funkcie fetchSystemPrompt, fetchKnowledgeBase a setupAIInterface ostávajú BEZ ZMENY) ...
+// SKOPÍRUJTE SI ICH Z PÔVODNÉHO SÚBORU (sú riadky 48 - 128 v pôvodnom kóde)
 
 async function fetchSystemPrompt() {
     if (!firestoreDB) return null;
     try {
         const docRef = firestoreDB.collection('settings').doc('ai_config');
         const docSnap = await docRef.get();
-        if (docSnap.exists) {
-            return docSnap.data().system_prompt;
-        } else {
-            return null;
-        }
+        return docSnap.exists ? docSnap.data().system_prompt : null;
     } catch (e) {
         console.error("Chyba pri sťahovaní promptu:", e);
         return null;
@@ -63,29 +68,15 @@ async function fetchSystemPrompt() {
 async function fetchKnowledgeBase() {
     if (!firestoreDB) return "";
     let kbContent = "\n=== EXTERNÁ ZNALOSTNÁ BÁZA (DOKUMENTY A SMERNICE) ===\n";
-    
     try {
-        const snapshot = await firestoreDB.collection('knowledge_base')
-                                          .where('isActive', '==', true)
-                                          .get();
-        
-        if (snapshot.empty) {
-            return ""; 
-        }
-
+        const snapshot = await firestoreDB.collection('knowledge_base').where('isActive', '==', true).get();
+        if (snapshot.empty) return ""; 
         snapshot.forEach(doc => {
             const data = doc.data();
-            kbContent += `\n--- DOKUMENT: ${data.title} (${data.category || 'Všeobecné'}) ---\n`;
-            kbContent += `${data.content}\n`;
-            kbContent += `--- KONIEC DOKUMENTU ---\n`;
+            kbContent += `\n--- DOKUMENT: ${data.title} ---\n${data.content}\n--- KONIEC ---\n`;
         });
-
         return kbContent;
-
-    } catch (e) {
-        console.error("Chyba pri sťahovaní knowledge base:", e);
-        return ""; 
-    }
+    } catch (e) { return ""; }
 }
 
 function setupAIInterface() {
@@ -103,18 +94,15 @@ function setupAIInterface() {
             if (inputField) setTimeout(() => inputField.focus(), 100);
         });
     }
-
     const closeModal = () => {
         if (!modalOverlay) return;
         modalOverlay.classList.remove('active');
         setTimeout(() => modalOverlay.classList.add('hidden'), 300);
     };
-
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closeModal();
     });
-
     if (sendBtn && inputField) {
         const handleSend = () => sendMessage();
         sendBtn.addEventListener('click', handleSend);
@@ -122,25 +110,21 @@ function setupAIInterface() {
             if (e.key === 'Enter') handleSend();
         });
     }
-
-    if (resetBtn) {
-        resetBtn.addEventListener('click', resetConversation);
-    }
+    if (resetBtn) resetBtn.addEventListener('click', resetConversation);
 }
+// ... (KONIEC SKOPÍROVANÝCH FUNKCIÍ) ...
+
 
 async function startNewChatSession() {
     if (!genAIModel) return;
 
     const now = new Date();
-    const todayDate = now.toLocaleDateString('sk-SK');
-    const todayTime = now.toLocaleTimeString('sk-SK');
     
+    // Získanie dát z DOMu pre kontext
     const announcementContainer = document.getElementById('announcement-widget-container');
-    const currentAnnouncements = announcementContainer ? announcementContainer.innerText : "Žiadne aktuálne oznamy.";
-    
+    const currentAnnouncements = announcementContainer ? announcementContainer.innerText : "Žiadne.";
     const dutyListContainer = document.getElementById('duty-list-items');
     const currentDuty = dutyListContainer ? dutyListContainer.innerText : "Neznáme.";
-    
     const userRole = currentUserContext?.funkcia || "Neznáma";
 
     const [dbPrompt, dbKnowledgeBase] = await Promise.all([
@@ -148,38 +132,31 @@ async function startNewChatSession() {
         fetchKnowledgeBase()
     ]);
 
-    const baseInstruction = dbPrompt || "Si nápomocný AI asistent.";
+    const baseInstruction = dbPrompt || "Si nápomocný AI asistent pre krízové riadenie.";
 
-    let finalDynamicInstruction = `
+    // Uložíme si kompletný prompt do globálnej premennej pre Groq
+    currentSystemInstruction = `
     ${baseInstruction}
-
-    === AKTUÁLNY KONTEXT APLIKÁCIE (REALITA) ===
-    Dnešný dátum: ${todayDate} (Čas: ${todayTime})
-    Aktuálne oznamy: ${currentAnnouncements}
-    Aktuálne v pohotovosti: ${currentDuty}
     
-    AKTUÁLNY POUŽÍVATEĽ:
-    - Meno: ${currentUserContext.meno || 'Neznáme'}
-    - Pracovná pozícia: ${userRole}
+    === KONTEXT APLIKÁCIE ===
+    Dátum: ${now.toLocaleDateString('sk-SK')} ${now.toLocaleTimeString('sk-SK')}
+    Oznamy: ${currentAnnouncements}
+    Pohotovosť: ${currentDuty}
+    Používateľ: ${currentUserContext.meno} (${userRole})
     
-    ${dbKnowledgeBase} 
-    
-    INŠTRUKCIA K ZNALOSTNEJ BÁZE:
-    Odpovedaj štruktúrovane. Používaj odrážky a číslované zoznamy pre prehľadnosť.
-    Texty vyššie označené ako "EXTERNÁ ZNALOSTNÁ BÁZA" sú prioritným zdrojom.
+    ${dbKnowledgeBase}
     `;
 
-    console.log("AI Prompt pripravený.");
-
+    // Štart Gemini Session
     chatSession = genAIModel.startChat({
         history: [
             {
                 role: "user",
-                parts: [{ text: finalDynamicInstruction }], 
+                parts: [{ text: currentSystemInstruction }], 
             },
             {
                 role: "model",
-                parts: [{ text: "Rozumiem. Som pripravený." }],
+                parts: [{ text: "Rozumiem kontextu a som pripravený pomôcť." }],
             }
         ],
         generationConfig: {
@@ -213,7 +190,6 @@ async function sendMessage() {
         if(!chatSession) return;
     }
 
-    // Zobrazenie správy používateľa (nepotrebujeme markdown)
     appendMessage(userText, 'ai-user');
     inputEl.value = '';
 
@@ -221,24 +197,90 @@ async function sendMessage() {
     appendMessage('<div class="typing-indicator"><span></span><span></span><span></span></div>', 'ai-bot', loaderId);
     scrollToBottom();
 
-    try {
-        const result = await chatSession.sendMessage(userText);
-        const responseText = result.response.text();
-        removeElement(loaderId);
-        
-        // === ZMENA: Použitie knižnice Marked pre parsovanie ===
-        // Toto automaticky spracuje **bold**, *list*, 1. list, tabuľky, atď.
-        const formattedText = marked.parse(responseText);
+    let responseText = "";
+    let usedModel = "Gemini";
 
-        appendMessage(formattedText, 'ai-bot');
+    try {
+        // === POKUS 1: GEMINI (PRIMARY) ===
+        const result = await chatSession.sendMessage(userText);
+        responseText = result.response.text();
 
     } catch (error) {
-        console.error("AI Error:", error);
+        console.warn("⚠️ Gemini zlyhalo, prepínam na Groq...", error);
+        
+        // === POKUS 2: GROQ (FALLBACK) ===
+        if (groqClient) {
+            try {
+                responseText = await callGroqFallback(userText);
+                usedModel = "Groq (Llama 3)";
+            } catch (groqError) {
+                console.error("Aj Groq zlyhal:", groqError);
+                responseText = "Ospravedlňujem sa, momentálne sú preťažené oba systémy (Gemini aj Groq). Skúste to prosím o chvíľu.";
+            }
+        } else {
+            responseText = "Chyba spojenia s Gemini a záložný systém nie je nakonfigurovaný.";
+        }
+    } finally {
         removeElement(loaderId);
-        appendMessage("Chyba spojenia. Skúste obnoviť stránku.", 'ai-msg error');
     }
     
+    // Spracovanie markdownu
+    const formattedText = marked.parse(responseText);
+    
+    // Pridanie informácie o použití záložného modelu (voliteľné)
+    const finalContent = usedModel.includes("Groq") 
+        ? `${formattedText}<br><small style="color:orange; font-size:0.7em;">(Vygenerované cez záložný systém ${usedModel})</small>` 
+        : formattedText;
+
+    appendMessage(finalContent, 'ai-bot');
     scrollToBottom();
+}
+
+/**
+ * Funkcia na volanie Groq API s kontextom z Gemini
+ */
+async function callGroqFallback(currentMessage) {
+    if (!groqClient) throw new Error("Groq client not initialized");
+
+    // 1. Vytvoríme históriu správ pre OpenAI formát
+    // Začneme systémovým promptom
+    let messages = [
+        { role: "system", content: currentSystemInstruction }
+    ];
+
+    // 2. Skúsime vytiahnuť históriu z Gemini session a skonvertovať ju
+    if (chatSession && chatSession.getHistory) {
+        try {
+            const geminiHistory = await chatSession.getHistory();
+            
+            // Konverzia Gemini history -> OpenAI history
+            geminiHistory.forEach(msg => {
+                const role = msg.role === 'model' ? 'assistant' : 'user';
+                // Ignorujeme prvú správu ak je to len setup system promptu (lebo sme ho už pridali vyššie)
+                const text = msg.parts[0].text;
+                
+                // Pridáme len ak to nie je duplikát system promptu
+                if (text !== currentSystemInstruction) {
+                    messages.push({ role: role, content: text });
+                }
+            });
+        } catch (e) {
+            console.warn("Nepodarilo sa načítať históriu z Gemini, posielam len aktuálnu správu.", e);
+        }
+    }
+
+    // 3. Pridáme aktuálnu správu používateľa
+    messages.push({ role: "user", content: currentMessage });
+
+    // 4. Volanie Groq
+    const completion = await groqClient.chat.completions.create({
+        messages: messages,
+        model: AI_CONFIG.GROQ_MODEL || "llama-3.1-70b-versatile",
+        temperature: 0.5,
+        max_tokens: 8000
+    });
+
+    return completion.choices[0]?.message?.content || "Žiadna odpoveď.";
 }
 
 function appendMessage(htmlContent, className, id = null) {
@@ -246,10 +288,7 @@ function appendMessage(htmlContent, className, id = null) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `ai-msg ${className}`;
     if (id) msgDiv.id = id;
-    
-    // Vložíme HTML obsah (Marked vracia HTML reťazec)
     msgDiv.innerHTML = htmlContent;
-    
     messagesArea.appendChild(msgDiv);
     scrollToBottom();
 }
@@ -261,8 +300,5 @@ function removeElement(id) {
 
 function scrollToBottom() {
     const messagesArea = document.getElementById('ai-messages-area');
-    if(messagesArea) {
-        messagesArea.scrollTop = messagesArea.scrollHeight;
-    }
-
+    if(messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
 }
