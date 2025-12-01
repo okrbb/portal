@@ -2275,7 +2275,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .ai-input-wrapper {
-    padding: var(--spacing-sm);
+    align-items: flex-end; /* Tlačidlo ostane dole pri roztiahnutí poľa */
+    padding: 12px;
     border-top: 1px solid var(--color-border);
     display: flex;
     gap: 8px;
@@ -2289,18 +2290,50 @@ input:focus, select:focus, textarea:focus {
     background: rgba(0, 0, 0, 0.2) !important;
 }
 
-.ai-input-wrapper button {
-    width: 45px;
-    background: #38a169;
-    border: none;
-    border-radius: var(--radius-md);
-    color: white;
-    cursor: pointer;
-    transition: background 0.2s;
+/* Štýlovanie nového textarea */
+.ai-input-wrapper textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important; /* Menší rádius ako input, lepšie pre viac riadkov */
+    padding: 10px 12px !important;
+    color: var(--color-text-primary);
+    font-family: var(--font-secondary);
+    font-size: 0.95rem;
+    
+    resize: none; /* Užívateľ nemôže ťahať rohy, rieši to JS */
+    min-height: 44px; /* Výška jedného riadku */
+    max-height: 150px; /* Maximálna výška pred scrollovaním */
+    overflow-y: auto;
+    
+    margin-bottom: 0 !important;
+    line-height: 1.4;
 }
 
+.ai-input-wrapper textarea:focus {
+    outline: none;
+    border-color: #2b6cb0 !important;
+    box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.2);
+}
+
+/* Úprava tlačidla odoslať, aby sedelo k textarea */
+.ai-input-wrapper button {
+    height: 44px; /* Rovnaká výška ako min-height textarea */
+    width: 44px;
+    margin-bottom: 1px; /* Jemné doladenie zarovnania */
+    border: none !important; 
+    border-radius: 50%;
+    background: #2b6cb0;
+    color: white;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
+}
+
+/* Hover efekt (voliteľné, pre lepší pocit) */
 .ai-input-wrapper button:hover {
-    background: #2f855a;
+    background: #3182ce;
+    transform: scale(1.05);
 }
 
 /* === ÚPRAVA HLAVIČKY AI A TLAČIDLA RESET === */
@@ -3231,24 +3264,42 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Oprava formátovania v AI chate */
-.ai-msg ul, .ai-msg ol {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    padding-left: 25px; /* Dôležité pre zobrazenie odrážok/čísel */
+/* Zväčšenie riadkovania a medzier */
+.ai-msg {
+    line-height: 1.6 !important; /* Vzdušnejší text */
+    font-size: 0.95rem;
+    padding: 12px 16px !important;
 }
 
-.ai-msg li {
-    margin-bottom: 4px;
-    list-style-position: outside; /* Alebo inside, ak chcete zarovnanie do textu */
-}
-
+/* Odstupy medzi odsekmi v správe */
 .ai-msg p {
-    margin-bottom: 8px; /* Odstup medzi odsekmi */
+    font-size: 0.95rem !important;
+    color: var(--color-text-primary) !important;
+    font-weight: 400 !important;
+    line-height: 1.6 !important;
+    
+    /* TOTO ROBÍ MEDZERY MEDZI ODSEKMI: */
+    margin-bottom: 24px !important; /* Zväčšené z 10px na 24px */
+    display: block;
 }
 
+/* Odsadenie a štýlovanie zoznamov (body 8, 9, 10 z obrázku) */
+.ai-msg ul, .ai-msg ol {
+    margin-left: 20px !important;
+    margin-bottom: 12px !important;
+    padding-left: 0 !important;
+}
+
+/* Poistka: Ak by text prišiel ako zoznam */
+.ai-msg li {
+    margin-bottom: 12px !important; /* Medzera medzi bodmi zoznamu */
+    line-height: 1.6;
+}
+
+/* Zvýraznenie dôležitých pojmov */
 .ai-msg strong {
+    color: var(--color-orange-accent); /* Alebo biela pre lepší kontrast */
     font-weight: 700;
-    color: inherit; /* Aby tučné písmo nemenilo farbu, len hrúbku */
 }
 
 /* Oprava pre číslované zoznamy */
@@ -3257,4 +3308,20 @@ input:focus, select:focus, textarea:focus {
 }
 .ai-msg ul {
     list-style-type: disc;
+}
+
+/* === OPRAVA VEĽKOSTI NADPISOV V AI CHATE === */
+
+/* Toto zabezpečí, že ak AI pošle nadpis (h1, h2...), nebude obrovský */
+.ai-msg h1, 
+.ai-msg h2, 
+.ai-msg h3, 
+.ai-msg h4 {
+    font-size: 1.1rem !important; /* Len mierne väčšie ako bežný text */
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    margin-top: 10px !important;
+    margin-bottom: 6px !important;
+    color: var(--color-text-primary); /* Zvýraznenie farbou (voliteľné) */
+    /* Ak chcete biele nadpisy, zmeňte color na: var(--color-text-primary) */
 }
