@@ -162,6 +162,9 @@ function populateTimeSelects() {
 /**
  * Otvorí modálne okno pre IBAN
  */
+/**
+ * Otvorí modálne okno pre IBAN
+ */
 function openIbanModal() {
     if (!selectedEmployeeId) {
         showToast("Najprv vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
@@ -171,11 +174,14 @@ function openIbanModal() {
     const emp = _allEmployeesData.get(selectedEmployeeId);
     if (!emp) return;
 
-    // Kontrola oprávnení (voliteľné, ak chcete obmedziť editáciu)
-    if (!Permissions.canViewCP(_localActiveUser, emp)) {
-         showToast("Nemáte oprávnenie upravovať tohto zamestnanca.", TOAST_TYPE.ERROR);
+    // Kontrolujeme len to, či je používateľ prihlásený.
+    // Keďže selectedEmployeeId je už vybrané (a zoznam vpravo filtruje viditeľnosť),
+    // táto úprava umožní editáciu každému, kto sa k zamestnancovi preklikol (vrátane seba).
+    if (!_localActiveUser) {
+         showToast("Pre úpravu údajov musíte byť prihlásený.", TOAST_TYPE.ERROR);
          return;
     }
+    // -----------------------------------------------------
 
     const modal = document.getElementById('iban-modal');
     const input = document.getElementById('iban-input');
