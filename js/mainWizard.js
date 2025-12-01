@@ -5,7 +5,7 @@
 import { initializeLogsModule, logUserAction, updateLogsUser } from './logs_module.js';
 
 // === 1. IMPORTOVANIE KONFIGURÁCIE A POMOCNÝCH FUNKCIÍ ===
-import { firebaseConfig } from './config.template.js';
+import { firebaseConfig } from './config.js';
 import { debounce, handleError, showToast, TOAST_TYPE } from './utils.js';
 
 // === 2. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
@@ -1394,3 +1394,4 @@ if (db && auth) {
     document.body.innerHTML = '<h1 style="padding: 2rem; text-align: center;">Chyba: Nepodarilo sa pripojiť k databáze.</h1>';
 
 }
+
