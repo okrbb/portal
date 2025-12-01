@@ -10,11 +10,12 @@ export const firebaseConfig = {
 
 export const AI_CONFIG = {
     API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 
-    MODEL_NAME: "MODEL_NAME_PLACEHOLDER" 
+    MODEL_NAME: "gemini-2.0-flash" 
 };
 
 export const APP_CONSTANTS = {
     TOAST_DURATION: 3000,
     SEARCH_DEBOUNCE_MS: 300,
     DEFAULT_AVATAR: '--'
+
 };
