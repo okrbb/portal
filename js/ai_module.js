@@ -1,6 +1,5 @@
 import { AI_CONFIG } from './config.js';
-import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.17.0/+esm";
-// PRIDANÉ: Import knižnice Marked pre formátovanie textu
+import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/+esm";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
 /* =================================== */
@@ -265,4 +264,5 @@ function scrollToBottom() {
     if(messagesArea) {
         messagesArea.scrollTop = messagesArea.scrollHeight;
     }
+
 }
