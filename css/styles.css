@@ -513,7 +513,7 @@ h1, h2, h3, h4, h5, h6 {
     
     /* ÚPRAVA: Responzívne rozmery */
     width: 95%;            /* Širšie na mobiloch */
-    max-width: 900px;      /* Maximálna šírka */
+    max-width: 1200px;      /* Maximálna šírka */
     max-height: 90vh;      /* KĽÚČOVÉ: Okno nikdy nepresiahne 90% výšky obrazovky */
     
     display: flex; 
