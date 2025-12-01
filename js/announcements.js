@@ -33,8 +33,8 @@ export function renderAnnouncementWidget(db, user) {
 
     // 3. Inicializácia modálneho okna (ak je užívateľ admin/vedúci)
     // Toto stačí spustiť raz, ale kontrolujeme, či už nebolo spustené
-    if (Permissions.canManageLogs(user)) {
-        setupAnnouncementModal(db, user);
+    if (Permissions.canManageAnnouncements(user)) {
+    setupAnnouncementModal(db, user);
     }
 }
 
@@ -66,7 +66,7 @@ async function loadAnnouncementData(db, user, cardElement) {
 
         // Zobrazíme widget
         cardElement.style.display = 'block';
-        renderCardContent(cardElement, data, Permissions.canManageLogs(user));
+        renderCardContent(cardElement, data, Permissions.canManageAnnouncements(user));
 
     } catch (error) {
         console.error("Chyba pri načítaní oznamov:", error);

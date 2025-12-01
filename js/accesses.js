@@ -1,145 +1,160 @@
 /* =================================== */
 /* CENTRÁLNE RIADENIE PRÍSTUPOV        */
-/* (accesses.js)                       */
+/* (accesses.js) - RBAC Model          */
 /* =================================== */
 
+// Definícia rolí presne podľa vašej DB a Excelu
 export const ROLES = {
-    VEDUCI_ODBORU: 'vedúci odboru',
-    VEDUCI_ODDELENIA: 'vedúci oddelenia',
+    ADMIN: 'admin',
+    MANAGER_1: 'manager_1',      // Vedúci OCOaKP
+    MANAGER_2: 'manager_2',      // Vedúci KS IZS
+    SUPER_USER_1: 'super_user_1', // Denis M.
+    SUPER_USER_2: 'super_user_2', // Maroš P.
+    SUPER_USER_IZS: 'super_user_IZS', // Silvia S.
+    USER: 'user',
+    USER_IZS: 'user_IZS'
 };
 
 // --- Pomocné interné funkcie ---
 
-const isVeduciOdboru = (user) => user?.funkcia?.toLowerCase() === ROLES.VEDUCI_ODBORU;
-const isVeduciOddelenia = (user) => user?.funkcia?.toLowerCase() === ROLES.VEDUCI_ODDELENIA;
+const hasRole = (user, ...allowedRoles) => {
+    if (!user || !user.role) return false;
+    return allowedRoles.includes(user.role);
+};
 
 const isOwnProfile = (user, targetEmp) => {
     if (!user?.email || !targetEmp?.mail) return false;
     return user.email.toLowerCase() === targetEmp.mail.toLowerCase();
 };
 
-const isSameDepartment = (user, targetEmp) => {
-    if (!user?.oddelenie || !targetEmp?.oddelenie) return false;
-    return user.oddelenie === targetEmp.oddelenie;
+const isDepartment = (targetEmp, deptName) => {
+    return targetEmp?.oddelenie?.toLowerCase() === deptName.toLowerCase(); // Napr. 'ocoakp' alebo 'ks izs'
 };
 
-// --- Verejný objekt s pravidlami ---
+// --- Verejný objekt s pravidlami (Implementácia matice) ---
 
 export const Permissions = {
     
     /**
-     * Určuje, či má používateľ prístup k položke v menu (modulu).
+     * Matica prístupov k modulom (Menu vľavo)
      */
     canViewModule: (user, moduleId) => {
-        if (!user) return false;
-        
-        if (isVeduciOdboru(user)) return true; 
+        if (!user || !user.role) return false;
 
+        // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
+        if (moduleId === 'dashboard-module' || 
+            moduleId === 'cestovny-prikaz-module' || 
+            moduleId === 'ai-module') { // AI zatiaľ nie je v menu ako ID, ale pre istotu
+            return true;
+        }
+
+        // 2. Ostatné moduly podľa matice
         switch (moduleId) {
-            case 'pohotovost-module':
-                if (isVeduciOddelenia(user)) return true;
-                if (user.kod === '28836' || user.id === '28836') return true;
-                return false;
+            case 'pohotovost-module': // Rozpis pohotovosti
+                return hasRole(user, 
+                    ROLES.ADMIN, 
+                    ROLES.MANAGER_1, 
+                    ROLES.MANAGER_2, 
+                    ROLES.SUPER_USER_1
+                );
 
-            case 'izs-module':
-                if (user.kod === '28845' || user.id === '28845') return true;
-                if (user.kod === '28852' || user.id === '28852') return true;
-                return false;
-            
-            // --- AKTUALIZOVANÉ PRE BB KRAJ ---
-            case 'bbk-module':
-                // 1. Pôvodné výnimky (konkrétni ľudia)
-                if (user.kod === '28845' || user.id === '28845') return true;
-                if (user.kod === '28852' || user.id === '28852') return true;
-                
-                // 2. NOVÉ: Prístup pre všetkých operátorov linky 112
-                if (user.funkcia && user.funkcia.toLowerCase().includes('operátor linky 112')) {
-                    return true;
-                }
-                
-                return false;
-            // --------------------------------
+            case 'bbk-module': // Rozpis pohotovosti BB kraj
+                return hasRole(user, 
+                    ROLES.ADMIN, 
+                    ROLES.MANAGER_1, 
+                    ROLES.MANAGER_2, 
+                    ROLES.SUPER_USER_IZS,
+                    ROLES.USER_IZS // Aj bežný user_IZS má tu 'A'
+                );
 
-            case 'ua-contributions-module':
-                if (user.id === '28841' || user.kod === '28841') return true;
-                return isVeduciOdboru(user);
+            case 'izs-module': // Rozpis služieb IZS
+                return hasRole(user, 
+                    ROLES.ADMIN, 
+                    ROLES.MANAGER_2, 
+                    ROLES.SUPER_USER_IZS
+                );
+
+            case 'ua-contributions-module': // Príspevky UA
+                return hasRole(user, 
+                    ROLES.ADMIN, 
+                    ROLES.SUPER_USER_2
+                );
             
-            case 'cestovny-prikaz-module':
-            case 'admin-panel-module':
-            case 'dashboard-module':
-                return true; 
-                
+            // Logy nemajú vlastný modul v menu (sú v sidebare), ale kontrola je tu
+            case 'logs-view': 
+                return hasRole(user, ROLES.ADMIN);
+
             default:
-                return true;
+                return false;
         }
     },
 
     /**
-     * UPRAVENÁ FUNKCIA: Prijíma aj activeModuleId
+     * Zoznam zamestnancov (Pravý panel a Detail)
+     * Rieši stĺpec: "Zoznam zamestnancov (zobrazenie zoznamu kliknutím na ikonu)"
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
         if (!user || !targetEmp) return false;
 
-        // 1. Vedúci odboru vidí vždy všetkých
-        if (isVeduciOdboru(user)) return true;
+        // 1. Admin vidí všetkých
+        if (hasRole(user, ROLES.ADMIN)) return true;
 
-        // 2. Každý vidí sám seba (vždy)
+        // 2. Každý vidí sám seba (vždy a všade)
         if (isOwnProfile(user, targetEmp)) return true;
 
-        // 3. Špeciálna logika pre zamestnanca 28852 (Silvia S.)
-        if (user.id === '28852' || user.kod === '28852') {
-            // Ak je práve v module Cestovný príkaz, vidí svoje oddelenie
-            if (activeModuleId === 'cestovny-prikaz-module') {
-                return isSameDepartment(user, targetEmp);
-            }
-            // Ak je v module Zamestnanci (alebo inde), vidí len seba (fallthrough na false)
-            return false;
+        // 3. Manager 1 vidí iba OCOaKP
+        if (hasRole(user, ROLES.MANAGER_1)) {
+            // Predpokladáme, že v DB je oddelenie uložené ako 'OCOaKP' alebo podobne
+            // Ak nemáte v targetEmp presný názov oddelenia, treba upraviť logiku
+            // Tu kontrolujeme, či targetEmp patrí pod OCOaKP
+            const oddelenie = targetEmp.oddelenie || '';
+            return oddelenie.toLowerCase().includes('ocoakp');
         }
 
-        // 4. Vedúci oddelenia vidí svoje oddelenie
-        if (isVeduciOddelenia(user) && isSameDepartment(user, targetEmp)) {
-            return true;
+        // 4. Manager 2 vidí iba KS IZS
+        if (hasRole(user, ROLES.MANAGER_2)) {
+            const oddelenie = targetEmp.oddelenie || '';
+            return oddelenie.toLowerCase().includes('izs');
         }
 
+        // 5. Ostatní (User, Super Users, User IZS) vidia iba seba
+        // (Podmienka "iba seba" je už splnená v bode 2, takže tu vraciame false)
         return false;
     },
 
     /**
-     * Určuje, či používateľ vidí detailné informácie a môže generovať CP.
-     * Tu má 28852 stále prístup, aby mohol robiť CP.
+     * Detailné zobrazenie a práca s CP (Cestovný príkaz)
+     * Väčšinou kopíruje logiku zoznamu zamestnancov.
      */
     canViewCP: (user, targetEmp) => {
-        if (!user || !targetEmp) return false;
-        
-        // 1. Vedúci odboru vidí všetkých bez obmedzenia
-        if (isVeduciOdboru(user)) return true;
-
-        // 2. Každý vidí sám seba
-        if (isOwnProfile(user, targetEmp)) return true;
-
-        // 3. Vedúci oddelenia a špeciálny používateľ 28852 vidia iba svoje oddelenie
-        const isSpecialUser = (user.id === '28852' || user.kod === '28852');
-        
-        if ((isVeduciOddelenia(user) || isSpecialUser) && isSameDepartment(user, targetEmp)) {
-            return true;
-        }
-        
-        return false;
+        // Použijeme rovnakú logiku ako pre zoznam
+        return Permissions.canViewEmployeeList(user, targetEmp, 'cestovny-prikaz-module');
     },
 
     /**
-     * Určuje, či má používateľ právo na hromadný export (tlačidlo Excel).
+     * Stĺpec: "Zoznam zamestnancov (download)" -> Tlačidlo Export Excel
      */
     canExportEmployees: (user) => {
         if (!user) return false;
-        return isVeduciOdboru(user) || isVeduciOddelenia(user);
+        // Podľa matice majú 'A' (resp. čiastočné A) iba Admin a Manageri
+        return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2);
     },
 
     /**
-     * Určuje, či používateľ môže spravovať logy (stiahnuť/zmazať).
+     * Stĺpec: "Logy"
      */
     canManageLogs: (user) => {
-        if (!user) return false;
-        return isVeduciOdboru(user);
+        return hasRole(user, ROLES.ADMIN);
+    },
+
+    /**
+     * Stĺpec: "Nástenka (pridávať oznámenia)"
+     */
+    canManageAnnouncements: (user) => {
+        return hasRole(user, 
+            ROLES.ADMIN, 
+            ROLES.MANAGER_1, 
+            ROLES.MANAGER_2
+        );
     }
 };

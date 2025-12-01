@@ -60,95 +60,80 @@ async function handleLogin() {
     loginOverlay.classList.remove('hidden');
 
     return new Promise((resolve) => {
-        // Použijeme onAuthStateChanged pre sledovanie prihlásenia
         const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
             if (authUser) {
-                // Ak je používateľ prihlásený (čo sa stane po signInWithEmailAndPassword)
-                unsubscribe(); // Prestaneme sledovať
+                unsubscribe();
                 
                 try {
-                    // Načítanie profilu používateľa z Firestore (logika z pôvodnej initializeApp)
+                    // 1. Načítanie základných dát zamestnanca (ako doteraz)
                     const employeesRef = db.collection("employees");
                     const snapshot = await employeesRef.where("mail", "==", authUser.email).limit(1).get();
 
                     if (snapshot.empty) {
-                        // Ak sa používateľ nenájde v 'employees', prihlásenie zlyhá
-                        await logUserAction("LOGIN", `Pokus o prihlásenie: ${email}`, false, msg);
-                        throw new Error(`Nenašiel sa žiadny profil pre ${authUser.email} v kolekcii 'employees'.`);
+                        throw new Error(`Nenašiel sa profil pre ${authUser.email} v 'employees'.`);
+                    }
+                    const employeeData = snapshot.docs[0].data();
+
+                    // 2. NOVÉ: Načítanie ROLE z kolekcie 'user_roles' podľa UID
+                    let userRole = 'user'; // Fallback
+                    try {
+                        const roleDoc = await db.collection("user_roles").doc(authUser.uid).get();
+                        if (roleDoc.exists) {
+                            userRole = roleDoc.data().role;
+                            console.log(`[Login] Načítaná rola pre ${authUser.email}: ${userRole}`);
+                        } else {
+                            console.warn(`[Login] Pozor: Používateľ ${authUser.email} (UID: ${authUser.uid}) nemá záznam v 'user_roles'. Priraďujem rolu 'user'.`);
+                        }
+                    } catch (roleError) {
+                        console.error("[Login] Chyba pri sťahovaní role:", roleError);
                     }
 
-                    const userData = snapshot.docs[0].data();
-
-                    // KONTROLA OPRÁVNENÍ PRE LOGIN:
-                    // Pôvodná logika vyžaduje určité funkcie pre prihlásenie, 
-                    // alebo povolí prihlásenie bežnému userovi pre jeho vlastný profil.
-                    // Tu ponechávame pôvodnú logiku "sanity check", 
-                    // detailné oprávnenia rieši Permissions objekt neskôr.
-                    const isVedúciOdboru = userData.funkcia === 'vedúci odboru';
-                    const isVedúciOddelenia = userData.funkcia === 'vedúci oddelenia';
-                    const isObyčajný = !isVedúciOdboru && !isVedúciOddelenia;
-
-                    if (!isVedúciOdboru && !isVedúciOddelenia && !isObyčajný) { 
-                        await logUserAction("LOGIN", `Pokus o prihlásenie: ${email}`, false, msg);
-                        throw new Error('Prístup zamietnutý (nedefinovaná funkcia).');
-                    }
-                    
-                    // ÚSPECH
-                    
-                    // 1. Vytvoríme dočasný objekt používateľa pre potreby logovania
-                    const tempUserForLogs = {
+                    // 3. Vytvorenie activeUser objektu s rolou
+                    // OPRAVA: Definujeme activeUser lokálne pre tento scope, aby sme ho mohli poslať ďalej
+                    const currentUserProfile = { 
                         uid: authUser.uid,
                         email: authUser.email,
-                        ...userData,
-                        // Musíme vyskladať displayName, lebo v DB sú polia oddelené
-                        displayName: `${userData.titul || ''} ${userData.meno} ${userData.priezvisko}`.trim()
+                        ...employeeData,
+                        role: userRole, // <--- Rola pre accesses.js
+                        displayName: `${employeeData.titul || ''} ${employeeData.meno} ${employeeData.priezvisko}`.trim()
                     };
 
-                    // 2. Okamžite aktualizujeme logovací modul, aby vedel, kto sa loguje
-                    updateLogsUser(tempUserForLogs); 
+                    // OPRAVA: Použijeme currentUserProfile namiesto tempUserForLogs
+                    updateLogsUser(currentUserProfile); 
 
-                    // 3. Teraz zapíšeme log (už bude mať správne meno)
+                    // Logovanie akcie
                     await logUserAction("LOGIN", "Úspešné prihlásenie", true, null);
 
-                    // 1. Spustíme animáciu zobrazenia aplikácie
+                    // Animácie UI
                     const portalContainer = document.querySelector('.portal-container');
                     if (portalContainer) {
-                        // Malé oneskorenie pre plynulosť
                         requestAnimationFrame(() => {
                             portalContainer.classList.add('app-visible');
                         });
                     }
 
-                    // 2. Spustíme animáciu zmiznutia loginu
                     loginOverlay.classList.add('fade-out');
 
-                    // 3. Úplné odstránenie loginu z DOMu až po skončení animácie (napr. 500ms)
                     setTimeout(() => {
-                        loginOverlay.classList.add('hidden'); // Pridá display: none
-                        // Pre istotu odoberieme fade-out, ak by sa modal znova použil (napr. po odhlásení)
+                        loginOverlay.classList.add('hidden');
                         loginOverlay.classList.remove('fade-out'); 
                     }, 500);
 
-                    resolve(tempUserForLogs);
-                    // === KONIEC NOVÉHO KÓDU ===
-                    
-                    loginOverlay.classList.add('hidden'); 
-                    resolve(tempUserForLogs);
+                    // OPRAVA: Resolve vráti správny objekt
+                    resolve(currentUserProfile);
 
                 } catch (error) {
                     console.error("[MW] Chyba pri overovaní oprávnení:", error);
                     let msg = error.message;
                     loginErrorMsg.textContent = msg;
                     loginErrorMsg.style.display = 'block';
-                    await auth.signOut(); // Odhlásime používateľa po neúspešnom overení
+                    await auth.signOut();
                     resolve(null);
                 }
             } else if (auth.currentUser === null) {
-                // Reset chybovej hlášky, ak je to prvý nábeh
                 loginErrorMsg.style.display = 'none';
             }
         });
-
 
         // Listener na submit formulára (spúšťa overenie v Auth)
         loginForm.addEventListener('submit', async (e) => {
@@ -1311,6 +1296,7 @@ async function initializeApp() {
         activeUser = {
             uid: userProfile.uid,
             email: userProfile.email,
+            role: userProfile.role, 
             titul: userProfile.titul || '',
             meno: userProfile.meno || '',
             priezvisko: userProfile.priezvisko || '',
@@ -1318,6 +1304,7 @@ async function initializeApp() {
             oddelenie: userProfile.oddelenie || 'Nezaradené'
         };
 
+        // Aktualizujeme logy, aby už "vedeli" o role
         updateLogsUser(activeUser);
 
         await loadGlobalEmployees(db);
@@ -1392,6 +1379,4 @@ if (db && auth) {
 } else {
     console.error("Kritická chyba: Nepodarilo sa inicializovať databázu alebo autentifikáciu. Aplikácia sa nespustí.");
     document.body.innerHTML = '<h1 style="padding: 2rem; text-align: center;">Chyba: Nepodarilo sa pripojiť k databáze.</h1>';
-
 }
-
