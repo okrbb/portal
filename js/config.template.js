@@ -10,7 +10,7 @@ export const firebaseConfig = {
 
 export const AI_CONFIG = {
     API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 
-    MODEL_NAME: "gemini-2.0-flash" 
+    MODEL_NAME: "gemini-2.0-flash-lite-preview-02-05" 
 };
 
 export const APP_CONSTANTS = {
@@ -19,5 +19,6 @@ export const APP_CONSTANTS = {
     DEFAULT_AVATAR: '--'
 
 };
+
 
 
