@@ -3005,7 +3005,7 @@ input:focus, select:focus, textarea:focus {
 
 /* Voliteľné: Zväčšenie maximálnej výšky, keďže máme viac miesta */
 #previewModal .modal-content {
-    max-height: 90vh !important;
+    max-height: 98vh !important;
     max-width: 1200px !important; /* <--- Pridajte tento riadok (zväčší okno) */
     width: 95% !important;        /* Poistka pre mobilné zariadenia */
 }
