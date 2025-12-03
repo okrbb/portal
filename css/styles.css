@@ -499,10 +499,23 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9000; animation: fadeIn 0.2s ease;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(5px);
+    
+    /* ZMENA: Zarovnanie hore namiesto stredu */
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; /* <--- TOTO POSUNIE OKNO HORE */
+    padding-top: 40px;       /* <--- ODSADENIE OD VRCHU (aby nebolo nalepené) */
+    
+    z-index: 9000; 
+    animation: fadeIn 0.2s ease;
+    overflow-y: auto; /* Aby sa dalo scrollovať, ak je okno vyššie ako obrazovka */
 }
 .modal-overlay.hidden { display: none !important; }
 .modal-content {
@@ -739,6 +752,13 @@ h1, h2, h3, h4, h5, h6 {
     border: none; border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md);
     font-size: 0.95rem; font-weight: 700; font-family: var(--font-secondary);
     cursor: pointer; transition: all var(--transition-fast);
+    /* PRIDANÉ: Zabráni rozťahovaniu */
+    width: auto;       /* Šírka podľa obsahu */
+    flex-shrink: 0;    /* Nezmenšovať sa, ak je málo miesta */
+    flex-grow: 0;      /* Nerozťahovať sa, ak je veľa miesta */
+    display: inline-flex; /* Pre lepšie centrovanie obsahu */
+    align-items: center;
+    justify-content: center;
 }
 .ua-btn.primary { background: var(--color-blue-dark); color: var(--color-text-primary); }
 .ua-btn.primary:hover { background: #0D3E79; }
@@ -840,8 +860,8 @@ input[type="text"], select, textarea {
     transition: all var(--transition-normal);
 }
 .duty-groups-sidebar:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
-    border-color: var(--color-orange-accent); 
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(188, 135, 0, 0.4) !important; 
 }
 .duty-groups-sidebar h2 {
     color: var(--color-text-primary); font-size: 1.5rem;
@@ -863,10 +883,9 @@ input[type="text"], select, textarea {
 }
 
 .duty-group-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-orange-accent);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(188, 135, 0, 0.4) !important;
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.02); /* Jemné podsvietenie pri hoveri */
 }
 
 .duty-group-card h3 {
@@ -911,8 +930,8 @@ input[type="text"], select, textarea {
     transition: all var(--transition-normal);
 }
 .duty-controls:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); 
-    border-color: var(--color-orange-accent); 
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4) !important; 
+    border-color: rgba(188, 135, 0, 0.4) !important; 
 }
 .duty-controls-selectors { display: flex; gap: var(--spacing-sm); }
 .duty-controls-actions { display: flex; gap: var(--spacing-sm); }
@@ -938,7 +957,8 @@ input[type="text"], select, textarea {
     display: flex; flex-direction: column; height: 300px; 
 }
 .duty-week-card:hover {
-    border-color: var(--color-orange-accent); }
+    border-color: rgba(188, 135, 0, 0.4) !important;
+}
 .duty-week-header {
     padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-border);
     background: var(--color-bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -2978,14 +2998,14 @@ input:focus, select:focus, textarea:focus {
 /* Všeobecné nastavenie */
 #izsPreviewModal .modal-content {
     width: 90%;
-    max-width: 1300px;
+    max-width: 1200px;
     height: auto;            
     
     /* --- ZMENA POLOHY (POSUN HORE) --- */
     align-self: flex-start;  /* Vynúti zarovnanie hore, nie na stred */
-    margin: 40px auto;       /* 40px od vrchu, automaticky na stred vodorovne */
+    margin: 10px auto;       /* 10px od vrchu, automaticky na stred vodorovne */
     
-    max-height: 85vh;        
+    max-height: 80vh;        
     display: flex;
     flex-direction: column;
     border-radius: 12px;
@@ -3033,7 +3053,7 @@ input:focus, select:focus, textarea:focus {
     align-items: flex-start !important;
     
     /* ZMENA: Znížili sme odstup od horného okraja z 50px na 10px */
-    padding-top: 10px !important;
+    padding-top: 40px !important;
 }
 
 /* Voliteľné: Zväčšenie maximálnej výšky, keďže máme viac miesta */
@@ -3324,4 +3344,158 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 6px !important;
     color: var(--color-text-primary); /* Zvýraznenie farbou (voliteľné) */
     /* Ak chcete biele nadpisy, zmeňte color na: var(--color-text-primary) */
+}
+
+/* Pridajte do styles.css */
+
+#fuel-cars-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+/* Aby karty áut mali rovnakú výšku */
+#fuel-cars-grid .dashboard-card {
+    white-space: nowrap;       /* Zakáže zalomenie textu */
+    overflow: hidden;          /* Ak je text dlhší, skryje prebytok */
+    text-overflow: ellipsis;   /* Pridá tri bodky (...) ak sa nezmestí */
+    width: 100%;
+}
+
+/* Roztiahnutie vnútorných boxov */
+#fuel-cars-grid .dashboard-card > div[style*="display:grid"] {
+    gap: 15px !important; /* Väčšia medzera medzi ľavým a pravým stĺpcom */
+}
+
+/* Zvýraznenie ŠPZ */
+.fuel-spz-badge {
+    background: #ffcc00;
+    color: black;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #000;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+/* === OPRAVA ČITATEĽNOSTI INPUTOV V MODÁLOCH === */
+
+/* === ZVÄČŠENIE POLÍ A TEXTU V MODÁLNYCH OKNÁCH === */
+
+/* Cielime na inputy v modálnych oknách (vrátane tankovania) */
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="date"],
+.modal-content select {
+    /* Farby a orámovanie (z predchádzajúceho kroku) */
+    background-color: #1f2937 !important;
+    border: 1px solid #4b5563 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+
+    /* --- NOVÉ: ZVÄČŠENIE --- */
+    padding: 12px 16px !important;  /* Väčší vnútorný priestor */
+    font-size: 1.1rem !important;   /* Väčšie písmo (cca 17-18px) */
+    height: auto !important;        /* Aby sa výška prispôsobila paddingu */
+    line-height: 1.5 !important;
+    border-radius: 8px !important;  /* Jemne zaoblenejšie rohy */
+    margin-bottom: 15px !important; /* Väčšia medzera pod poľom */
+}
+
+/* Zväčšenie textu nad poľom (label) */
+.modal-content label {
+    font-size: 1rem !important;     /* Väčšie písmo pre popis */
+    margin-bottom: 8px !important;  /* Väčšia medzera medzi textom a poľom */
+    color: #9ca3af !important;      /* Svetlosivá pre dobrú čitateľnosť */
+    font-weight: 500 !important;
+}
+
+/* Zväčšenie hlavného tlačidla */
+.modal-content .ua-btn.accent {
+    font-size: 1.1rem !important;
+    padding: 12px 24px !important;
+}
+
+/* Pridajte do styles.css ak chcete lepšiu responzivitu */
+@media (max-width: 600px) {
+    #refuel-fields > div {
+        grid-template-columns: 1fr !important; /* Na mobile pod sebou */
+    }
+}
+
+/* === História Tabuľka === */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+}
+
+.history-table thead th {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(5px);
+    border-bottom: 2px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.history-table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.history-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.history-table .text-right {
+    text-align: right;
+}
+
+/* Štýly pre typ udalosti */
+.badge-event {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-refuel {
+    background: rgba(72, 187, 120, 0.2);
+    color: #48BB78;
+    border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.badge-drive {
+    background: rgba(66, 153, 225, 0.2);
+    color: #63b3ed;
+    border: 1px solid rgba(66, 153, 225, 0.3);
+}
+
+/* === HOVER EFEKT PRE INFO TLAČIDLO (PHM) === */
+#fuel-info-btn {
+    transition: all 0.3s ease; /* Plynulý prechod farby a veľkosti */
+}
+
+#fuel-info-btn:hover {
+    color: var(--color-orange-accent) !important; /* Zmení farbu na zlatožltú */
+    transform: scale(1.15); /* Jemne zväčší ikonu pre lepší efekt */
+    cursor: pointer;
+}
+
+/* === HOVER EFEKT PRE NASTAVENIA (Ozubené koliesko) === */
+#settings-toggle-btn {
+    transition: all 0.3s ease;
+}
+
+#settings-toggle-btn:hover {
+    color: var(--color-orange-accent) !important; /* Zlatožltá farba */
+    transform: scale(1.15); /* Jemné zväčšenie */
 }
