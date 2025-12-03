@@ -10,7 +10,8 @@ export const ROLES = {
     MANAGER_2: 'manager_2',      // Vedúci KS IZS
     SUPER_USER_1: 'super_user_1', // Denis M.
     SUPER_USER_2: 'super_user_2', // Maroš P.
-    SUPER_USER_IZS: 'super_user_IZS', // Silvia S.
+    SUPER_USER_IZS_1: 'super_user_IZS_1', // Silvia S.
+    SUPER_USER_IZS_2: 'super_user_IZS_2', // Ján K.
     USER: 'user',
     USER_IZS: 'user_IZS'
 };
@@ -63,7 +64,7 @@ export const Permissions = {
                     ROLES.ADMIN, 
                     ROLES.MANAGER_1, 
                     ROLES.MANAGER_2, 
-                    ROLES.SUPER_USER_IZS,
+                    ROLES.SUPER_USER_IZS_1,
                     ROLES.USER_IZS // Aj bežný user_IZS má tu 'A'
                 );
 
@@ -71,13 +72,23 @@ export const Permissions = {
                 return hasRole(user, 
                     ROLES.ADMIN, 
                     ROLES.MANAGER_2, 
-                    ROLES.SUPER_USER_IZS
+                    ROLES.SUPER_USER_IZS_1,
                 );
 
             case 'ua-contributions-module': // Príspevky UA
                 return hasRole(user, 
                     ROLES.ADMIN, 
                     ROLES.SUPER_USER_2
+                );
+            
+            case 'fuel-module': // Spotreba PHM
+                return hasRole(user, 
+                    ROLES.ADMIN, 
+                    ROLES.MANAGER_1, 
+                    ROLES.MANAGER_2, 
+                    ROLES.SUPER_USER_1, 
+                    ROLES.SUPER_USER_2,
+                    ROLES.SUPER_USER_IZS_2,
                 );
             
             // Logy nemajú vlastný modul v menu (sú v sidebare), ale kontrola je tu
