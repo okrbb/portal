@@ -15,6 +15,7 @@ import { initializeBBKModule } from './schd_bbkraj_module.js';
 import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
 import { activateGlobalExport } from './emp_module.js';
+import { initializeFuelModule } from './fuel_module.js';
 import { updateWelcomeWidget } from './widget.js';
 import { renderAnnouncementWidget } from './announcements.js';
 import { initializeAIModule } from './ai_module.js';
@@ -230,9 +231,10 @@ const moduleTitles = {
     'dashboard-module': 'Prehľad udalostí', 
     'cestovny-prikaz-module': 'Cestovný príkaz',
     'pohotovost-module': 'Rozpis pohotovosti',
-    'bbk-module': 'Rozpis pohotovosti BB kraj', // Pridané podľa index.html
+    'bbk-module': 'Rozpis pohotovosti BB kraj', 
     'izs-module': 'Rozpis služieb IZS',
-    'ua-contributions-module': 'Príspevky UA',  // Zmenené z "Vyplatenie..." na "Príspevky UA" podľa index.html
+    'ua-contributions-module': 'Príspevky UA', 
+    'fuel-module': 'Evidencia spotreby PHM', 
 };
 
 const titleElement = document.getElementById('module-title');
@@ -247,6 +249,7 @@ let isSCHDModuleInitialized = false;
 let isBBKModuleInitialized = false;
 let isIZSModuleInitialized = false;
 let isUAModuleInitialized = false;
+let isFuelModuleInitialized = false;
 
 // --- Listener pre logo ---
 if (logoElement) {
@@ -398,6 +401,20 @@ menuLinks.forEach(link => {
                 }
             } catch (e) {
                 console.error("Chyba pri inicializácii ua_module.js:", e);
+            }
+        }
+
+        // Inicializácia Fuel modulu
+        if (targetId === 'fuel-module' && !isFuelModuleInitialized) {
+            try {
+                if (db) {
+                    initializeFuelModule(db, activeUser); 
+                    isFuelModuleInitialized = true;
+                } else {
+                    console.error("Chyba: DB nie je inicializované pre Fuel modul.");
+                }
+            } catch (e) {
+                console.error("Chyba pri inicializácii fuel_module.js:", e);
             }
         }
 
