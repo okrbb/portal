@@ -45,7 +45,7 @@ export const Permissions = {
         // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
         if (moduleId === 'dashboard-module' || 
             moduleId === 'cestovny-prikaz-module' || 
-            moduleId === 'ai-module') { // AI zatiaľ nie je v menu ako ID, ale pre istotu
+            moduleId === 'ai-module') { 
             return true;
         }
 
@@ -65,7 +65,7 @@ export const Permissions = {
                     ROLES.MANAGER_1, 
                     ROLES.MANAGER_2, 
                     ROLES.SUPER_USER_IZS_1,
-                    ROLES.USER_IZS // Aj bežný user_IZS má tu 'A'
+                    ROLES.USER_IZS 
                 );
 
             case 'izs-module': // Rozpis služieb IZS
@@ -102,7 +102,6 @@ export const Permissions = {
 
     /**
      * Zoznam zamestnancov (Pravý panel a Detail)
-     * Rieši stĺpec: "Zoznam zamestnancov (zobrazenie zoznamu kliknutím na ikonu)"
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
         if (!user || !targetEmp) return false;
@@ -115,30 +114,33 @@ export const Permissions = {
 
         // 3. Manager 1 vidí iba OCOaKP
         if (hasRole(user, ROLES.MANAGER_1)) {
-            // Predpokladáme, že v DB je oddelenie uložené ako 'OCOaKP' alebo podobne
-            // Ak nemáte v targetEmp presný názov oddelenia, treba upraviť logiku
-            // Tu kontrolujeme, či targetEmp patrí pod OCOaKP
             const oddelenie = targetEmp.oddelenie || '';
             return oddelenie.toLowerCase().includes('ocoakp');
         }
 
-        // 4. Manager 2 vidí iba KS IZS
+        // 4. Manager 2 vidí celé KS IZS (všetkých v IZS)
         if (hasRole(user, ROLES.MANAGER_2)) {
             const oddelenie = targetEmp.oddelenie || '';
             return oddelenie.toLowerCase().includes('izs');
         }
 
-        // 5. Ostatní (User, Super Users, User IZS) vidia iba seba
-        // (Podmienka "iba seba" je už splnená v bode 2, takže tu vraciame false)
+        // 5. Super User IZS 1 (Silvia S.) vidí IZS, ale NIE Managera 2
+        if (hasRole(user, ROLES.SUPER_USER_IZS_1)) {
+            const oddelenie = targetEmp.oddelenie || '';
+            const isIZS = oddelenie.toLowerCase().includes('izs');
+            
+            const isTargetManager = targetEmp.role === ROLES.MANAGER_2;
+
+            return isIZS && !isTargetManager;
+        }
+
         return false;
     },
 
     /**
      * Detailné zobrazenie a práca s CP (Cestovný príkaz)
-     * Väčšinou kopíruje logiku zoznamu zamestnancov.
      */
     canViewCP: (user, targetEmp) => {
-        // Použijeme rovnakú logiku ako pre zoznam
         return Permissions.canViewEmployeeList(user, targetEmp, 'cestovny-prikaz-module');
     },
 
@@ -147,7 +149,6 @@ export const Permissions = {
      */
     canExportEmployees: (user) => {
         if (!user) return false;
-        // Podľa matice majú 'A' (resp. čiastočné A) iba Admin a Manageri
         return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2);
     },
 
@@ -167,5 +168,35 @@ export const Permissions = {
             ROLES.MANAGER_1, 
             ROLES.MANAGER_2
         );
+    },
+
+    /**
+     * NOVÉ: Práva na zápis/editáciu v module PHM pre konkrétne vozidlo
+     * @param {Object} user - Aktívny používateľ
+     * @param {string} evidenceNumber - EČV vozidla (napr. BB215GN)
+     */
+    canEditFuelRecord: (user, evidenceNumber) => {
+        if (!user) return false;
+        
+        // Admin má plný prístup všade
+        if (hasRole(user, ROLES.ADMIN)) return true;
+
+        // Manageri majú iba Read-Only (prezerať áno, editovať nie)
+        if (hasRole(user, ROLES.MANAGER_1, ROLES.MANAGER_2)) return false;
+
+        // Normalizácia EČV (odstránenie medzier a pomlčiek pre istotu)
+        const targetEcV = (evidenceNumber || '').replace(/[\s-]/g, '').toUpperCase();
+
+        // Super User 1 -> iba AA713BJ
+        if (hasRole(user, ROLES.SUPER_USER_1) && targetEcV === 'B82475') return true;
+
+        // Super User 2 -> iba BB215GN
+        if (hasRole(user, ROLES.SUPER_USER_2) && targetEcV === 'B45539') return true;
+
+        // Super User IZS 2 -> iba AA362IM
+        if (hasRole(user, ROLES.SUPER_USER_IZS_2) && targetEcV === 'B83354') return true;
+
+        // Všetci ostatní nemôžu editovať
+        return false;
     }
 };
