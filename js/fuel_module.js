@@ -25,6 +25,7 @@ export function initializeFuelModule(db, activeUser) {
 
     // Sprístupnenie funkcie pre HTML onclick atribúty
     window.editHistoryRecord = editHistoryRecord;
+    window.recalculateHistoryChain = recalculateHistoryChain;
 }
 
 function setupEventListeners() {
@@ -137,7 +138,8 @@ function loadCars() {
                 displayData.average_consumption = monthlyStats.consumption;
                 displayData.km_norm_c = monthlyStats.km_c;
                 displayData.km_norm_a = monthlyStats.km_a;
-                displayData.isVirtual = monthlyStats.isVirtual; 
+                displayData.isVirtual = monthlyStats.isVirtual;
+                displayData.monthly_fuel_level = monthlyStats.endOfMonthFuel;
 
             } else {
                 displayData.average_consumption = realOverallConsumption;
@@ -161,10 +163,18 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
 
     try {
         const carRef = _db.collection('cars').doc(carId);
+        
+        // Načítame aj počiatočný stav pre prípad, že v mesiaci nie sú žiadne jazdy
+        const carDoc = await carRef.get();
+        const startFuelLevel = carDoc.data().start_fuel_level || 0;
+
         let sumLiters = 0;
         let sumDistance = 0;
         let sumKmC = 0;
         let sumKmA = 0;
+        
+        // Zoznam všetkých udalostí mesiaca pre nájdenie tej poslednej
+        let monthlyEvents = [];
 
         const fuelSnap = await carRef.collection('refuelings').where('date', '>=', startDate).where('date', '<=', endDate).get();
         fuelSnap.forEach(doc => {
@@ -173,6 +183,7 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
             sumDistance += (d.distance_driven || 0);
             sumKmC += (d.km_c || 0);
             sumKmA += (d.km_a || 0);
+            monthlyEvents.push({ date: d.date.toDate(), fuelLevel: d.fuel_level_after });
         });
 
         const kmSnap = await carRef.collection('km_logs').where('date', '>=', startDate).where('date', '<=', endDate).get();
@@ -181,8 +192,26 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
             sumDistance += (d.distance_driven || 0);
             sumKmC += (d.km_c || 0);
             sumKmA += (d.km_a || 0);
+            monthlyEvents.push({ date: d.date.toDate(), fuelLevel: d.fuel_level_after });
         });
 
+        // Nájdeme stav nádrže na konci mesiaca (posledný záznam podľa dátumu)
+        let endOfMonthFuel = 0;
+        if (monthlyEvents.length > 0) {
+            // Zoradíme zostupne (najnovšie prvé)
+            monthlyEvents.sort((a, b) => b.date - a.date);
+            // Zoberieme prvý (t.j. posledný v mesiaci)
+            endOfMonthFuel = monthlyEvents[0].fuelLevel;
+            
+            // Fallback ak by náhodou staré dáta nemali fuel_level_after
+            if (endOfMonthFuel === undefined) endOfMonthFuel = 0;
+        } else {
+            // Ak v mesiaci nie sú záznamy, teoreticky by sme mali hľadať posledný záznam PRED týmto mesiacom,
+            // ale pre jednoduchosť vrátime 0 alebo null (widget sa nezobrazí)
+            endOfMonthFuel = null; 
+        }
+
+        // ... (Pôvodný výpočet spotreby - avgCons - ostáva rovnaký) ...
         let avgCons = 0;
         let isVirtual = false;
         const referenceValue = overallAvgFallback > 0 ? overallAvgFallback : (parseFloat(normCity) || 0);
@@ -211,10 +240,20 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
                 }
             }
         }
-        return { distance: sumDistance, consumption: avgCons, km_c: sumKmC, km_a: sumKmA, isVirtual: isVirtual };
+        
+        // VRACIAME AJ endOfMonthFuel
+        return { 
+            distance: sumDistance, 
+            consumption: avgCons, 
+            km_c: sumKmC, 
+            km_a: sumKmA, 
+            isVirtual: isVirtual,
+            endOfMonthFuel: endOfMonthFuel 
+        };
+
     } catch (e) {
         console.error(e);
-        return { distance: 0, consumption: 0, km_c: 0, km_a: 0, isVirtual: false };
+        return { distance: 0, consumption: 0, km_c: 0, km_a: 0, isVirtual: false, endOfMonthFuel: 0 };
     }
 }
 
@@ -238,7 +277,7 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
     div.style.minWidth = '400px';
     div.style.maxWidth = '600px';
 
-    // === NOVÉ: Kontrola oprávnení na editáciu pre konkrétne vozidlo ===
+    // Oprávnenia
     const canEdit = Permissions.canEditFuelRecord(_user, rawCarData.evidence_number);
 
     let consumptionColor = '#48BB78'; 
@@ -289,7 +328,30 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
         filterIndicator = `<span style="font-size:0.7rem; background:#3182ce; color:white; padding:2px 6px; border-radius:4px; margin-left:auto;">Mesačný výkaz</span>`;
     }
 
-    // Tlačidlá sa generujú len ak má užívateľ právo editovať
+    // --- LOGIKA PRE PALIVOMER (Upravená) ---
+    const tankCapacity = rawCarData.tank_capacity || 50; 
+    
+    // Ak sme v mesačnom náhľade, použijeme stav z konca mesiaca, inak aktuálny
+    // Ak je monthly_fuel_level null (žiadne jazdy), použijeme 0
+    let currentLevel = isMonthly 
+        ? (displayData.monthly_fuel_level !== undefined && displayData.monthly_fuel_level !== null ? displayData.monthly_fuel_level : 0)
+        : (rawCarData.current_fuel_level || 0);
+    
+    let litersMissing = tankCapacity - currentLevel;
+    if (litersMissing < 0) litersMissing = 0;
+    
+    const fuelPercentage = Math.min(100, Math.max(0, (currentLevel / tankCapacity) * 100));
+    
+    let fuelColor = '#48BB78';
+    if (fuelPercentage < 20) fuelColor = '#E53E3E';
+    else if (fuelPercentage < 50) fuelColor = '#FFC000';
+
+    // Text pre label (aby používateľ vedel, či vidí aktuálny stav alebo históriu)
+    const labelFuelStatus = isMonthly ? 'Stav na konci mesiaca' : 'Aktuálny stav nádrže';
+    
+    // Zobraziť widget len ak máme dáta (ak je isMonthly a level je 0/null lebo neboli jazdy, možno ho skryť)
+    const showFuelWidget = !isMonthly || (isMonthly && displayData.monthly_fuel_level !== null);
+
     const buttonsHtml = `
         <div style="display:flex; justify-content:flex-end; gap:10px;">
             <button class="ua-btn default history-btn">História</button>
@@ -311,25 +373,47 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
         </div>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 1.5rem;">
+            
             <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
                 <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.5px;">${labelTachometer}</div>
                 <div style="font-size:1.1rem; font-weight:600;">${valKm} km</div>
                 ${drivenTotalHtml}
             </div>
+
             <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
                 <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.5px;">${labelSpotreba}</div>
                 <div style="font-size:1.1rem; font-weight:600; color:${consumptionColor};">
                         ${consumptionIcon}${valCons} L
                 </div>
             </div>
+
+            ${showFuelWidget ? `
+            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border); grid-column: span 2;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 5px;">
+                    <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${labelFuelStatus}</div>
+                    <div style="font-size:0.8rem; font-weight:bold; color:${fuelColor};">${Math.round(fuelPercentage)}%</div>
+                </div>
+                
+                <div style="width: 100%; height: 8px; background: #374151; border-radius: 4px; overflow:hidden; margin-bottom: 8px;">
+                    <div style="width: ${fuelPercentage}%; height: 100%; background: ${fuelColor}; transition: width 0.5s;"></div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
+                    <span style="color:var(--color-text-primary);">${currentLevel.toFixed(1)} <span style="opacity:0.6;">/ ${tankCapacity} L</span></span>
+                    <span style="color:var(--color-orange-accent);"><i class="fas fa-gas-pump"></i> Dotankovať: <strong>${litersMissing.toFixed(1)} L</strong></span>
+                </div>
+            </div>
+            ` : ''}
             <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
                 <div style="font-size:0.75rem; color:var(--color-text-secondary);">${labelKmC}</div>
                 <div style="font-size:1.1rem; font-weight:600;">${valKmC} km</div>
             </div>
+
             <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
                 <div style="font-size:0.75rem; color:var(--color-text-secondary);">${labelKmA}</div>
                 <div style="font-size:1.1rem; font-weight:600;">${valKmA} km</div>
             </div>
+
             <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border); opacity: 0.8;">
                 <div style="font-size:0.75rem; color:var(--color-text-secondary);">Norma (mesto)</div>
                 <div style="font-size:1.0rem; font-weight:500;">${normCityDisplay}</div>
@@ -1238,7 +1322,7 @@ function arrayBufferToBase64(buffer) {
 }
 
 /**
- * Komplexná funkcia na opravu kontinuity tachometra a spotreby.
+ * Komplexná funkcia na opravu kontinuity tachometra, spotreby a výpočet hladiny paliva.
  */
 async function recalculateHistoryChain(carId) {
     console.log(`[ChainReaction] Spúšťam prepočet histórie pre auto: ${carId}`);
@@ -1252,7 +1336,11 @@ async function recalculateHistoryChain(carId) {
     ]);
 
     if (!carDoc.exists) return;
-    const startKm = carDoc.data().start_km || 0; 
+    const carData = carDoc.data();
+    const startKm = carData.start_km || 0; 
+    
+    const tankCapacity = carData.tank_capacity || 50; 
+    let currentTankLevel = carData.start_fuel_level || 0; 
 
     let timeline = [];
 
@@ -1297,11 +1385,20 @@ async function recalculateHistoryChain(carId) {
         const kmOutside = safeDistance - record.km_c;
         const safeKmOutside = kmOutside > 0 ? kmOutside : 0;
 
+        // 1. Odpočítame spotrebu za jazdu K pumpe/cieľu
+        let consumptionRate = carData.average_consumption || carData.norm_city || 7.0;
+        const litersConsumed = (safeDistance * consumptionRate) / 100;
+        
+        currentTankLevel -= litersConsumed;
+        if (currentTankLevel < 0) currentTankLevel = 0;
+
+        // Pripravíme objekt, ale ZATIAĽ BEZ fuel_level_after
         let updateData = {
             distance_driven: safeDistance,
             km_a: safeKmOutside
         };
 
+        // 2. Ak je to tankovanie, TERAZ pripočítame palivo
         if (record.collection === 'refuelings') {
             const distForCons = record.km_total - baseKmForConsumption;
             
@@ -1314,13 +1411,23 @@ async function recalculateHistoryChain(carId) {
             updateData.consumption_l100 = parseFloat(newConsumption.toFixed(2));
             
             baseKmForConsumption = record.km_total;
+
+            currentTankLevel += record.liters;
+            
+            if (currentTankLevel > tankCapacity) {
+                currentTankLevel = tankCapacity;
+            }
         }
+
+        // 3. Až TERAZ, keď je všetko zrátané, uložíme výsledný stav paliva
+        updateData.fuel_level_after = parseFloat(currentTankLevel.toFixed(1));
 
         const orig = record.original_data;
         const isChanged = 
             orig.distance_driven !== updateData.distance_driven ||
             orig.km_a !== updateData.km_a ||
-            (record.collection === 'refuelings' && orig.consumption_l100 !== updateData.consumption_l100);
+            (record.collection === 'refuelings' && orig.consumption_l100 !== updateData.consumption_l100) ||
+            orig.fuel_level_after !== updateData.fuel_level_after; 
 
         if (isChanged) {
             const docRef = carRef.collection(record.collection).doc(record.id);
@@ -1336,8 +1443,12 @@ async function recalculateHistoryChain(carId) {
         console.log(`[ChainReaction] Aktualizovaných ${changesCount} záznamov.`);
         showToast(`Dáta boli prepočítané a opravené (${changesCount} záznamov).`, TOAST_TYPE.INFO);
     } else {
-        console.log(`[ChainReaction] Žiadne zmeny neboli potrebné.`);
+        console.log(`[ChainReaction] Žiadne zmeny v histórii neboli potrebné.`);
     }
+
+    await carRef.update({
+        current_fuel_level: parseFloat(currentTankLevel.toFixed(1))
+    });
 
     await recalculateCarStats(carId);
 }
