@@ -3499,3 +3499,31 @@ input:focus, select:focus, textarea:focus {
     color: var(--color-orange-accent) !important; /* Zlatožltá farba */
     transform: scale(1.15); /* Jemné zväčšenie */
 }
+
+/* štýl pre tlačidlo editácie v histórii PHM */
+
+.action-btn-edit {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 5px;
+    font-size: 1rem;
+}
+
+.action-btn-edit:hover {
+    color: var(--color-orange-accent);
+    transform: scale(1.1);
+}
+
+.history-table th.actions-col {
+    width: 50px;
+    text-align: center;
+}
+
+/* Zabezpečí, že editácia sa otvorí NAD históriou */
+#fuel-modal, 
+#km-modal {
+    z-index: 9500 !important; /* História má 9000, toto musí byť viac */
+}
