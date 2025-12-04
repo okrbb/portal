@@ -991,7 +991,7 @@ async function openHistoryModal(carId, carBrand) {
             } else {
                 typeHtml = `<span class="badge-event badge-drive"><i class="fas fa-route"></i> Jazda</span>`;
                 if (globalAverage > 0) {
-                    consumptionHtml = `<div style="color: #aaa; font-size: 0.8rem;">~${globalAverage.toFixed(2)} L (odhad)</div>`;
+                    consumptionHtml = `<div style="color: #aaa; font-size: 0.8rem;">~${globalAverage.toFixed(2)} L</div>`;
                 } else {
                     consumptionHtml = `<span style="color:#aaa;">-</span>`;
                 }
@@ -1012,7 +1012,7 @@ async function openHistoryModal(carId, carBrand) {
                 <td class="text-right" style="opacity: 0.9;">${item.km_total.toLocaleString()} km</td>
                 <td class="text-right">+${item.distance.toLocaleString()} km</td>
                 <td class="text-right">${consumptionHtml}</td>
-                <td class="text-right"><div style="font-size:1em; opacity: 0.7;">C: ${item.km_c} ~ A: ${item.km_a}</div></td>
+                <td class="text-right"><div style="font-size:1em; opacity: 0.7;">C: ${item.km_c} ↔ A: ${item.km_a}</div></td>
                 <td class="text-center">${editBtnHtml}</td>
             `;
             tbody.appendChild(tr);
@@ -1136,7 +1136,7 @@ async function downloadHistoryPdf(carBrand, events, monthlyStats, normCity, norm
                     } else if (globalAverage > 0) {
                         virtualCons = globalAverage;
                     }
-                    consumptionStr = `~${virtualCons.toFixed(2)} L (Odhad)`;
+                    consumptionStr = `~${virtualCons.toFixed(2)} L`;
                 }
             }
 
