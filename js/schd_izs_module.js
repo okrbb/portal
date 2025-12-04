@@ -445,13 +445,22 @@ async function generateRozdelovnik() {
                 const bgColor = shiftCell.style.backgroundColor;
                 let hasBlueBackground = isBlueColor(bgColor);
                 let hasRedBackground = isRedColor(bgColor);
+                let hasKzBackground = isKzColor(bgColor);
 
                 const formattedSurname = formatSurnameForNote(employeeName);
 
                 if (hasRedBackground) {
-                    notesArray.push(`${formattedSurname}-PN`);
+                    if (shiftType === 'l' || shiftType === 'ld') {
+                        // ÚPRAVA: Ak je text 'ld', použijeme 'Ld', inak použijeme veľké písmeno (pre 'L')
+                        const label = (shiftType === 'ld') ? 'Ld' : 'L';
+                        notesArray.push(`${formattedSurname}-${label}`);
+                    } else {
+                        notesArray.push(`${formattedSurname}-PN`);
+                }
                 } else if (hasBlueBackground) {
                     notesArray.push(`${formattedSurname}-D`);
+                } else if (hasKzBackground || shiftType === 'kz') { 
+                    notesArray.push(`${formattedSurname}-KZ`);
                 } else if (shiftType === 'sd' || shiftType === 'sn') {
                     const shiftCellColor = shiftCell.style.color || 'black';
                     const hexColor = rgbToHex(shiftCellColor);
@@ -472,7 +481,13 @@ async function generateRozdelovnik() {
                         dbScheduleData[day].nightShift.push(employeeName);
                     }
                 } else {
-                    notesArray.push(`${formattedSurname}-${shiftType.toUpperCase()}`);
+                    // OPRAVA: Ak je text 'ld', chceme 'Ld'. Ostatné (napr. 'l', 'd'...) dáme na veľké písmená.
+                    let label = shiftType.toUpperCase();
+                    if (shiftType === 'ld') {
+                        label = 'Ld';
+                    }
+                    
+                    notesArray.push(`${formattedSurname}-${label}`);
                 }
             }
 
@@ -646,9 +661,11 @@ function extractColorFromFill(fill) {
             if (typeof fill.fgColor.rgb === 'string') candidate = fill.fgColor.rgb;
             else if (typeof fill.fgColor.argb === 'string') candidate = fill.fgColor.argb;
         }
-        if (!candidate && fill.color && fill.color.theme !== undefined) {
+        // TOTO MUSÍTE VYMAZAŤ ALEBO ZAKOMENTOVAŤ - ak ide o theme color, farbu bunky nezoberie:
+        /* if (!candidate && fill.color && fill.color.theme !== undefined) {
              return null; 
         }
+        */
     } catch (e) {}
     return normalizeHexOrArgb(candidate);
 }
@@ -754,4 +771,48 @@ function isBlueColor(rgbString) {
         return (r < 50 && g > 100 && b > 200); 
     }
     return false;
+}
+
+/**
+ * Zistí, či farba zodpovedá "Kz" (svetločervená/ružová)
+ * Cieľová RGB: 217, 149, 148 (HEX: #D99594)
+ */
+function isKzColor(colorInput) {
+    if (!colorInput) return false;
+
+    let r, g, b;
+
+    // 1. Spracovanie HEX formátu (napr. #D99594)
+    if (colorInput.startsWith('#')) {
+        const hex = colorInput.replace('#', '');
+        // Ak je to skrátený hex (napr #D99), ignorujeme alebo expandujeme (tu riešime plný 6-miestny)
+        if (hex.length === 6) {
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        } else {
+            return false;
+        }
+    } 
+    // 2. Spracovanie RGB/RGBA formátu (napr. rgb(217, 149, 148))
+    else {
+        const parts = colorInput.match(/(\d+),\s*(\d+),\s*(\d+)/);
+        if (parts) {
+            r = parseInt(parts[1]);
+            g = parseInt(parts[2]);
+            b = parseInt(parts[3]);
+        } else {
+            return false;
+        }
+    }
+
+    // 3. Porovnanie s cieľovou farbou (217, 149, 148)
+    // Používame malú toleranciu (margin), pretože Excel môže farby jemne skresliť pri renderovaní
+    const margin = 5; 
+    
+    const rMatch = Math.abs(r - 217) <= margin;
+    const gMatch = Math.abs(g - 149) <= margin;
+    const bMatch = Math.abs(b - 148) <= margin;
+    
+    return rMatch && gMatch && bMatch;
 }
