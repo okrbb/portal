@@ -315,10 +315,6 @@ async function renderTableFromExcel(file) {
 }
 
 /* ========================================================================== */
-/* CORE LOGIC: Generating Rozdeľovník (Targeting Modal Table)                */
-/* ========================================================================== */
-
-/* ========================================================================== */
 /* CORE LOGIC: Generating Rozdeľovník + Saving to DB                         */
 /* ========================================================================== */
 
@@ -337,7 +333,24 @@ async function generateRozdelovnik() {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Rozdeľovník');
 
-        // Získanie hlavičiek
+        // --- NASTAVENIE TLAČE (Nová časť) ---
+        sheet.pageSetup = {
+            paperSize: 9,              // 9 = A4
+            orientation: 'portrait',  // Na šírku (odporúčané pre tabuľky)
+            fitToPage: true,           // Zapnúť prispôsobenie
+            fitToWidth: 1,             // Vtesnať na 1 stranu na šírku
+            fitToHeight: 1,            // Vtesnať na 1 stranu na výšku
+            horizontalCentered: true,  // Vycentrovať vodorovne
+            verticalCentered: false    // Zvisle necentrovať (zvyčajne chceme tabuľku hore)
+        };
+        
+        // Nastavenie okrajov (voliteľné, pre lepšie využitie miesta)
+        sheet.pageSetup.margins = {
+            left: 0.7, right: 0.7, top: 0.75, bottom: 0.75,
+            header: 0.3, footer: 0.3
+        };
+
+        // Získanie hlavičiek z HTML tabuľky
         const headerCells = table.querySelectorAll('tr:first-child td');
         const cisloSpisuText = headerCells[0] ? headerCells[0].textContent.trim() : '';
         const titleCell = headerCells[1];
@@ -352,28 +365,28 @@ async function generateRozdelovnik() {
 
         const { month, year, monthIndex } = dateInfo;
         const numDays = getDaysInMonth(monthIndex, year);
-
-        // --- NOVÉ: Príprava objektu pre databázu ---
         const dbScheduleData = {}; 
-        // ------------------------------------------
 
-        // --- Formátovanie Excelu (existujúci kód) ---
+        // --- Formátovanie stĺpcov ---
         sheet.getColumn(1).width = 7;
         sheet.getColumn(2).width = 35;
         sheet.getColumn(3).width = 7;
         sheet.getColumn(4).width = 35;
         sheet.getColumn(5).width = 30;
 
+        // --- Hlavička dokumentu ---
         sheet.getCell('A1').value = cisloSpisuText;
         sheet.getCell('E1').value = 'Dátum:';
         sheet.mergeCells('A3:E3');
         sheet.getCell('A3').value = `Rozdeľovník služieb operátorov na mesiac ${month} ${year}`;
         sheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
-        sheet.getCell('A3').font = { bold: true, size: 14 };
+        sheet.getCell('A3').font = { bold: true, size: 14 }; 
         sheet.mergeCells('A4:E4');
         sheet.getCell('A4').value = 'Koordinačného strediska IZS odboru krízového riadenia';
         sheet.getCell('A4').alignment = { horizontal: 'center', vertical: 'middle' };
+        sheet.getCell('A4').font = { size: 11 };
 
+        // --- Hlavička tabuľky ---
         sheet.getCell('A7').value = 'Dátum';
         sheet.getCell('B7').value = 'Denná zmena 06:30 - 18:30';
         sheet.getCell('C7').value = 'Dátum';
@@ -381,11 +394,11 @@ async function generateRozdelovnik() {
         sheet.getCell('E7').value = 'Poznámka';
         sheet.getRow(7).height = 27;
         
-        // Štýlovanie hlavičky (skrátené pre prehľadnosť, zachovať pôvodné)
         sheet.getCell('B7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } }; 
         sheet.getCell('D7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC000' } }; 
+        
         ['A7', 'B7', 'C7', 'D7', 'E7'].forEach(cell => {
-            sheet.getCell(cell).font = { bold: true };
+            sheet.getCell(cell).font = { bold: true, size: 14 }; 
             sheet.getCell(cell).alignment = { horizontal: 'center', vertical: 'top', wrapText: true };
         });
 
@@ -393,7 +406,7 @@ async function generateRozdelovnik() {
         const employeeRows = Array.from(table.querySelectorAll('tbody tr')).slice(1); 
         const holidayDays = [];
 
-        // --- HLAVNÝ CYKLUS PO DŇOCH ---
+        // --- HLAVNÝ CYKLUS (DÁTA) ---
         for (let day = 1; day <= numDays; day++) {
             const excelRow = day + 7;
             const htmlColIndex = firstDayColIndex + (day - 1);
@@ -403,13 +416,10 @@ async function generateRozdelovnik() {
             let notesArray = [];
             let isHoliday = false;
 
-            // --- NOVÉ: Inicializácia poľa pre konkrétny deň v DB ---
-            // Kľúč bude číslo dňa (string), hodnota objekt s poľami pre dennú a nočnú
             dbScheduleData[day] = {
-                dayShift: [],   // Denná
-                nightShift: []  // Nočná
+                dayShift: [],   
+                nightShift: []  
             };
-            // -----------------------------------------------------
 
             for (let rowIndex = 0; rowIndex < employeeRows.length; rowIndex++) {
                 const row = employeeRows[rowIndex];
@@ -427,9 +437,7 @@ async function generateRozdelovnik() {
                 if (!shiftCell) continue;
 
                 const cellBgColor = shiftCell.style.backgroundColor; 
-                if (isYellowColor(cellBgColor)) {
-                    isHoliday = true;
-                }
+                if (isYellowColor(cellBgColor)) isHoliday = true;
 
                 const shiftType = shiftCell.textContent ? shiftCell.textContent.trim().toLowerCase() : '';
                 if (shiftType === '') continue;
@@ -450,21 +458,17 @@ async function generateRozdelovnik() {
                     
                     const nameFragment = {
                         text: employeeName,
-                        font: { color: { argb: 'FF' + hexColor } }
+                        font: { color: { argb: 'FF' + hexColor }, size: 14 } 
                     };
 
                     if (shiftType === 'sd') {
-                        if (richTextSd.length > 0) richTextSd.push({ text: ', ', font: { color: { argb: 'FF000000' } } });
+                        if (richTextSd.length > 0) richTextSd.push({ text: ', ', font: { color: { argb: 'FF000000' }, size: 14 } });
                         richTextSd.push(nameFragment);
-                        
-                        // --- NOVÉ: Pridanie do DB zoznamu pre dennú ---
                         dbScheduleData[day].dayShift.push(employeeName);
 
                     } else if (shiftType === 'sn') {
-                        if (richTextSn.length > 0) richTextSn.push({ text: ', ', font: { color: { argb: 'FF000000' } } });
+                        if (richTextSn.length > 0) richTextSn.push({ text: ', ', font: { color: { argb: 'FF000000' }, size: 14 } });
                         richTextSn.push(nameFragment);
-
-                        // --- NOVÉ: Pridanie do DB zoznamu pre nočnú ---
                         dbScheduleData[day].nightShift.push(employeeName);
                     }
                 } else {
@@ -474,11 +478,13 @@ async function generateRozdelovnik() {
 
             if (isHoliday) holidayDays.push(day);
 
-            // Zápis do Excel buniek
+            // Zápis dátumu + nastavenie fontu 14
             sheet.getCell(`A${excelRow}`).value = day;
             sheet.getCell(`C${excelRow}`).value = day;
             sheet.getCell(`A${excelRow}`).alignment = { horizontal: 'center', vertical: 'top' };
             sheet.getCell(`C${excelRow}`).alignment = { horizontal: 'center', vertical: 'top' };
+            sheet.getCell(`A${excelRow}`).font = { size: 14 }; 
+            sheet.getCell(`C${excelRow}`).font = { size: 14 };
 
             if (isHoliday) {
                 ['A', 'B', 'C', 'D', 'E'].forEach(col => {
@@ -491,27 +497,37 @@ async function generateRozdelovnik() {
                 sheet.getCell(`C${excelRow}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFA5A5A5' } };
             }
 
+            // Nastavenie fontu pre bunky s textom a vloženie RichText
             if (richTextSd.length > 0) {
-                sheet.getCell(`B${excelRow}`).value = { richText: richTextSd };
-                sheet.getCell(`B${excelRow}`).alignment = { wrapText: true, vertical: 'top' };
+                const cell = sheet.getCell(`B${excelRow}`);
+                cell.font = { size: 14 }; 
+                cell.value = { richText: richTextSd };
+                cell.alignment = { wrapText: true, vertical: 'top' };
+            } else {
+                sheet.getCell(`B${excelRow}`).font = { size: 14 };
             }
+
             if (richTextSn.length > 0) {
-                sheet.getCell(`D${excelRow}`).value = { richText: richTextSn };
-                sheet.getCell(`D${excelRow}`).alignment = { wrapText: true, vertical: 'top' };
+                const cell = sheet.getCell(`D${excelRow}`);
+                cell.font = { size: 14 };
+                cell.value = { richText: richTextSn };
+                cell.alignment = { wrapText: true, vertical: 'top' };
+            } else {
+                 sheet.getCell(`D${excelRow}`).font = { size: 14 };
             }
+
             if (notesArray.length > 0) {
-                sheet.getCell(`E${excelRow}`).value = notesArray.join(', ');
-                sheet.getCell(`E${excelRow}`).alignment = { wrapText: true, vertical: 'top' };
+                const cell = sheet.getCell(`E${excelRow}`);
+                cell.value = notesArray.join(', ');
+                cell.alignment = { wrapText: true, vertical: 'top' };
+                cell.font = { size: 14 };
             }
         }
 
-        // Päta a podpisy
-        addFooterSignatures(sheet); // Extrahoval som to do funkcie pre prehľadnosť, alebo ponechajte pôvodný kód
+        addFooterSignatures(sheet); 
         addBorders(sheet, numDays);
 
-        // --- NOVÉ: Uloženie do Firestore ---
         await saveScheduleToFirestore(year, monthIndex, month, dbScheduleData);
-        // -----------------------------------
 
         const fileName = `Rozdeľovník_${month}_${year}.xlsx`;
         const buffer = await workbook.xlsx.writeBuffer();
