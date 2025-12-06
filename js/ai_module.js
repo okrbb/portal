@@ -22,6 +22,7 @@ let groqClient = null;
 let currentUserContext = null;
 let firestoreDB = null; 
 let currentSystemInstruction = ""; 
+let lastUserPrompt = "";
 
 // --- RAG: Search Engine State ---
 let searchEngine = null;
@@ -291,6 +292,8 @@ async function sendMessage() {
     const userText = inputEl.value.trim();
 
     if (!userText) return;
+
+    lastUserPrompt = userText;
     
     if (!chatSession) {
         if(genAIModel && firestoreDB) await startNewChatSession();
@@ -347,48 +350,49 @@ async function processGeminiStream(inputText, element, metadata = null) {
             const chunkText = chunk.text();
             fullText += chunkText;
             
+            // Priebežné vykresľovanie (bez pätičky zatiaľ)
             const cursorHtml = '<span class="typing-cursor"></span>';
             element.innerHTML = marked.parse(fullText) + cursorHtml;
             scrollToBottom();
         }
 
-        // Spracovanie príkazov CMD_READ_DOC
+        // 1. Vyčistíme text od príkazov CMD_READ_DOC
         const commandRegex = /CMD_READ_DOC:\s*([a-zA-Z0-9_-]+)/g;
         const matches = [...fullText.matchAll(commandRegex)];
-        
         const cleanText = fullText.replace(commandRegex, '').trim();
+
+        // 2. Finálny text bez kurzora
         element.innerHTML = marked.parse(cleanText);
 
-        if (metadata) {
-            element.insertAdjacentHTML('beforeend', generateFooterHtml(metadata));
+        // 3. Logika pre Dokumenty vs. Finálna odpoveď
+        if (matches.length > 0) {
+            // AI žiada prečítať dokument
+            console.log(`[AI] Detekovaných ${matches.length} dokumentov na čítanie.`);
+            
+            // Spracujeme prvý nájdený dokument (pre jednoduchosť toku)
+            const docId = matches[0][1]; 
+            
+            try {
+                // Stiahneme obsah a POŠLEME AJ PÔVODNÚ OTÁZKU (lastUserPrompt)
+                const docResult = await fetchDocumentContent(docId, lastUserPrompt);
+                
+                if (docResult.metadata) {
+                    // Informácia pre používateľa
+                    element.innerHTML = `<em>Študujem dokument: ${docResult.metadata.title} k vašej otázke...</em><span class="typing-cursor"></span>`;
+                    
+                    // Rekurzívne volanie s novým promptom
+                    await processGeminiStream(docResult.prompt, element, docResult.metadata);
+                    return; // Dôležité: ukončíme túto vetvu, aby nepreblikla stará pätička
+                }
+            } catch (e) {
+                console.error(`Chyba pri načítaní dokumentu ${docId}:`, e);
+            }
         }
 
-        if (matches.length > 0) {
-            console.log(`[AI] Detekovaných ${matches.length} dokumentov na čítanie.`);
-            const uniqueDocIds = [...new Set(matches.map(m => m[1]))];
-
-            for (const docId of uniqueDocIds) {
-                try {
-                    const docResult = await fetchDocumentContent(docId);
-                    
-                    if (docResult.metadata) {
-                        // Prilepíme pätičku (zdroj)
-                        const footerHtml = generateFooterHtml(docResult.metadata);
-                        element.insertAdjacentHTML('beforeend', footerHtml);
-                        
-                        // Ak AI potrebuje obsah na doplnenie odpovede (rekurzia)
-                        // V tomto prípade AI už často odpovie z kontextu, alebo povie "Podľa dokumentu XY..."
-                        // Ak je odpoveď prázdna (len príkaz), musíme poslať obsah späť do AI.
-                        
-                        if (cleanText.length < 50) {
-                            // Ak AI len vypýtala dokument a nič nenapísala, pošleme jej obsah
-                            await processGeminiStream(docResult.prompt, element, null); 
-                        }
-                    }
-                } catch (e) {
-                    console.error(`Chyba pri načítaní dokumentu ${docId}:`, e);
-                }
-            }
+        // 4. Ak sme tu, znamená to, že je to finálna odpoveď (už žiadne CMD príkazy)
+        // Teraz bezpečne pripojíme pätičku (ak máme metadata z predchádzajúceho kroku)
+        if (metadata) {
+            element.insertAdjacentHTML('beforeend', generateFooterHtml(metadata));
         }
 
         element.classList.add('finished');
@@ -401,23 +405,44 @@ async function processGeminiStream(inputText, element, metadata = null) {
 }
 
 function generateFooterHtml(meta) {
-    let linksHtml = '';
-    if (meta.slov_lex) {
-        linksHtml += `<a href="${meta.slov_lex}" target="_blank" class="ai-doc-link" title="Otvoriť v Slov-Lex">Slov-Lex <i class="fas fa-external-link-alt"></i></a>`;
-    }
-    if (meta.teams_url) {
-        linksHtml += `<a href="${meta.teams_url}" target="_blank" class="ai-doc-link" title="Otvoriť dokument">Dokument <i class="fas fa-file-arrow-down"></i></a>`;
-    }
-    
-    const linksContainer = linksHtml ? `<div class="ai-citation-links">${linksHtml}</div>` : '';
+    // Získame URL na stiahnutie (teams_url) a prípadne Slov-Lex
+    const downloadUrl = meta.teams_url;
+    const slovLexUrl = meta.slov_lex;
 
+    // 1. Vytvorenie hlavného odkazu (Názov dokumentu)
+    let titleHtml;
+    
+    if (downloadUrl) {
+        // Ak je link, vytvoríme klikateľný názov s ikonou stiahnutia
+        // Pridali sme atribút 'download' a target='_blank'
+        titleHtml = `<a href="${downloadUrl}" target="_blank" download style="color: var(--color-orange-accent, #ff9f43); text-decoration: underline; cursor: pointer; font-weight: bold;">
+                        ${meta.title} <i class="fas fa-cloud-download-alt"></i>
+                     </a>`;
+    } else {
+        // Ak link nie je, zobrazí sa len tučný text
+        titleHtml = `<strong>${meta.title}</strong>`;
+    }
+
+    // 2. Voliteľné: Odkaz na Slov-Lex (ak existuje, zobrazí sa pod tým)
+    let extraLinks = '';
+    if (slovLexUrl) {
+        extraLinks = `<div style="margin-left: 24px; margin-top: 4px; font-size: 0.85em;">
+                        <a href="${slovLexUrl}" target="_blank" style="color: #cbd5e1; opacity: 0.8; text-decoration: none;">
+                           Otvoriť v Slov-Lex <i class="fas fa-external-link-alt" style="font-size: 10px;"></i>
+                        </a>
+                      </div>`;
+    }
+
+    // 3. Výsledné HTML pätičky
     return `
-    <div class="ai-citation" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div class="ai-citation-text" style="display:flex; align-items:center; gap:8px; font-style:italic; color:#cbd5e1; font-size:0.9em;">
-            <i class="fa-solid fa-file-lines" style="color:var(--color-orange-accent);"></i> 
-            Zdroj: <strong>${meta.title}</strong>
+    <div class="ai-citation" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15);">
+        <div class="ai-citation-text" style="display:flex; flex-direction: column; color:#cbd5e1; font-size:0.95em;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-file-lines" style="color:var(--color-orange-accent, #ff9f43);"></i> 
+                Zdroj: ${titleHtml}
+            </div>
+            ${extraLinks}
         </div>
-        ${linksContainer}
     </div>`;
 }
 
@@ -451,12 +476,13 @@ function scrollToBottom() {
 
 /**
  * VRACIA OBJEKT: { prompt: string, metadata: object }
+ * Prijíma aj originalQuestion, aby AI nezabudla, na čo odpovedá.
  */
-async function fetchDocumentContent(docId) {
+async function fetchDocumentContent(docId, originalQuestion) {
     if (!firestoreDB || !docId) return { prompt: "CHYBA: Chýba databáza alebo ID.", metadata: null };
     
     if (docId.includes('/') || docId.includes(' ')) {
-        return { prompt: "SYSTÉMOVÁ CHYBA: AI poskytla neplatný formát ID dokumentu.", metadata: null };
+        return { prompt: "SYSTÉMOVÁ CHYBA: Neplatné ID.", metadata: null };
     }
 
     try {
@@ -467,17 +493,21 @@ async function fetchDocumentContent(docId) {
         if (docSnap.exists()) {
             const data = docSnap.data();
 
+            // --- KĽÚČOVÁ ZMENA: Explicitné pripomenutie otázky ---
             const promptText = `
-=== OBSAH VYŽIADANÉHO DOKUMENTU ===
-ID: ${docId}
-NÁZOV: ${data.title}
-OBSAH:
+=== NÁSTROJ: OBSAH DOKUMENTU (${data.title}) ===
+Používateľ sa pýtal: "${originalQuestion}"
+
+Tvojou úlohou je odpovedať na túto otázku výhradne na základe nižšie uvedeného textu.
+
+TEXT DOKUMENTU:
 ${data.content}
 === KONIEC DOKUMENTU ===
 
 INŠTRUKCIE PRE ODPOVEĎ:
-1. Odpovedz priamo na otázku používateľa s využitím informácií vyššie.
-2. Odpoveď štruktúruj do prehľadných bodov.
+1. Ignoruj všetko, čo nie je relevantné pre otázku "${originalQuestion}".
+2. Ak dokument obsahuje odpoveď, stručne a jasne ju sformuluj.
+3. Ak dokument NEODPOVEDÁ na otázku "${originalQuestion}", napíš: "Tento dokument neobsahuje informácie o..."
 `;
 
             const metadata = {
@@ -489,10 +519,9 @@ INŠTRUKCIE PRE ODPOVEĎ:
             return { prompt: promptText, metadata: metadata };
 
         } else {
-            return { prompt: `SYSTÉMOVÁ CHYBA: Dokument s ID '${docId}' sa v databáze nenašiel.`, metadata: null };
+            return { prompt: `SYSTÉMOVÁ CHYBA: Dokument ${docId} sa nenašiel.`, metadata: null };
         }
     } catch (e) {
-        console.error("Chyba pri sťahovaní dokumentu:", e);
-        return { prompt: "SYSTÉMOVÁ CHYBA: Nepodarilo sa stiahnuť obsah dokumentu.", metadata: null };
+        return { prompt: "SYSTÉMOVÁ CHYBA: Nepodarilo sa stiahnuť dokument.", metadata: null };
     }
 }
