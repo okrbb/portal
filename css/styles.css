@@ -3747,3 +3747,132 @@ input:focus, select:focus, textarea:focus {
 .ai-citation:hover {
     cursor: help;
 }
+
+/* =================================== */
+/* === AI STREAMING & TYPOGRAPHY === */
+/* =================================== */
+
+/* 1. Kurzor (Terminálový štýl) */
+.typing-cursor {
+    display: inline-block;
+    width: 8px; /* Šírka bloku */
+    height: 1.2em; /* Výška podľa riadku */
+    background-color: var(--color-orange-accent); /* Vaša zlatá farba */
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink-smooth 1s infinite;
+    opacity: 1;
+}
+
+/* Plynulejšie blikanie (nie on/off, ale fade) */
+@keyframes blink-smooth {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* 2. Plynulosť textu */
+.ai-msg {
+    /* Font rendering fixy */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    
+    /* Pevná výška riadku zabráni skákaniu */
+    line-height: 1.6 !important; 
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+/* 3. Formátovanie Markdown prvkov počas písania */
+/* Dôležité: Aby sa obsah neposúval, keď AI dopíše nadpis alebo zoznam */
+
+.ai-msg p {
+    margin-bottom: 12px !important;
+    margin-top: 0 !important;
+}
+
+.ai-msg h3, .ai-msg h4, .ai-msg strong {
+    color: var(--color-orange-accent);
+    font-weight: 700;
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
+    display: block; /* Aby nadpisy neskákali */
+}
+
+.ai-msg ul, .ai-msg ol {
+    margin-left: 20px !important;
+    margin-bottom: 12px !important;
+    padding-left: 0;
+}
+
+.ai-msg li {
+    margin-bottom: 4px !important;
+}
+
+.ai-msg code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #e2e8f0;
+}
+
+/* Skrytie kurzora, keď je správa hotová (JS trieda) */
+.ai-msg.finished .typing-cursor {
+    display: none;
+}
+
+/* =================================== */
+/* === VIEW TRANSITIONS API (2025) === */
+/* =================================== */
+
+/* 1. Vypneme animáciu pre Sidebar a Top Nav, aby "neblikali" */
+.sidebar, 
+.sidebar-right, 
+.top-nav, 
+.nav-dropdown-menu {
+    view-transition-name: none; /* Tieto prvky ostanú statické */
+}
+
+/* 2. Definícia animácie pre hlavný obsah (ROOT) */
+::view-transition-old(root) {
+    animation: fade-out 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+::view-transition-new(root) {
+    animation: slide-in 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    mix-blend-mode: normal; /* Fix pre text rendering */
+}
+
+/* 3. Kľúčové snímky (Keyframes) */
+@keyframes fade-out {
+    from { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(-40px); /* Starý obsah sa jemne posunie hore */
+    }
+}
+
+@keyframes slide-in {
+    from { 
+        opacity: 0; 
+        transform: translateY(40px); /* Nový obsah príde zdola */
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Pre používateľov, ktorí preferujú obmedzený pohyb (Accessibility) */
+@media (prefers-reduced-motion) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
