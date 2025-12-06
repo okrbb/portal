@@ -87,54 +87,128 @@ function setupAIInterface() {
     const sendBtn = document.getElementById('send-ai-btn');
     const inputField = document.getElementById('ai-input');
 
+    // 1. Otváranie okna (FAB)
     if (fabBtn && modalOverlay) {
         fabBtn.addEventListener('click', () => {
             modalOverlay.classList.remove('hidden');
             setTimeout(() => modalOverlay.classList.add('active'), 10);
-            if (inputField) setTimeout(() => inputField.focus(), 100);
+            
+            // Focus do poľa a reset výšky pri otvorení
+            if (inputField) {
+                setTimeout(() => {
+                    inputField.focus();
+                    inputField.style.height = '48px'; 
+                }, 100);
+            }
         });
     }
+
+    // 2. Zatváranie okna
     const closeModal = () => {
         if (!modalOverlay) return;
         modalOverlay.classList.remove('active');
         setTimeout(() => modalOverlay.classList.add('hidden'), 300);
     };
+
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    
+    // Zatvorenie kliknutím mimo okna (na tmavé pozadie)
     if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closeModal();
     });
+
+    // 3. Logika odosielania správ a Auto-Resize
     if (sendBtn && inputField) {
-        const handleSend = () => sendMessage();
+        
+        // Funkcia na odoslanie a "sfúknutie" poľa
+        const handleSend = () => {
+            sendMessage();
+            // Reset poľa na 1 riadok
+            inputField.style.height = '48px';
+            inputField.style.overflowY = 'hidden';
+            inputField.focus(); // Udržíme kurzor v poli
+        };
+
+        // Kliknutie na ikonu lietadielka
         sendBtn.addEventListener('click', handleSend);
-        inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
+
+        // Klávesové skratky
+        inputField.addEventListener('keydown', (e) => { // Zmena z 'keypress' na 'keydown' pre lepšiu odozvu
+            if (e.key === 'Enter' && !e.shiftKey) { 
+                // Enter = Odoslať
+                e.preventDefault(); // Zabráni vloženiu nového riadku
+                handleSend();
+            }
+            // Shift+Enter = Nový riadok (necháme predvolené správanie)
+        });
+
+        // === AUTO-RESIZE LOGIKA (Nafukovanie) ===
+        inputField.addEventListener('input', function() {
+            // 1. Reset výšky na základ, aby sme zmerali skutočný obsah (ak užívateľ mazal text)
+            this.style.height = '48px'; 
+            
+            // 2. Vypočítame novú výšku podľa obsahu (scrollHeight)
+            // Ale neprekročíme 120px (čo je cca max-height v CSS)
+            const newHeight = Math.min(this.scrollHeight, 120);
+            
+            // 3. Nastavíme novú výšku
+            this.style.height = newHeight + 'px';
+
+            // 4. Ak text presahuje maximum, zapneme scrollbar
+            if (this.scrollHeight > 120) {
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
         });
     }
+
+    // 4. Reset konverzácie
     if (resetBtn) resetBtn.addEventListener('click', resetConversation);
 }
-// ... (KONIEC SKOPÍROVANÝCH FUNKCIÍ) ...
-
 
 async function startNewChatSession() {
-    if (!genAIModel) return;
+    if (!genAIModel) return; // Kontrola modelu z ai_module.js
 
     const now = new Date();
     
-    // Získanie dát z DOMu pre kontext
+    // Získanie kontextu z DOM (ako v pôvodnom súbore)
     const announcementContainer = document.getElementById('announcement-widget-container');
     const currentAnnouncements = announcementContainer ? announcementContainer.innerText : "Žiadne.";
     const dutyListContainer = document.getElementById('duty-list-items');
     const currentDuty = dutyListContainer ? dutyListContainer.innerText : "Neznáme.";
     const userRole = currentUserContext?.funkcia || "Neznáma";
 
-    const [dbPrompt, dbKnowledgeBase] = await Promise.all([
+    // ZMENA: Voláme nový fetchKnowledgeBaseIndex
+    const [dbPrompt, dbKnowledgeIndex] = await Promise.all([
         fetchSystemPrompt(),
-        fetchKnowledgeBase()
+        fetchKnowledgeBaseIndex()
     ]);
 
     const baseInstruction = dbPrompt || "Si nápomocný AI asistent pre krízové riadenie.";
 
-    // Uložíme si kompletný prompt do globálnej premennej pre Groq
+    // ZMENA: Vylepšené inštrukcie pre používanie nástroja
+    const toolInstructions = `
+    
+    === PRÁCA S DOKUMENTMI (ON-DEMAND) ===
+    Máš prístup k zoznamu (indexu) dokumentov vyššie.
+    
+    ❗️ KRITICKÉ PRAVIDLÁ PRE ROZHODOVANIE:
+    1. Ak sa otázka týka legislatívy alebo postupov, NEODPOVEDAJ Z PAMÄTI.
+    2. Namiesto toho vyhľadaj ID dokumentu v indexe.
+    3. Tvoja odpoveď v tomto kroku musí byť LEN A LEN príkaz. Žiadne úvody, žiadne "Analýza fázy", žiadne "Používam dokument".
+    
+    POVINNÝ FORMÁT VÝSTUPU (ak potrebuješ dokument):
+    CMD_READ_DOC: ID_DOKUMENTU
+    
+    (Príklad: Namiesto "Našiel som vyhlášku 220, ID je xy..." napíš LEN "CMD_READ_DOC: xy")
+    
+    Až keď ti systém doručí obsah dokumentu (v druhom kroku), potom vypíš svoju analýzu a odpoveď pre používateľa.
+    
+    ${dbKnowledgeIndex}
+    `;
+
+    // Zloženie finálneho promptu
     currentSystemInstruction = `
     ${baseInstruction}
     
@@ -144,7 +218,7 @@ async function startNewChatSession() {
     Pohotovosť: ${currentDuty}
     Používateľ: ${currentUserContext.meno} (${userRole})
     
-    ${dbKnowledgeBase}
+    ${toolInstructions}
     `;
 
     // Štart Gemini Session
@@ -161,7 +235,7 @@ async function startNewChatSession() {
         ],
         generationConfig: {
             maxOutputTokens: 8000, 
-            temperature: 0.5, 
+            temperature: 0.2, 
         },
     });
 }
@@ -197,43 +271,66 @@ async function sendMessage() {
     appendMessage('<div class="typing-indicator"><span></span><span></span><span></span></div>', 'ai-bot', loaderId);
     scrollToBottom();
 
-    let responseText = "";
-    let usedModel = "Gemini";
-
     try {
-        // === POKUS 1: GEMINI (PRIMARY) ===
-        const result = await chatSession.sendMessage(userText);
-        responseText = result.response.text();
+        // 1. Prvé volanie AI
+        let responseText = await getAIResponse(userText); 
+        
+        // 2. Kontrola príkazu CMD_READ_DOC pomocou REGEXU (Bezpečnejšie)
+        // Hľadáme vzor: CMD_READ_DOC: (nejaké_znaky_bez_medzery)
+        const cmdMatch = responseText.match(/CMD_READ_DOC:\s*([^\s\n\r]+)/);
+
+        if (cmdMatch && cmdMatch[1]) {
+            // cmdMatch[1] obsahuje len čisté ID (prvé slovo za dvojbodkou)
+            // Odstránime prípadné bodky alebo čiarky na konci, ak ich tam AI dala
+            const docId = cmdMatch[1].replace(/[.,;!?)]+$/, "").trim();
+            
+            console.log(`AI žiada dokument (RAW): ${cmdMatch[0]}`);
+            console.log(`AI žiada dokument (CLEAN ID): ${docId}`);
+            
+            // UX vylepšenie - povieme užívateľovi, čo sa deje (voliteľné)
+            // appendMessage(`Analyzujem dokument ID: ${docId}...`, 'ai-system-note');
+
+            // 3. Stiahneme obsah
+            const docContent = await fetchDocumentContent(docId);
+            
+            // 4. Pošleme obsah späť AI
+            responseText = await getAIResponse(docContent);
+        }
+
+        // 5. Zobrazenie finálnej odpovede
+        removeElement(loaderId);
+        const formattedText = marked.parse(responseText);
+        appendMessage(formattedText, 'ai-bot');
 
     } catch (error) {
-        console.warn("⚠️ Gemini zlyhalo, prepínam na Groq...", error);
-        
-        // === POKUS 2: GROQ (FALLBACK) ===
-        if (groqClient) {
-            try {
-                responseText = await callGroqFallback(userText);
-                usedModel = "Groq (Llama 3)";
-            } catch (groqError) {
-                console.error("Aj Groq zlyhal:", groqError);
-                responseText = "Ospravedlňujem sa, momentálne sú preťažené oba systémy (Gemini aj Groq). Skúste to prosím o chvíľu.";
-            }
-        } else {
-            responseText = "Chyba spojenia s Gemini a záložný systém nie je nakonfigurovaný.";
-        }
-    } finally {
+        console.error("Chyba komunikácie:", error);
         removeElement(loaderId);
+        appendMessage("Ospravedlňujem sa, nastala chyba pri spracovaní požiadavky.", 'ai-bot');
     }
     
-    // Spracovanie markdownu
-    const formattedText = marked.parse(responseText);
-    
-    // Pridanie informácie o použití záložného modelu (voliteľné)
-    const finalContent = usedModel.includes("Groq") 
-        ? `${formattedText}<br><small style="color:orange; font-size:0.7em;">(Vygenerované cez záložný systém ${usedModel})</small>` 
-        : formattedText;
-
-    appendMessage(finalContent, 'ai-bot');
     scrollToBottom();
+}
+
+/**
+ * Wrapper funkcia pre volanie Gemini (alebo Groq fallbacku)
+ * Aby sme nekopírovali kód dvakrát v sendMessage
+ */
+async function getAIResponse(inputText) {
+    let text = "";
+    try {
+        // Skúsime Gemini
+        const result = await chatSession.sendMessage(inputText);
+        text = result.response.text();
+    } catch (geminiError) {
+        console.warn("Gemini fail, skúšam Groq...", geminiError);
+        // Fallback na Groq
+        if (groqClient) {
+            text = await callGroqFallback(inputText);
+        } else {
+            throw geminiError;
+        }
+    }
+    return text;
 }
 
 /**
@@ -301,4 +398,110 @@ function removeElement(id) {
 function scrollToBottom() {
     const messagesArea = document.getElementById('ai-messages-area');
     if(messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+
+// === NOVÉ FUNKCIE PRE ON-DEMAND NAČÍTANIE ===
+
+/**
+ * Stiahne index dokumentov (Názov, Popis, Kľúčové slová) pre rozhodovanie AI.
+ */
+async function fetchKnowledgeBaseIndex() {
+    if (!firestoreDB) return "";
+    
+    // Hlavička pre AI, aby vedela, čo číta
+    let indexContent = "\n=== DOSTUPNÁ KNIŽNICA DOKUMENTOV (INDEX) ===\n";
+    indexContent += "Nasleduje zoznam dostupných smerníc. Obsah nie je načítaný.\n";
+    indexContent += "Ak potrebuješ detaily z konkrétneho dokumentu, použi príkaz: CMD_READ_DOC: [ID]\n\n";
+
+    try {
+        const snapshot = await firestoreDB.collection('knowledge_base')
+            .where('isActive', '==', true)
+            .get();
+
+        if (snapshot.empty) return ""; 
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // Ošetrenie, ak by keywords boli pole alebo string, alebo chýbali
+            let tags = "";
+            if (data.keywords) {
+                tags = Array.isArray(data.keywords) ? data.keywords.join(', ') : data.keywords;
+            }
+
+            // Formátovanie pre AI
+            indexContent += `ID: ${doc.id}\n`;
+            indexContent += `NÁZOV: ${data.title}\n`;
+            indexContent += `POPIS: ${data.description || "Bez popisu"}\n`;
+            if (tags) indexContent += `TAGY: ${tags}\n`; // Pridáme len ak existujú
+            indexContent += `-----------------------------------\n`;
+        });
+        
+        return indexContent;
+    } catch (e) { 
+        console.error("Chyba pri indexovaní KB:", e);
+        return ""; 
+    }
+}
+
+/**
+ * 2. Stiahne KONKRÉTNY obsah dokumentu na vyžiadanie.
+ */
+async function fetchDocumentContent(docId) {
+    if (!firestoreDB || !docId) return "CHYBA: Chýba databáza alebo ID.";
+    
+    // POISTKA: Ak ID obsahuje podozrivé znaky
+    if (docId.includes('/') || docId.includes(' ')) {
+        console.warn(`Zablokované neplatné ID dokumentu: "${docId}"`);
+        return "SYSTÉMOVÁ CHYBA: AI poskytla neplatný formát ID dokumentu. Skúste otázku položiť inak.";
+    }
+
+    try {
+        console.log(`Sťahujem obsah dokumentu: ${docId}`);
+        const docRef = firestoreDB.collection('knowledge_base').doc(docId);
+        const docSnap = await docRef.get();
+        
+        if (docSnap.exists) {
+            const data = docSnap.data();
+
+            // === NOVÉ: Príprava odkazov ===
+            let linksHtml = '';
+            
+            // Link na Slov-Lex (ak existuje)
+            if (data.slov_lex) {
+                linksHtml += `<a href="${data.slov_lex}" target="_blank" class="ai-doc-link" title="Otvoriť v Slov-Lex">Slov-Lex <i class="fas fa-external-link-alt"></i></a>`;
+            }
+
+            // Link na Teams/Sharepoint (ak existuje)
+            if (data.teams_url) {
+                linksHtml += `<a href="${data.teams_url}" target="_blank" class="ai-doc-link" title="Otvoriť dokument">Dokument <i class="fas fa-file-arrow-down"></i></a>`;
+            }
+
+            // Obalenie odkazov do kontajnera (ak nejaké sú)
+            const linksContainer = linksHtml ? `<div class="ai-citation-links">${linksHtml}</div>` : '';
+
+            return `
+=== OBSAH VYŽIADANÉHO DOKUMENTU ===
+ID: ${docId}
+NÁZOV: ${data.title}
+OBSAH:
+${data.content}
+=== KONIEC DOKUMENTU ===
+
+INŠTRUKCIE PRE ODPOVEĎ:
+1. Odpovedz priamo na otázku používateľa s využitím informácií vyššie.
+2. ZAKÁZANÉ: Na začiatku odpovede NEPIŠ vety typu "Používam dokument...", "Na základe dokumentu..." ani "Podľa vyhlášky...". Začni rovno faktami.
+3. POVINNÉ: Na úplnom konci odpovede vlož PRESNE tento HTML kód (bez úprav):
+<div class="ai-citation">
+    <div class="ai-citation-text"><i class="fa-solid fa-file-lines"></i> Zdroj: ${data.title}</div>
+    ${linksContainer}
+</div>
+            `;
+        } else {
+            return `SYSTÉMOVÁ CHYBA: Dokument s ID '${docId}' sa v databáze nenašiel.`;
+        }
+    } catch (e) {
+        console.error("Chyba pri sťahovaní dokumentu:", e);
+        return "SYSTÉMOVÁ CHYBA: Nepodarilo sa stiahnuť obsah dokumentu (Firebase Error).";
+    }
 }
