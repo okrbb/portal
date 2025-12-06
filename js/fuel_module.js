@@ -717,6 +717,8 @@ async function processRefueling() {
         km_norm_c: firebase.firestore.FieldValue.increment(kmCityInput),
         km_norm_a: firebase.firestore.FieldValue.increment(distanceOutside)
     });
+
+    await recalculateHistoryChain(carId);
     
     logUserAction("PHM", `Tankovanie ${carId}: ${liters}L, Spotreba: ${consumption.toFixed(2)}`);
 }
