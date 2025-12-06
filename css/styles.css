@@ -2216,207 +2216,372 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* =================================== */
-/* === AI WIDGET (Embedded) STYLES === */
+/* === AI ASISTENT - MODERN UI 2025 === */
 /* =================================== */
 
-.ai-card {
-    /* Zdedí základné štýly dashboard-card, pridávame špecifiká pre chat */
+/* --- 1. Plávajúce tlačidlo (FAB) --- */
+.ai-fab-btn {
+    position: fixed;
+    bottom: 30px; /* Zarovnané s prepínačom zamestnancov */
+    right: 110px; /* Posunuté doľava od prepínača */
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0A2C55 0%, #1F4B8F 100%); /* Tmavomodrá */
+    border-radius: 50%;
+    box-shadow: 0 4px 20px rgba(10, 44, 85, 0.5);
     display: flex;
-    flex-direction: column;
-    height: 500px; /* Fixná výška, aby chat nebol príliš malý/veľký */
-    padding: 0 !important; /* Reset paddingu, budeme ho mať vnútri */
-    border-top: 4px solid #38a169; /* Zelená farba pre Civilnú Ochranu/Bezpečnosť */
-}
-
-.ai-card-header {
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.ai-card-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--color-text-primary);
-    border: none;
-    padding: 0;
-}
-
-.status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #38a169;
-    box-shadow: 0 0 8px #38a169;
-}
-
-.ai-messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--spacing-md);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.ai-msg {
-    max-width: 85%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    word-wrap: break-word;
-}
-
-.ai-bot {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--color-text-primary);
-    border-bottom-left-radius: 2px;
-    align-self: flex-start;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.ai-user {
-    background: var(--color-blue-dark); /* Alebo oranžová podľa preferencie */
-    color: white;
-    border-bottom-right-radius: 2px;
-    align-self: flex-end;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.ai-msg.error {
-    background: rgba(229, 62, 62, 0.2);
-    color: #fc8181;
-    align-self: center;
-}
-
-.ai-input-wrapper {
-    align-items: flex-end; /* Tlačidlo ostane dole pri roztiahnutí poľa */
-    padding: 12px;
-    border-top: 1px solid var(--color-border);
-    display: flex;
-    gap: 8px;
-    background: var(--color-bg-light);
-    border-bottom-left-radius: var(--radius-lg);
-    border-bottom-right-radius: var(--radius-lg);
-}
-
-.ai-input-wrapper input {
-    margin-bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Štýlovanie nového textarea */
-.ai-input-wrapper textarea {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.3) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important; /* Menší rádius ako input, lepšie pre viac riadkov */
-    padding: 10px 12px !important;
-    color: var(--color-text-primary);
-    font-family: var(--font-secondary);
-    font-size: 0.95rem;
-    
-    resize: none; /* Užívateľ nemôže ťahať rohy, rieši to JS */
-    min-height: 44px; /* Výška jedného riadku */
-    max-height: 150px; /* Maximálna výška pred scrollovaním */
-    overflow-y: auto;
-    
-    margin-bottom: 0 !important;
-    line-height: 1.4;
-}
-
-.ai-input-wrapper textarea:focus {
-    outline: none;
-    border-color: #2b6cb0 !important;
-    box-shadow: 0 0 0 2px rgba(43, 108, 176, 0.2);
-}
-
-/* Úprava tlačidla odoslať, aby sedelo k textarea */
-.ai-input-wrapper button {
-    height: 44px; /* Rovnaká výška ako min-height textarea */
-    width: 44px;
-    margin-bottom: 1px; /* Jemné doladenie zarovnania */
-    border: none !important; 
-    border-radius: 50%;
-    background: #2b6cb0;
-    color: white;
+    justify-content: center;
     cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s, transform 0.2s;
+    z-index: 2000;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Hover efekt (voliteľné, pre lepší pocit) */
-.ai-input-wrapper button:hover {
-    background: #3182ce;
-    transform: scale(1.05);
+.ai-fab-btn:hover {
+    transform: scale(1.1) rotate(-10deg);
+    box-shadow: 0 0 25px rgba(31, 75, 143, 0.8);
+    border-color: var(--color-orange-accent);
 }
 
-/* === ÚPRAVA HLAVIČKY AI A TLAČIDLA RESET === */
+.ai-fab-btn i {
+    font-size: 1.6rem;
+    color: white;
+}
 
-.ai-card-header {
-    /* Pôvodné štýly ponecháme, len upravíme display */
+/* Status bodka (Online indikátor) */
+.status-dot-fab {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background-color: #48bb78;
+    border-radius: 50%;
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.2);
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(72, 187, 120, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+/* --- 2. Hlavné Okno (Glassmorphism) --- */
+.ai-modal-window {
+    width: 800px; /* Širšie pre lepší komfort čítania */
+    height: 700px;
+    max-width: 95vw;
+    max-height: 90vh;
+    
+    /* Sklenený efekt */
+    background: rgba(17, 24, 39, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px; /* Modernejšie zaoblenie */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Hlavička okna */
+.ai-modal-header {
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md);
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid var(--color-border);
 }
 
-/* Kontajner pre prvky vpravo (Bodka + Tlačidlo) */
-.ai-header-controls {
+.ai-header-title {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* Štýl pre reset tlačidlo */
-.ai-reset-btn {
+.ai-header-title i {
+    color: var(--color-orange-accent);
+}
+
+/* Tlačidlá v hlavičke */
+.ai-action-btn {
     background: transparent;
     border: none;
     color: var(--color-text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 0.9rem;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
 }
 
-.ai-reset-btn:hover {
-    color: var(--color-text-primary);
+.ai-action-btn:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
-/* Tooltip pre tlačidlo (voliteľné, ak používate title atribút) */
-.ai-reset-btn i {
-    font-size: 1rem;
+.ai-action-btn.close:hover {
+    background: rgba(229, 62, 62, 0.2);
+    color: #fc8181;
 }
 
-/* Typing animácia */
+/* --- 3. Oblasť správ (Chat Area) --- */
+.ai-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+    /* Jemný vzor na pozadí */
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Všeobecná bublina */
+.ai-msg {
+    max-width: 85%;
+    padding: 16px 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- A. Správa od BOTa (AI) --- */
+.ai-bot {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05); /* Jemná sivá */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border-radius: 18px 18px 18px 4px; /* Ostrý roh vľavo dole */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Formátovanie obsahu BOTa */
+.ai-bot h3, .ai-bot h4 {
+    color: var(--color-orange-accent); /* Nadpisy zlatou farbou */
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.ai-bot ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.ai-bot li {
+    margin-bottom: 6px;
+}
+
+.ai-bot strong {
+    color: white;
+    font-weight: 700;
+}
+
+/* === AI CITÁCIE A ODKAZY === */
+
+/* Upravený kontajner citácie */
+.ai-citation {
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column; /* Pod seba: text zdroja a potom tlačidlá */
+    gap: 8px;
+}
+
+.ai-citation-text {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Kontajner pre tlačidlá odkazov */
+.ai-citation-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: 26px; /* Odsadenie, aby lícovalo s textom (pod ikonou) */
+}
+
+/* Štýl tlačidla odkazu */
+.ai-doc-link {
+    font-size: 0.8rem;
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08); /* Jemne svetlejšie pozadie */
+    color: var(--color-text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Hover efekt pre tlačidlo */
+.ai-doc-link:hover {
+    background: var(--color-orange-accent); /* Vaša zlatá farba */
+    color: var(--color-text-dark);          /* Tmavý text pre kontrast */
+    border-color: var(--color-orange-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Ikona v tlačidle */
+.ai-doc-link i {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Štýl pre ikonku v pätičke */
+.ai-citation i {
+    color: var(--color-orange-accent);
+    font-size: 1.5rem;
+    font-style: normal; /* Aby ikona nebola kurzívou */
+}
+
+/* --- B. Správa od POUŽÍVATEĽA --- */
+.ai-user {
+    align-self: flex-end;
+    /* Gradientná modrá */
+    background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%);
+    color: white;
+    border-radius: 18px 18px 4px 18px; /* Ostrý roh vpravo dole */
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- 4. Vstupná oblasť (Input) --- */
+.ai-input-wrapper {
+    padding: 20px;
+    background: rgba(17, 24, 39, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    backdrop-filter: blur(10px);
+}
+
+/* --- Vstupná oblasť (Input) - Auto-resize fix --- */
+.ai-input-wrapper textarea {
+    width: 100%;
+    /* Sklo efekt a farby */
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important; /* Viac zaoblené pre moderný chat look */
+    color: white;
+    
+    /* Typografia */
+    font-family: var(--font-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    
+    /* Rozmery a správanie */
+    padding: 12px 20px !important; /* Vycentrovanie textu na stred riadku */
+    height: 48px; /* Štartovacia výška pre 1 riadok */
+    min-height: 48px;
+    max-height: 120px; /* Maximálna výška (cca 3-4 riadky) */
+    
+    resize: none; /* Zruší manuálne roztiahnutie myšou */
+    overflow-y: hidden; /* Skryje scrollbar, kým nepresiahne max-height */
+    transition: border-color 0.2s, box-shadow 0.2s; /* Animujeme len farbu, nie výšku (aby to neskákalo) */
+}
+
+.ai-input-wrapper textarea:focus {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-color: var(--color-orange-accent) !important;
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2) !important;
+    outline: none;
+}
+
+/* Scrollbar sa objaví len ak text presiahne max-height */
+.ai-input-wrapper textarea:active,
+.ai-input-wrapper textarea:focus {
+    overflow-y: none; 
+}
+
+.ai-input-wrapper button {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--color-orange-accent);
+    border: none;
+    color: var(--color-text-dark);
+    font-size: 1.2rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-input-wrapper button:hover {
+    background: var(--color-orange-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(188, 135, 0, 0.3);
+}
+
+/* Loader / Typing indikátor */
+.typing-indicator {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: inline-flex;
+    gap: 4px;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
 .typing-indicator span {
-    display: inline-block;
     width: 6px;
     height: 6px;
-    background-color: var(--color-text-secondary);
+    background: var(--color-text-secondary);
     border-radius: 50%;
-    margin: 0 2px;
-    animation: typing 1s infinite;
+    animation: bounce 1.4s infinite ease-in-out both;
 }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes typing {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
 }
+
+/* Scrollbar v chate */
+.ai-messages-container::-webkit-scrollbar { width: 6px; }
+.ai-messages-container::-webkit-scrollbar-track { background: transparent; }
+.ai-messages-container::-webkit-scrollbar-thumb { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: 10px; 
+}
+.ai-messages-container::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
 /* =====================================================================
    NOVÉ UI 2025 - TOP NAV & FLOATING SIDEBAR
@@ -3153,8 +3318,8 @@ input:focus, select:focus, textarea:focus {
 
 /* --- 3. Okno chatu --- */
 .ai-modal-window {
-    width: 500px;
-    height: 700px;
+    width: 600px;
+    height: 800px;
     max-width: 95%;
     max-height: 90vh;
     background: rgba(31, 41, 55, 0.95); /* Tmavé pozadie */
@@ -3526,4 +3691,59 @@ input:focus, select:focus, textarea:focus {
 #fuel-modal, 
 #km-modal {
     z-index: 9500 !important; /* História má 9000, toto musí byť viac */
+}
+
+/* 1. Definícia animácie (Pohyb svetla zľava doprava) */
+@keyframes icon-shine-effect {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 150% 50%; /* Posunie svetlo až za okraj */
+    }
+}
+
+/* 2. Štýl ikonky s maskovaným gradientom */
+.ai-citation i {
+    font-size: 1.5rem;
+    font-style: normal;
+    display: inline-block;
+    
+    /* Vytvoríme gradient: Oranžová -> Biela (svetlo) -> Oranžová */
+    background: linear-gradient(
+        60deg, 
+        var(--color-orange-accent) 20%, 
+        rgba(255, 255, 255, 1) 50%, 
+        var(--color-orange-accent) 80%
+    );
+    
+    /* Zväčšíme pozadie, aby sa svetlo dalo posúvať */
+    background-size: 200% auto;
+    
+    /* Orežeme pozadie presne podľa tvaru ikonky */
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* Text musí byť priesvitný, aby presvitalo pozadie */
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Fallback */
+    
+    /* Nastavíme východiskovú pozíciu (svetlo je vľavo mimo) */
+    background-position: 0% 50%;
+    
+    transition: transform 0.3s ease;
+}
+
+/* 3. Spustenie efektu pri nabehnutí myšou na CELÝ RIADOK citácie */
+.ai-citation:hover i {
+    /* Animácia trvá 1.5 sekundy a opakuje sa */
+    animation: icon-shine-effect 1.5s infinite linear;
+    
+    /* Jemné zväčšenie ikonky pre lepší efekt */
+    transform: scale(1.2);
+}
+
+/* Zmeníme kurzor na ruku, aby to lákalo kliknúť (aj keď je to len info) */
+.ai-citation:hover {
+    cursor: help;
 }
