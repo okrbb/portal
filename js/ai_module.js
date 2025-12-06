@@ -269,7 +269,7 @@ async function startNewChatSession() {
         ],
         generationConfig: {
             maxOutputTokens: 8000, 
-            temperature: 0.3,
+            temperature: 0.5,
         },
     });
 }
