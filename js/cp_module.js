@@ -1,3 +1,11 @@
+/* cp_module.js - Modular SDK v9+ (Oprava zaokrúhľovania) */
+import { 
+    collection, 
+    doc, 
+    updateDoc, 
+    getDocs 
+} from 'firebase/firestore';
+
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
@@ -11,14 +19,14 @@ import { Permissions } from './accesses.js';
 let _allEmployeesData = null; 
 let selectedEmployeeId = null;
 let _dbReference = null;
-let _localActiveUser = null; // Uložený aktívny používateľ pre kontrolu oprávnení
+let _localActiveUser = null; 
 
 export function initializeCPModule(db, activeUser, employeesData) { 
     console.log("Inicializujem modul Cestovný príkaz...");
     
     _allEmployeesData = employeesData;
-    _dbReference = db;
-    _localActiveUser = activeUser; // Uložíme aktívneho používateľa
+    _dbReference = db; 
+    _localActiveUser = activeUser;
 
     const lookupId = activeUser.id || activeUser.oec; 
 
@@ -28,33 +36,22 @@ export function initializeCPModule(db, activeUser, employeesData) {
     }
 
     try {
-        const dateInputs = [
-            "#datum_zc_datum",
-            "#datum_kc_datum",
-            "#datum_1",
-            "#datum_2"
-        ];
-
+        const dateInputs = ["#datum_zc_datum", "#datum_kc_datum", "#datum_1", "#datum_2"];
         dateInputs.forEach(selector => {
             const el = document.querySelector(selector);
             if (el && typeof flatpickr !== 'undefined') {
-                flatpickr(el, {
-                    dateFormat: "d.m.Y",
-                    locale: "sk"
-                });
+                flatpickr(el, { dateFormat: "d.m.Y", locale: "sk" });
             }
         });
-
         populateTimeSelects();
     } catch (e) {
-        console.error("Chyba pri inicializácii Flatpickr alebo časov v CP module:", e);
+        console.error("Chyba pri inicializácii Flatpickr:", e);
     }
 
     const clearBtn = document.getElementById('btn-clear-cp-form');
     if (clearBtn) {
         const newBtn = clearBtn.cloneNode(true);
         clearBtn.parentNode.replaceChild(newBtn, clearBtn);
-        
         newBtn.addEventListener('click', (e) => {
             e.preventDefault();
             clearCPForm();
@@ -74,26 +71,18 @@ export function initializeCPModule(db, activeUser, employeesData) {
 }
 
 const editIbanBtn = document.getElementById('btn-edit-iban');
-    if (editIbanBtn) {
-        editIbanBtn.addEventListener('click', openIbanModal);
-    }
+if (editIbanBtn) editIbanBtn.addEventListener('click', openIbanModal);
 
-    const ibanForm = document.getElementById('iban-form');
-    if (ibanForm) {
-        ibanForm.addEventListener('submit', handleIbanSave);
-    }
+const ibanForm = document.getElementById('iban-form');
+if (ibanForm) ibanForm.addEventListener('submit', handleIbanSave);
 
-    const closeIbanBtn = document.getElementById('close-iban-modal');
-    if (closeIbanBtn) {
-        closeIbanBtn.addEventListener('click', () => {
-            document.getElementById('iban-modal').classList.add('hidden');
-        });
-    }
+const closeIbanBtn = document.getElementById('close-iban-modal');
+if (closeIbanBtn) {
+    closeIbanBtn.addEventListener('click', () => {
+        document.getElementById('iban-modal').classList.add('hidden');
+    });
+}
 
-/**
- * Zobrazí detaily vybraného zamestnanca v karte.
- * @param {string|null} empId - ID zamestnanca. Ak je null, zobrazí sa hláška.
- */
 export function displayCPEmployeeDetails(empId) {
     const detailElement = document.getElementById('cp-employee-details');
     if (!detailElement) return;
@@ -112,7 +101,6 @@ export function displayCPEmployeeDetails(empId) {
         return;
     }
 
-    // --- KONTROLA OPRÁVNENÍ (Centrálna logika) ---
     if (!Permissions.canViewCP(_localActiveUser, emp)) {
         detailElement.innerHTML = `<p style="color: #E53E3E; font-weight: bold;">
             Nemáte oprávnenie vidieť detaily zamestnanca ${emp.displayName} v tomto module.
@@ -120,7 +108,6 @@ export function displayCPEmployeeDetails(empId) {
         selectedEmployeeId = null; 
         return;
     }
-    // --- KONIEC KONTROLY OPRÁVNENÍ ---
 
     selectedEmployeeId = empId; 
 
@@ -133,72 +120,45 @@ export function displayCPEmployeeDetails(empId) {
 }
 
 function populateTimeSelects() {
-    const timeSelects = [
-        { id: '#datum_zc_cas', defaultTime: '07:30' }, 
-        { id: '#datum_kc_cas', defaultTime: '15:30' }
-    ];
-
+    const timeSelects = [{ id: '#datum_zc_cas', defaultTime: '07:30' }, { id: '#datum_kc_cas', defaultTime: '15:30' }];
     const startHour = 6;
     const endHour = 22;
 
     timeSelects.forEach(item => {
         const select = document.querySelector(item.id);
         if (!select) return;
-
         select.innerHTML = '<option value="">-- čas --</option>';
-
         for (let h = startHour; h <= endHour; h++) {
             const hour = h.toString().padStart(2, '0');
             select.add(new Option(`${hour}:00`, `${hour}:00`));
-            if (h < endHour) {
-                select.add(new Option(`${hour}:30`, `${hour}:30`));
-            }
+            if (h < endHour) select.add(new Option(`${hour}:30`, `${hour}:30`));
         }
-
         select.value = item.defaultTime;
     });
 }
 
-/**
- * Otvorí modálne okno pre IBAN
- */
-/**
- * Otvorí modálne okno pre IBAN
- */
 function openIbanModal() {
     if (!selectedEmployeeId) {
         showToast("Najprv vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
         return;
     }
-
     const emp = _allEmployeesData.get(selectedEmployeeId);
     if (!emp) return;
-
-    // Kontrolujeme len to, či je používateľ prihlásený.
-    // Keďže selectedEmployeeId je už vybrané (a zoznam vpravo filtruje viditeľnosť),
-    // táto úprava umožní editáciu každému, kto sa k zamestnancovi preklikol (vrátane seba).
     if (!_localActiveUser) {
          showToast("Pre úpravu údajov musíte byť prihlásený.", TOAST_TYPE.ERROR);
          return;
     }
-    // -----------------------------------------------------
-
     const modal = document.getElementById('iban-modal');
     const input = document.getElementById('iban-input');
-
     if (modal && input) {
-        input.value = emp.iban || ''; // Predvyplniť existujúci IBAN
+        input.value = emp.iban || ''; 
         modal.classList.remove('hidden');
         input.focus();
     }
 }
 
-/**
- * Spracuje uloženie IBANu do databázy
- */
 async function handleIbanSave(e) {
     e.preventDefault();
-
     if (!selectedEmployeeId || !_dbReference) return;
 
     const input = document.getElementById('iban-input');
@@ -206,64 +166,48 @@ async function handleIbanSave(e) {
     const modal = document.getElementById('iban-modal');
     const submitBtn = modal.querySelector('button[type="submit"]');
 
-    // Jednoduchá validácia (nesmie byť prázdne, ak to je povinné)
     if (newIban.length > 0 && newIban.length < 15) { 
          showToast("IBAN sa zdá byť príliš krátky.", TOAST_TYPE.INFO);
-         // Necháme prejsť, len upozorníme, alebo dajte return pre striktnosť
     }
 
     try {
         submitBtn.textContent = 'Ukladám...';
         submitBtn.disabled = true;
 
-        // 1. Update v Firestore
-        await _dbReference.collection('employees').doc(selectedEmployeeId).update({
-            iban: newIban
-        });
+        const empRef = doc(_dbReference, 'employees', selectedEmployeeId);
+        await updateDoc(empRef, { iban: newIban });
 
-        // 2. Update lokálnych dát
         const emp = _allEmployeesData.get(selectedEmployeeId);
         if (emp) {
             emp.iban = newIban;
             _allEmployeesData.set(selectedEmployeeId, emp);
         }
 
-        // 3. Refresh UI
         displayCPEmployeeDetails(selectedEmployeeId);
-
-        // 4. Zavrieť a hláška
         modal.classList.add('hidden');
         showToast("IBAN bol úspešne aktualizovaný.", TOAST_TYPE.SUCCESS);
 
     } catch (error) {
         console.error("Chyba pri ukladaní IBAN:", error);
-        showToast("Nepodarilo sa uložiť IBAN. Skúste to znova.", TOAST_TYPE.ERROR);
+        showToast("Nepodarilo sa uložiť IBAN.", TOAST_TYPE.ERROR);
     } finally {
         submitBtn.textContent = 'Uložiť';
         submitBtn.disabled = false;
     }
 }
 
-/**
- * Spracuje odoslanie formulára a vygeneruje cestovný príkaz
- */
 async function handleCPFormSubmit() {
     if (!selectedEmployeeId) {
         showToast("Prosím, vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
         return;
     }
-
     const emp = _allEmployeesData.get(selectedEmployeeId);
-    
-    // Dvojitá kontrola oprávnení pred generovaním (Centrálna logika)
     if (!emp || !Permissions.canViewCP(_localActiveUser, emp)) {
-        showToast("Nemáte oprávnenie vygenerovať cestovný príkaz pre tohto zamestnanca.", TOAST_TYPE.ERROR);
+        showToast("Nemáte oprávnenie vygenerovať CP pre tohto zamestnanca.", TOAST_TYPE.ERROR);
         return;
     }
-
     const formData = collectFormData(emp);
     const filename = generateFilename(formData);
-
     await generateCPDocx(formData, filename);
 }
 
@@ -271,9 +215,7 @@ function collectFormData(emp) {
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         const parts = dateStr.split('.');
-        if (parts.length === 3) {
-            return dateStr; 
-        }
+        if (parts.length === 3) return dateStr; 
         const [year, month, day] = dateStr.split('-');
         return `${day}.${month}.${year}`;
     };
@@ -308,14 +250,7 @@ function collectFormData(emp) {
 }
 
 function generateFilename(formData) {
-    let dateStr = document.getElementById('datum_zc_datum')?.value;
-    if (!dateStr) {
-        dateStr = document.getElementById('datum_1')?.value;
-    }
-    if (!dateStr) {
-        dateStr = new Date().toISOString().split('T')[0];
-    }
-
+    let dateStr = document.getElementById('datum_zc_datum')?.value || document.getElementById('datum_1')?.value || new Date().toISOString().split('T')[0];
     let dateForFilename = '';
     try {
         if (dateStr.includes('.')) {
@@ -325,23 +260,15 @@ function generateFilename(formData) {
             const [year, month, day] = dateStr.split('-');
             dateForFilename = `${day}${month}${year}`;
         }
-    } catch (e) {
-        console.error("Chyba pri parsovaní dátumu:", e);
-        dateForFilename = "neznamy_datum";
-    }
+    } catch (e) { dateForFilename = "neznamy_datum"; }
 
     const miesto = formData.miesto || 'nezname';
-    const miestoSanitized = miesto
-        .replace(/[^a-zA-ZáäčďéěíňóôŕšťúůýžÁÄČĎÉĚÍŇÓÔŔŠŤÚŮÝŽ0-9]/g, '_')
-        .replace(/_+/g, '_')
-        .replace(/^_|_$/g, '')
-
+    const miestoSanitized = miesto.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
     return `cestovny_prikaz_${miestoSanitized}_${dateForFilename}.docx`;
 }
 
 async function generateCPDocx(data, filename) {
     const templatePath = 'data/cp.docx';
-
     const submitBtn = document.querySelector('#cp-form-embedded button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
@@ -350,31 +277,17 @@ async function generateCPDocx(data, filename) {
 
         try {
             const response = await fetch(templatePath);
-            if (!response.ok) {
-                throw new Error(`Chyba pri načítaní šablóny: ${response.statusText}`);
-            }
-
+            if (!response.ok) throw new Error(`Chyba pri načítaní šablóny: ${response.statusText}`);
             const content = await response.arrayBuffer();
             const zip = new PizZip(content);
-            const doc = new window.docxtemplater(zip, {
-                paragraphLoop: true,
-                linebreaks: true,
-                delimiters: { start: "{{", end: "}}" }
-            });
-
+            const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: "{{", end: "}}" } });
             doc.setData(data);
             doc.render();
-
-            const out = doc.getZip().generate({
-                type: 'blob',
-                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            });
-
+            const out = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
             saveAs(out, filename);
-
             showToast("Cestovný príkaz bol úspešne vygenerovaný.", TOAST_TYPE.SUCCESS);
         } catch (error) {
-            console.error('Nastala chyba pri generovaní dokumentu:', error);
+            console.error('Generovanie dokumentu:', error);
             showToast(`Nastala chyba: ${error.message}`, TOAST_TYPE.ERROR);
         } finally {
             submitBtn.disabled = false;
@@ -382,7 +295,6 @@ async function generateCPDocx(data, filename) {
         }
     }
 }
-
 
 // ========================================
 // MODUL PRE VÝPOČET STRAVNÉHO
@@ -392,41 +304,26 @@ async function calculateMealAllowance(startDate, startTime, endDate, endTime) {
     try {
         const startDateTime = parseDateTime(startDate, startTime);
         const endDateTime = parseDateTime(endDate, endTime);
-
-        if (!startDateTime || !endDateTime) {
-            throw new Error("Neplatný formát dátumu alebo času");
-        }
-
+        if (!startDateTime || !endDateTime) throw new Error("Neplatný formát dátumu alebo času");
         const durationHours = (endDateTime - startDateTime) / (1000 * 60 * 60);
-
-        if (durationHours < 0) {
-            throw new Error("Koniec cesty je skôr ako začiatok");
-        }
+        if (durationHours < 0) throw new Error("Koniec cesty je skôr ako začiatok");
 
         const dailyAllowances = [];
         let totalAllowance = 0;
-
         let currentDay = new Date(startDateTime);
         currentDay.setHours(0, 0, 0, 0); 
 
         while (currentDay <= endDateTime) {
             const dayStart = new Date(currentDay);
             dayStart.setHours(0, 0, 0, 0);
-
             const dayEnd = new Date(currentDay);
             dayEnd.setHours(23, 59, 59, 999);
 
             const effectiveStart = dayStart < startDateTime ? startDateTime : dayStart;
             const effectiveEnd = dayEnd > endDateTime ? endDateTime : dayEnd;
-
             const dayDurationHours = (effectiveEnd - effectiveStart) / (1000 * 60 * 60);
 
             const mealRate = await getMealRateForDate(effectiveStart);
-
-            if (!mealRate) {
-                console.warn(`Sadzba stravného nebola nájdená pre dátum: ${effectiveStart.toLocaleDateString('sk-SK')}`);
-            }
-
             let dayAllowanceAmount = 0;
             let dayCategory = "";
 
@@ -441,12 +338,10 @@ async function calculateMealAllowance(startDate, startTime, endDate, endTime) {
                     dayAllowanceAmount = mealRate["18h"] || 0;
                     dayCategory = "nad 18h";
                 } else {
-                    dayCategory = "bez nároku (menej ako 5 hodín)";
+                    dayCategory = "bez nároku";
                 }
             }
-
             totalAllowance += dayAllowanceAmount;
-
             dailyAllowances.push({
                 date: effectiveStart.toLocaleDateString('sk-SK'),
                 duration: dayDurationHours.toFixed(2),
@@ -454,16 +349,15 @@ async function calculateMealAllowance(startDate, startTime, endDate, endTime) {
                 amount: dayAllowanceAmount,
                 validFrom: mealRate ? (mealRate.validFrom || "N/A") : "N/A"
             });
-
             currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        displayMealAllowanceResult({
-            duration: durationHours.toFixed(2),
-            totalAmount: totalAllowance,
-            dailyAllowances: dailyAllowances
+        // ZMENA: Zaokrúhlenie celkovej sumy na 2 desatinné miesta
+        displayMealAllowanceResult({ 
+            duration: durationHours.toFixed(2), 
+            totalAmount: totalAllowance.toFixed(2), 
+            dailyAllowances: dailyAllowances 
         });
-
         return totalAllowance;
 
     } catch (error) {
@@ -475,67 +369,40 @@ async function calculateMealAllowance(startDate, startTime, endDate, endTime) {
 
 function parseDateTime(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
-
     let year, month, day;
-
     if (dateStr.includes('.')) {
         const parts = dateStr.split('.');
-        day = parseInt(parts[0]);
-        month = parseInt(parts[1]) - 1; 
-        year = parseInt(parts[2]);
-    } 
-    else if (dateStr.includes('-')) {
+        day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
+    } else if (dateStr.includes('-')) {
         const parts = dateStr.split('-');
-        year = parseInt(parts[0]);
-        month = parseInt(parts[1]) - 1;
-        day = parseInt(parts[2]);
-    } else {
-        return null;
-    }
-
-    const timeParts = timeStr.split(':');
-    const hours = parseInt(timeParts[0]);
-    const minutes = parseInt(timeParts[1]);
-
+        year = parseInt(parts[0]); month = parseInt(parts[1]) - 1; day = parseInt(parts[2]);
+    } else return null;
+    const [hours, minutes] = timeStr.split(':').map(Number);
     return new Date(year, month, day, hours, minutes);
 }
 
 async function getMealRateForDate(date) {
     try {
-        const snapshot = await _dbReference.collection('dietary').get();
+        const dietaryRef = collection(_dbReference, 'dietary');
+        const snapshot = await getDocs(dietaryRef);
 
-        if (snapshot.empty) {
-            console.error("Kolekcia 'dietary' je prázdna!");
-            return null;
-        }
+        if (snapshot.empty) return null;
 
         let validRate = null;
-
         snapshot.forEach(doc => {
             const data = doc.data();
-
             let validFrom;
-            if (data.validFrom && data.validFrom.toDate) {
-                validFrom = data.validFrom.toDate();
-            } else if (data.validFrom) {
-                validFrom = new Date(data.validFrom);
-            } else {
-                return; 
-            }
+            if (data.validFrom && data.validFrom.toDate) validFrom = data.validFrom.toDate();
+            else if (data.validFrom) validFrom = new Date(data.validFrom);
+            else return;
 
             if (validFrom <= date) {
                 if (!validRate || validFrom > validRate.validFrom) {
-                    validRate = {
-                        ...data,
-                        validFrom: validFrom,
-                        id: doc.id
-                    };
+                    validRate = { ...data, validFrom: validFrom, id: doc.id };
                 }
             }
         });
-
         return validRate;
-
     } catch (error) {
         console.error("Chyba pri načítaní sadzby stravného:", error);
         return null;
@@ -545,160 +412,61 @@ async function getMealRateForDate(date) {
 function displayMealAllowanceResult(result) {
     const container = document.getElementById('meal-calculation-results');
     if (!container) return;
-
     container.style.display = 'block';
-
-    let dailyBreakdownHtml = '';
-    if (result.dailyAllowances && result.dailyAllowances.length > 0) {
-        dailyBreakdownHtml = `
-            <div style="margin-top: var(--spacing-md);">
-                <ul style="list-style: none; padding: 0; margin-top: var(--spacing-sm);">
-        `;
-
-        result.dailyAllowances.forEach(day => {
-            dailyBreakdownHtml += `
-                <li style="
-                    margin-bottom: var(--spacing-sm); 
-                    padding: var(--spacing-sm); 
-                    background: var(--color-bg); 
-                    border-radius: var(--radius-md); 
-                    border-left: 3px solid var(--color-orange-accent);
-                    transition: all var(--transition-fast);
-                ">
-                    <strong style="color: var(--color-text-primary);">${day.date}:</strong> 
-                    <span style="color: var(--color-text-secondary);">
-                        ${day.duration}h (${day.category})
-                    </span>
-                    = <strong style="color: var(--color-orange-accent); font-size: 1.05rem;">${day.amount} €</strong>
-                </li>
-            `;
-        });
-
-        dailyBreakdownHtml += '</ul></div>';
+    
+    let breakdown = '';
+    if (result.dailyAllowances?.length > 0) {
+        breakdown = '<div style="margin-top: 1.5rem;"><ul style="list-style: none; padding: 0;">' +
+            result.dailyAllowances.map(day => `
+                <li style="margin-bottom: 1rem; padding: 1rem; background: var(--color-bg); border-radius: 8px; border-left: 3px solid var(--color-orange-accent);">
+                    <strong>${day.date}:</strong> ${day.duration}h (${day.category}) = <strong>${Number(day.amount).toFixed(2)} €</strong>
+                </li>`).join('') + '</ul></div>';
     }
 
     container.innerHTML = `
-        <div style="
-            padding: var(--spacing-xs); 
-            transition: all var(--transition-normal);
-        ">
-            <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
-                <strong style="color: var(--color-text-primary);">Celkové trvanie cesty:</strong> ${result.duration} hodín
+        <div style="padding: 0.5rem;">
+            <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
+                <strong>Celkové trvanie cesty:</strong> ${result.duration} hodín
             </p>
-            ${dailyBreakdownHtml}
-            <p style="
-                margin-top: var(--spacing-lg); 
-                padding-top: var(--spacing-md);
-                border-top: 1px solid var(--color-border);
-                font-size: 1.2rem; 
-                color: var(--color-orange-accent);
-                font-weight: 700;
-                font-family: var(--font-primary);
-            ">
+            ${breakdown}
+            <p style="margin-top: 2rem; border-top: 1px solid var(--color-border); font-size: 1.2rem; color: var(--color-orange-accent); font-weight: 700;">
                 Celková náhrada stravného: ${result.totalAmount} €
             </p>
-        </div>
-    `;
+        </div>`;
 }
 
 function displayMealAllowanceError(message) {
     const container = document.getElementById('meal-calculation-results');
     if (!container) return;
-
     container.style.display = 'block';
-    container.innerHTML = `
-        <div style="padding: var(--spacing-sm); background: var(--color-bg); border-radius: var(--radius-md); border-left: 3px solid #E53E3E;">
-            <p style="color: #E53E3E; margin: 0;">
-                <strong>Chyba:</strong> ${message}
-            </p>
-        </div>
-    `;
+    container.innerHTML = `<div style="padding: 1rem; background: var(--color-bg); border-radius: 8px; border-left: 3px solid #E53E3E;"><p style="color: #E53E3E; margin: 0;"><strong>Chyba:</strong> ${message}</p></div>`;
 }
 
 function attachMealCalculationListeners() {
-    const dateFields = ['datum_zc_datum', 'datum_zc_cas', 'datum_kc_datum', 'datum_kc_cas'];
-
-    dateFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
+    ['datum_zc_datum', 'datum_zc_cas', 'datum_kc_datum', 'datum_kc_cas'].forEach(id => {
+        const field = document.getElementById(id);
         if (field) {
             field.addEventListener('change', async () => {
-                const startDate = document.getElementById('datum_zc_datum')?.value;
-                const startTime = document.getElementById('datum_zc_cas')?.value;
-                const endDate = document.getElementById('datum_kc_datum')?.value;
-                const endTime = document.getElementById('datum_kc_cas')?.value;
-
-                if (startDate && startTime && endDate && endTime) {
-                    await calculateMealAllowance(startDate, startTime, endDate, endTime);
-                }
+                const sD = document.getElementById('datum_zc_datum')?.value;
+                const sT = document.getElementById('datum_zc_cas')?.value;
+                const eD = document.getElementById('datum_kc_datum')?.value;
+                const eT = document.getElementById('datum_kc_cas')?.value;
+                if (sD && sT && eD && eT) await calculateMealAllowance(sD, sT, eD, eT);
             });
         }
     });
 }
 
 export function clearCPForm() {
-    console.log('Spúšťam clearCPForm...');
-
-    try {
-        const textFields = [
-            'ucel', 'miesto', 'spolucestujuci',
-            'cesta_z1', 'miesto_1', 'cesta_k1',
-            'cesta_z2', 'miesto_2', 'cesta_k2',
-            'cesta_z3', 'miesto_3', 'cesta_k3'
-        ];
-
-        textFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.value = '';
-            }
-        });
-    } catch (e) {
-        console.error('Chyba pri čistení textových polí:', e);
-    }
-
-    try {
-        const dateFields = [
-            'datum_zc_datum', 
-            'datum_kc_datum', 
-            'datum_1', 
-            'datum_2'
-        ];
-
-        dateFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.value = '';
-                if (field._flatpickr && typeof field._flatpickr.clear === 'function') {
-                    field._flatpickr.clear();
-                }
-            }
-        });
-    } catch (e) {
-        console.error('Chyba pri čistení dátumových polí (Flatpickr):', e);
-    }
-
-    try {
-        const startTimeSelect = document.getElementById('datum_zc_cas');
-        if (startTimeSelect) {
-            startTimeSelect.value = '07:30';
-        }
-        const endTimeSelect = document.getElementById('datum_kc_cas');
-        if (endTimeSelect) {
-            endTimeSelect.value = '15:30';
-        }
-    } catch (e) {
-        console.error('Chyba pri resetovaní časových polí:', e);
-    }
-
-    try {
-        const mealCalculationContainer = document.getElementById('meal-calculation-results');
-        if (mealCalculationContainer) {
-            mealCalculationContainer.style.display = 'none';
-            mealCalculationContainer.innerHTML = '';
-        }
-    } catch (e) {
-        console.error('Chyba pri mazaní vyúčtovania stravy:', e);
-    }
-
-    console.log('Funkcia clearCPForm dokončená.');
+    ['ucel', 'miesto', 'spolucestujuci', 'cesta_z1', 'miesto_1', 'cesta_k1', 'cesta_z2', 'miesto_2', 'cesta_k2', 'cesta_z3', 'miesto_3', 'cesta_k3'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value = '';
+    });
+    ['datum_zc_datum', 'datum_kc_datum', 'datum_1', 'datum_2'].forEach(id => {
+        const el = document.getElementById(id); 
+        if(el) { el.value = ''; if(el._flatpickr) el._flatpickr.clear(); }
+    });
+    const sT = document.getElementById('datum_zc_cas'); if(sT) sT.value = '07:30';
+    const eT = document.getElementById('datum_kc_cas'); if(eT) eT.value = '15:30';
+    const calc = document.getElementById('meal-calculation-results'); 
+    if(calc) { calc.style.display = 'none'; calc.innerHTML = ''; }
 }

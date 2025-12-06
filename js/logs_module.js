@@ -1,3 +1,15 @@
+/* logs_module.js - Modular SDK v9+ */
+import { 
+    collection, 
+    addDoc, 
+    getDocs, 
+    query, 
+    orderBy, 
+    deleteDoc, 
+    writeBatch, 
+    serverTimestamp 
+} from 'firebase/firestore';
+
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
@@ -12,25 +24,22 @@ let _activeUser = null;
 /**
  * Inicializuje modul logov.
  * @param {Object} db - Inštancia Firestore DB (povinné)
- * @param {Object|null} activeUser - Aktívny používateľ (voliteľné, môže byť null pri štarte)
+ * @param {Object|null} activeUser - Aktívny používateľ (voliteľné)
  */
 export function initializeLogsModule(db, activeUser = null) {
     console.log('Inicializujem modul Logov (DB pripojená)...');
     _db = db;
     _activeUser = activeUser;
 
-    // Ak už máme používateľa (napr. reload stránky s perzistentným loginom), nastavíme listenery
     if (_activeUser) {
         setupLogListeners();
     }
 
-    // Inicializácia modálnych okien pre mazanie (tieto nezávisia na userovi)
     initDeleteModalListeners();
 }
 
 /**
- * Aktualizuje aktívneho používateľa po prihlásení a nastaví oprávnenia.
- * Túto funkciu volajte z mainWizard.js po úspešnom logine.
+ * Aktualizuje aktívneho používateľa po prihlásení.
  */
 export function updateLogsUser(user) {
     console.log('Log modul: Aktualizujem používateľa...');
@@ -38,21 +47,15 @@ export function updateLogsUser(user) {
     setupLogListeners();
 }
 
-/**
- * Nastaví listenery na tlačidlá sťahovania/mazania logov
- * iba ak má používateľ oprávnenie.
- */
 function setupLogListeners() {
     if (!_activeUser) return;
 
-    // Kontrola oprávnenia na správu logov
     if (Permissions.canManageLogs(_activeUser)) {
         const userInitialsButton = document.querySelector('#sidebar-user-initials');
         if (userInitialsButton) {
             userInitialsButton.classList.add('clickable-logs'); 
             userInitialsButton.setAttribute('title', 'Ľavý klik: stiahnuť logy\nPravý klik: zmazať logy'); 
             
-            // Odstránime staré listenery (cloneNode trik) a pridáme nové
             const newBtn = userInitialsButton.cloneNode(true);
             userInitialsButton.parentNode.replaceChild(newBtn, userInitialsButton);
             
@@ -64,17 +67,12 @@ function setupLogListeners() {
     }
 }
 
-/**
- * Inicializácia tlačidiel v modálnom okne (pre mazanie).
- * Oddelené od user logiky, aby sa to inicializovalo vždy.
- */
 function initDeleteModalListeners() {
     const modalBtnCancel = document.querySelector('#modal-btn-cancel');
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
     const deleteModalOverlay = document.querySelector('#delete-logs-overlay');
 
     if (modalBtnCancel) {
-        // Clone na odstránenie starých listenerov z iných modulov
         const newCancel = modalBtnCancel.cloneNode(true);
         modalBtnCancel.parentNode.replaceChild(newCancel, modalBtnCancel);
         newCancel.addEventListener('click', () => {
@@ -91,10 +89,6 @@ function initDeleteModalListeners() {
 
 /**
  * Univerzálna funkcia na zápis akcie do logov.
- * @param {string} action - Typ akcie (napr. "LOGIN", "EDIT", "DELETE")
- * @param {string} details - Podrobnosti (napr. "Zmenil meno zamestnanca X")
- * @param {boolean} success - Či akcia prebehla úspešne
- * @param {string|null} error - Chybová hláška ak nastala
  */
 export async function logUserAction(action, details, success = true, error = null) {
     if (!_db) {
@@ -104,8 +98,7 @@ export async function logUserAction(action, details, success = true, error = nul
 
     try {
         const logData = {
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            // Fallbacky, ak user ešte nie je prihlásený (napr. pri logine)
+            timestamp: serverTimestamp(), // ZMENA: Modular Timestamp
             email: _activeUser?.email || 'neznamy@email.sk',
             meno: _activeUser?.displayName || _activeUser?.meno || 'Neznámy',
             oec: _activeUser?.oec || 'N/A',
@@ -116,7 +109,8 @@ export async function logUserAction(action, details, success = true, error = nul
             error: error
         };
 
-        await _db.collection("access_logs").add(logData);
+        // ZMENA: Modular Add Doc
+        await addDoc(collection(_db, "access_logs"), logData);
         console.log(`[LOG] ${action}: ${details}`);
 
     } catch (err) {
@@ -151,12 +145,14 @@ async function downloadAccessLogs() {
     userInitialsButton.classList.add('downloading'); 
 
     try {
-        const snapshot = await _db.collection("access_logs").orderBy("timestamp", "desc").get();
+        // ZMENA: Modular Query & Get Docs
+        const logsRef = collection(_db, "access_logs");
+        const q = query(logsRef, orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
         
-        // Rozšírené hlavičky o Akciu a Detaily
         const headers = ["Časová pečiatka", "E-mail", "Meno", "OEČ", "Funkcia", "Akcia", "Detaily", "Stav", "Chybová hláška"];
-        const data = snapshot.docs.map(doc => {
-            const log = doc.data();
+        const data = snapshot.docs.map(docSnap => {
+            const log = docSnap.data();
             let timestampStr = "N/A";
             if (log.timestamp && log.timestamp.toDate) {
                 timestampStr = log.timestamp.toDate().toLocaleString('sk-SK');
@@ -167,7 +163,7 @@ async function downloadAccessLogs() {
                 log.meno || '---', 
                 log.oec || '---',
                 log.funkcia || '---', 
-                log.action || 'LOGIN', // Spätná kompatibilita pre staré logy
+                log.action || 'LOGIN', 
                 log.details || '',
                 log.success ? 'ÚSPECH' : 'ZLYHANIE', 
                 log.error || ''
@@ -234,8 +230,9 @@ async function executeBatchDelete() {
     if (modalBtnCancel) modalBtnCancel.disabled = true;
 
     try {
-        const query = _db.collection("access_logs");
-        const snapshot = await query.get();
+        // ZMENA: Modular Get Docs
+        const logsRef = collection(_db, "access_logs");
+        const snapshot = await getDocs(logsRef);
 
         if (snapshot.empty) {
             if (modalMessage) modalMessage.textContent = 'Nenašli sa žiadne logy na mazanie.';
@@ -243,16 +240,16 @@ async function executeBatchDelete() {
         }
 
         const batchSize = 500;
-        let currentBatch = _db.batch();
+        let currentBatch = writeBatch(_db); // ZMENA: Modular Batch
         let i = 0;
         let batchCount = 0;
 
-        for (const doc of snapshot.docs) {
-            currentBatch.delete(doc.ref);
+        for (const docSnap of snapshot.docs) {
+            currentBatch.delete(docSnap.ref); // ref je na objekte
             i++;
             if (i === batchSize) {
                 await currentBatch.commit();
-                currentBatch = _db.batch();
+                currentBatch = writeBatch(_db);
                 i = 0;
                 batchCount++;
             }

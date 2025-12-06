@@ -2,13 +2,37 @@
 /* (Hlavný skript - "Shell")         */
 /* =================================== */
 
+// === 1. FIREBASE MODULAR IMPORTS ===
+import { 
+    db, 
+    auth 
+} from './config.js';
+
+import { 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    reauthenticateWithCredential, 
+    updatePassword, 
+    EmailAuthProvider 
+} from 'firebase/auth';
+
+import { 
+    collection, 
+    query, 
+    where, 
+    limit, 
+    getDocs, 
+    getDoc, 
+    doc, 
+    orderBy 
+} from 'firebase/firestore';
+
+// === 2. IMPORTOVANIE POMOCNÝCH FUNKCIÍ ===
+import { debounce, showToast, TOAST_TYPE } from './utils.js';
 import { initializeLogsModule, logUserAction, updateLogsUser } from './logs_module.js';
 
-// === 1. IMPORTOVANIE KONFIGURÁCIE A POMOCNÝCH FUNKCIÍ ===
-import { firebaseConfig } from './config.js';
-import { debounce, handleError, showToast, TOAST_TYPE } from './utils.js';
-
-// === 2. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
+// === 3. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
 import { initializeCPModule, displayCPEmployeeDetails } from './cp_module.js';
 import { initializeSCHDModule } from './schd_module.js';
 import { initializeBBKModule } from './schd_bbkraj_module.js';
@@ -20,35 +44,25 @@ import { updateWelcomeWidget } from './widget.js';
 import { renderAnnouncementWidget } from './announcements.js';
 import { initializeAIModule } from './ai_module.js';
 
-// === 3. IMPORTOVANIE CENTRÁLNYCH PRÍSTUPOV ===
+// === 4. IMPORTOVANIE CENTRÁLNYCH PRÍSTUPOV ===
 import { Permissions } from './accesses.js';
 
-// --- FIREBASE INTEGRÁCIA ---
-let app, db, auth;
+// --- GLOBÁLNE PREMENNÉ ---
 let activeUser = null; 
 let allEmployeesData = new Map();
 
-try {
-    app = firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    auth = firebase.auth();
-    initializeLogsModule(db, null);
-} catch (e) {
-    console.error("Chyba pri inicializácii Firebase.", e);
-    document.body.innerHTML = '<h1 style="padding: 2rem; text-align: center;">Chyba: Nepodarilo sa načítať Firebase SDK.</h1>';
-}
+// Inicializácia Logov (DB už je inicializovaná v config.js)
+initializeLogsModule(db, null);
 
-// === NOVÉ: SELEKTORY PRE LOGIN MODÁL (Skopírované zo script_em.js) ===
+// === SELEKTORY PRE LOGIN MODÁL ===
 const loginOverlay = document.querySelector('#login-modal-overlay');
 const loginForm = document.querySelector('#login-form');
 const emailInput = document.querySelector('#email-input'); 
 const passwordInput = document.querySelector('#password-input'); 
 const loginErrorMsg = document.querySelector('#login-error-msg');
-// === KONIEC NOVÝCH SELEKTOROV ===
 
 /**
  * Zobrazí modál a čaká na prihlásenie e-mailom a heslom.
- * Prispôsobená verzia funkcie z script_em.js.
  * @returns {Promise<Object|null>} - Vráti nájdené dáta používateľa alebo null pri zlyhaní.
  */
 async function handleLogin() {
@@ -61,25 +75,31 @@ async function handleLogin() {
     loginOverlay.classList.remove('hidden');
 
     return new Promise((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+        // ZMENA: Modular Auth Observer
+        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             if (authUser) {
                 unsubscribe();
                 
                 try {
-                    // 1. Načítanie základných dát zamestnanca (ako doteraz)
-                    const employeesRef = db.collection("employees");
-                    const snapshot = await employeesRef.where("mail", "==", authUser.email).limit(1).get();
+                    // 1. Načítanie základných dát zamestnanca
+                    // ZMENA: Modular Firestore Query
+                    const employeesRef = collection(db, "employees");
+                    const q = query(employeesRef, where("mail", "==", authUser.email), limit(1));
+                    const snapshot = await getDocs(q);
 
                     if (snapshot.empty) {
                         throw new Error(`Nenašiel sa profil pre ${authUser.email} v 'employees'.`);
                     }
                     const employeeData = snapshot.docs[0].data();
 
-                    // 2. NOVÉ: Načítanie ROLE z kolekcie 'user_roles' podľa UID
+                    // 2. Načítanie ROLE z kolekcie 'user_roles' podľa UID
                     let userRole = 'user'; // Fallback
                     try {
-                        const roleDoc = await db.collection("user_roles").doc(authUser.uid).get();
-                        if (roleDoc.exists) {
+                        // ZMENA: Modular Get Doc
+                        const roleRef = doc(db, "user_roles", authUser.uid);
+                        const roleDoc = await getDoc(roleRef);
+                        
+                        if (roleDoc.exists()) {
                             userRole = roleDoc.data().role;
                             console.log(`[Login] Načítaná rola pre ${authUser.email}: ${userRole}`);
                         } else {
@@ -90,16 +110,14 @@ async function handleLogin() {
                     }
 
                     // 3. Vytvorenie activeUser objektu s rolou
-                    // OPRAVA: Definujeme activeUser lokálne pre tento scope, aby sme ho mohli poslať ďalej
                     const currentUserProfile = { 
                         uid: authUser.uid,
                         email: authUser.email,
                         ...employeeData,
-                        role: userRole, // <--- Rola pre accesses.js
+                        role: userRole, 
                         displayName: `${employeeData.titul || ''} ${employeeData.meno} ${employeeData.priezvisko}`.trim()
                     };
 
-                    // OPRAVA: Použijeme currentUserProfile namiesto tempUserForLogs
                     updateLogsUser(currentUserProfile); 
 
                     // Logovanie akcie
@@ -120,7 +138,6 @@ async function handleLogin() {
                         loginOverlay.classList.remove('fade-out'); 
                     }, 500);
 
-                    // OPRAVA: Resolve vráti správny objekt
                     resolve(currentUserProfile);
 
                 } catch (error) {
@@ -128,7 +145,8 @@ async function handleLogin() {
                     let msg = error.message;
                     loginErrorMsg.textContent = msg;
                     loginErrorMsg.style.display = 'block';
-                    await auth.signOut();
+                    // ZMENA: Modular SignOut
+                    await signOut(auth);
                     resolve(null);
                 }
             } else if (auth.currentUser === null) {
@@ -136,7 +154,7 @@ async function handleLogin() {
             }
         });
 
-        // Listener na submit formulára (spúšťa overenie v Auth)
+        // Listener na submit formulára
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             loginErrorMsg.style.display = 'none'; 
@@ -150,9 +168,8 @@ async function handleLogin() {
             }
 
             try {
-                // Pokus o prihlásenie cez Firebase Auth
-                await auth.signInWithEmailAndPassword(email, password);
-                // Ďalšia logika (overenie DB/oprávnenia) sa vykoná v onAuthStateChanged
+                // ZMENA: Modular SignIn
+                await signInWithEmailAndPassword(auth, email, password);
                 
             } catch (error) {
                 console.error("[MW] Chyba pri prihlásení v Auth:", error);
@@ -166,10 +183,13 @@ async function handleLogin() {
                 loginErrorMsg.textContent = msg;
                 loginErrorMsg.style.display = 'block';
 
-                await logAccess(email, null, false, msg);
+                // Tu voláme logovanie priamo, keďže activeUser ešte nie je nastavený
+                // Poznámka: logAccess nie je importované, použijeme logUserAction s fallbackom
+                // alebo ak máte funkciu logAccess v logs_module, importujte ju.
+                // Pre jednoduchosť logujem do konzoly ak logAccess chýba
+                console.warn("Failed login attempt logged locally:", email);
 
                 passwordInput.value = ''; 
-                // Používateľ už v Auth nie je, nie je potrebné volať signOut
             }
         });
     });
@@ -205,7 +225,8 @@ const logoutBtn = document.querySelector('#logout-btn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault(); 
-        auth.signOut().then(() => {
+        // ZMENA: Modular SignOut
+        signOut(auth).then(() => {
             window.location.reload(); 
         }).catch((error) => {
             console.error("Chyba pri odhlasovaní:", error);
@@ -214,11 +235,17 @@ if (logoutBtn) {
     });
 }
 
-// === NOVÉ: Tlačidlo Reload ===
+// === Tlačidlo Reload (Vynútená obnova dát) ===
 const reloadBtn = document.querySelector('#reload-btn');
 if (reloadBtn) {
     reloadBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        
+        // 1. Vymažeme cache zamestnancov
+        localStorage.removeItem('OKR_EMPLOYEES_CACHE_V1');
+        console.log('Cache vymazaná, reštartujem...');
+
+        // 2. Reload stránky (teraz si loadGlobalEmployees stiahne čerstvé dáta)
         window.location.reload();
     });
 }
@@ -269,161 +296,100 @@ if (logoElement) {
 
 // Listener pre položky menu
 menuLinks.forEach(link => {
-    link.addEventListener('click', (event) => {
+    link.addEventListener('click', async (event) => {
         event.preventDefault();
         const targetId = link.getAttribute('data-target');
         if (!targetId) return;
 
-        // LOGOVANIE NAVIGÁCIE
+        // 1. Zistíme názov pre logovanie
         const moduleName = moduleTitles[targetId] || targetId;
         logUserAction("NAVIGACIA", `Prechod na modul: ${moduleName}`);
 
-        // === NOVÉ: Zmena textu v hornom tlačidle a zatvorenie menu ===
-        const dropdownBtn = document.querySelector('.nav-dropdown-btn');
-        const dropdownMenu = document.querySelector('.nav-dropdown-menu');
+        // 2. Definujeme funkciu, ktorá reálne zmení DOM (prepne moduly)
+        const updateDOM = async () => {
+            // Zmena textu v hornom tlačidle a zatvorenie menu
+            const dropdownBtn = document.querySelector('.nav-dropdown-btn');
+            const dropdownMenu = document.querySelector('.nav-dropdown-menu');
 
-        if (dropdownBtn) {
-            // Zoberieme ikonu z kliknutej položky (aby to vyzeralo pekne)
-            const iconClass = link.querySelector('i') ? link.querySelector('i').className : 'fa-solid fa-grid-2';
+            if (dropdownBtn) {
+                const iconClass = link.querySelector('i') ? link.querySelector('i').className : 'fa-solid fa-grid-2';
+                dropdownBtn.innerHTML = `<i class="${iconClass}"></i> ${moduleName} <i class="fas fa-chevron-down ml-2"></i>`;
+            }
+
+            if (dropdownMenu) {
+                dropdownMenu.classList.remove('show');
+            }
+
+            // Samotné prepnutie viditeľnosti modulov
+            menuLinks.forEach(otherLink => otherLink.classList.remove('active'));
+            link.classList.add('active');
             
-            // Prepíšeme HTML tlačidla (Ikona + Názov modulu + Šípka dole)
-            dropdownBtn.innerHTML = `<i class="${iconClass}"></i> ${moduleName} <i class="fas fa-chevron-down ml-2"></i>`;
-        }
+            contentModules.forEach(module => {
+                // Tu sa deje mágia - výmena .hidden triedy
+                if (module.id === targetId) {
+                    module.classList.remove('hidden');
+                } else {
+                    module.classList.add('hidden');
+                }
+            });
 
-        // Automaticky zatvoriť menu po kliknutí
-        if (dropdownMenu) {
-            dropdownMenu.classList.remove('show');
-        }
-        // === KONIEC NOVÉHO KÓDU ===
+            // Špecifické UI úpravy (Export button)
+            const exportBtn = document.getElementById('export-excel-btn');
+            if (exportBtn) {
+                exportBtn.classList.toggle('hidden', !Permissions.canExportEmployees(activeUser));
+            }
+            
+            // Prekreslenie zoznamu zamestnancov pre daný kontext
+            renderGlobalEmployeeList(targetId);
+        };
 
-        // --- KONTROLA OPRÁVNENÍ (pomocou Permissions) ---
-        renderGlobalEmployeeList(targetId);
-
+        // 3. Inicializácia modulov (Lazy Loading logika)
+        // Toto musí prebehnúť PRED spustením tranzície, ak je to možné, 
+        // alebo vnútri, ale neblokujúco.
+        
         if (!Permissions.canViewModule(activeUser, targetId)) {
-            showToast("Prístup zamietnutý. Nemáte potrebné oprávnenia na tento modul.", TOAST_TYPE.ERROR);
+            showToast("Prístup zamietnutý.", TOAST_TYPE.ERROR);
             return;
         }
-        
-        // Špeciálna hlavička pre modul Zamestnanci - OPRAVA CHYBY
-        const headerNameSection = document.querySelector('.employee-name-section');
-        let oecElement = null;
-        
-        // Kód vykonáme len ak hlavička existuje
-        if (headerNameSection) {
-            oecElement = headerNameSection.querySelector('.employee-oec-subtitle');
-        }
 
-        // Vnútri if (targetId === 'bbk-module'...)
-        if (targetId === 'bbk-module' && !isBBKModuleInitialized) {
-            try {
-                if (db) {
-                    initializeBBKModule(db, activeUser);
-                    isBBKModuleInitialized = true;
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii BBK modulu:", e);
-            }
+        // --- Inicializačná logika (skopírovaná z vášho pôvodného kódu) ---
+        if (targetId === 'bbk-module' && !isBBKModuleInitialized && db) {
+            initializeBBKModule(db, activeUser); isBBKModuleInitialized = true;
         }
-
-        menuLinks.forEach(otherLink => otherLink.classList.remove('active'));
-        link.classList.add('active');
-        contentModules.forEach(module => {
-            module.classList.toggle('hidden', module.id !== targetId);
-        });
-        
-        // Zobrazenie alebo skrytie akčných tlačidiel podľa modulu/oprávnení
-        const exportBtn = document.getElementById('export-excel-btn');
-
-        // Export tlačidlo (vždy, ak má user právo exportovať)
-        if (exportBtn) {
-            exportBtn.classList.toggle('hidden', !Permissions.canExportEmployees(activeUser));
-        }
-        
-        // Inicializácia CP modulu
         if (targetId === 'cestovny-prikaz-module') {
-            if (!isCPModuleInitialized) {
-                try {
-                    if (db) {
-                        initializeCPModule(db, activeUser, allEmployeesData);
-                        isCPModuleInitialized = true;
-                    } else {
-                         console.error("Chyba: DB nie je inicializované pre CP modul.");
-                    }
-                } catch (e) {
-                    console.error("Chyba pri inicializácii cp_module.js:", e);
-                }
+            if (!isCPModuleInitialized && db) {
+                initializeCPModule(db, activeUser, allEmployeesData); isCPModuleInitialized = true;
             }
-
             const lookupId = activeUser.id || activeUser.oec;
-
-            if (activeUser && lookupId) {
-                console.log(`[MW] KLIK: Volám displayCPEmployeeDetails s ID: ${lookupId}`);
-                autoDisplayEmployeeDetails(lookupId, allEmployeesData.get(lookupId));
-            }
+            if (activeUser && lookupId) autoDisplayEmployeeDetails(lookupId, allEmployeesData.get(lookupId));
         }
-
-        // Inicializácia SCHD modulu
-        if (targetId === 'pohotovost-module' && !isSCHDModuleInitialized) {
-            try {
-                if (db) {
-                    initializeSCHDModule(db, allEmployeesData, activeUser); 
-                    isSCHDModuleInitialized = true;
-                } else {
-                     console.error("Chyba: DB nie je inicializované pre SCHD modul.");
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii schd_module.js:", e);
-            }
+        if (targetId === 'pohotovost-module' && !isSCHDModuleInitialized && db) {
+            initializeSCHDModule(db, allEmployeesData, activeUser); isSCHDModuleInitialized = true;
         }
-
-        // --- Inicializácia IZS modulu ---
-        if (targetId === 'izs-module' && !isIZSModuleInitialized) {
-            try {
-                if (db) {
-                    initializeIZSModule(db, activeUser);
-                    isIZSModuleInitialized = true;
-                } else {
-                     console.error("Chyba: DB nie je inicializované pre IZS modul.");
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii schd_izs_module.js:", e);
-            }
+        if (targetId === 'izs-module' && !isIZSModuleInitialized && db) {
+            initializeIZSModule(db, activeUser); isIZSModuleInitialized = true;
         }
-
-        // Inicializácia UA modulu
-        if (targetId === 'ua-contributions-module' && !isUAModuleInitialized) {
-            try {
-                if (db) {
-                    initializeUAModule(db, activeUser); 
-                    isUAModuleInitialized = true;
-                } else {
-                    console.error("Chyba: DB nie je inicializované pre UA modul.");
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii ua_module.js:", e);
-            }
+        if (targetId === 'ua-contributions-module' && !isUAModuleInitialized && db) {
+            initializeUAModule(db, activeUser); isUAModuleInitialized = true;
         }
-
-        // Inicializácia Fuel modulu
-        if (targetId === 'fuel-module' && !isFuelModuleInitialized) {
-            try {
-                if (db) {
-                    initializeFuelModule(db, activeUser); 
-                    isFuelModuleInitialized = true;
-                } else {
-                    console.error("Chyba: DB nie je inicializované pre Fuel modul.");
-                }
-            } catch (e) {
-                console.error("Chyba pri inicializácii fuel_module.js:", e);
-            }
+        if (targetId === 'fuel-module' && !isFuelModuleInitialized && db) {
+            initializeFuelModule(db, activeUser); isFuelModuleInitialized = true;
         }
+        // -------------------------------------------------------------
 
+        // 4. SPUSTENIE TRANZÍCIE (Podpora pre prehliadače)
+        if (!document.startViewTransition) {
+            // Fallback pre staršie prehliadače (okamžité prepnutie)
+            await updateDOM();
+        } else {
+            // Moderný prehliadač -> Animácia
+            document.startViewTransition(() => updateDOM());
+        }
     });
 });
 
 /**
  * Filtruje globálny zoznam zamestnancov v pravom paneli.
- * @param {string} searchTerm - Text z vyhľadávacieho poľa.
  */
 function filterGlobalEmployeeList(searchTerm) {
     const listElement = document.getElementById('global-employees-list-items');
@@ -434,16 +400,13 @@ function filterGlobalEmployeeList(searchTerm) {
     let uniqueMatchItem = null;
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
 
-    // Filtrujeme len zobrazené položky
     allItems.forEach(item => {
         const text = item.textContent.toLowerCase();
         
         if (normalizedSearchTerm === '') {
-            // Zobrazíme iba tých, ktorí sú v zozname (už prefiltrovaní pri renderGlobalEmployeeList)
             item.style.display = item.dataset.hiddenByRights === 'true' ? 'none' : ''; 
             if (item.style.display === '') matchCount++;
         } else if (text.includes(normalizedSearchTerm)) {
-            // Ak sa zhoduje, zobrazíme (aj tie, ktoré boli skryté, ak ich nájde)
             item.style.display = '';
             matchCount++;
             uniqueMatchItem = item;
@@ -454,7 +417,6 @@ function filterGlobalEmployeeList(searchTerm) {
 
     const countElement = document.getElementById('global-emp-count');
     if (countElement) {
-        // Počítadlo ukazuje celkový počet zhôd (aj v skrytej časti)
         countElement.textContent = matchCount;
     }
 
@@ -475,10 +437,7 @@ if (searchInput) {
 }
 
 /**
- * === ÚPRAVA: NOVÁ CENTRÁLNA FUNKCIA pre zobrazenie detailov s KONTROLOU OPRÁVNENÍ (Permissions) ===
  * Zobrazí detaily zamestnanca v aktívnom module a zvýrazní ho v zozname.
- * @param {string} empId - ID zamestnanca
- * @param {Object} employee - Celý objekt zamestnanca
  */
 function autoDisplayEmployeeDetails(empId, employee) {
     // 1. Zvýraznenie v globálnom zozname
@@ -496,7 +455,6 @@ function autoDisplayEmployeeDetails(empId, employee) {
     if (!activeModule) return;
 
     if (activeModule.id === 'cestovny-prikaz-module') {
-        // V CP je povolené vidieť iba vlastné údaje + podriadených (rovnaké ako admin)
         const canView = Permissions.canViewCP(activeUser, employee);
 
         if (canView && typeof displayCPEmployeeDetails === 'function') {
@@ -512,58 +470,86 @@ function autoDisplayEmployeeDetails(empId, employee) {
 
 function initializeGlobalListListener() {
     const globalListElement = document.getElementById('global-employees-list-items');
-    if (!globalListElement) {
-        console.error("Kritická chyba: Globálny zoznam zamestnancov #global-employees-list-items nebol nájdený.");
-        return;
-    }
+    if (!globalListElement) return;
 
     globalListElement.addEventListener('click', (e) => {
         const clickedLi = e.target.closest('li');
         if (!clickedLi) return;
 
         const empId = clickedLi.dataset.id;
-        if (!empId) {
-            console.warn("Kliknutá položka zoznamu nemá 'data-id'.");
-            return;
-        }
+        if (!empId) return;
 
         const employee = allEmployeesData.get(empId);
-        if (!employee) {
-            console.error(`Zamestnanec s ID ${empId} nebol nájdený v 'allEmployeesData'.`);
-            return;
-        }
+        if (!employee) return;
         
         autoDisplayEmployeeDetails(empId, employee);
     });
 }
 
+const CACHE_KEY_EMPLOYEES = 'OKR_EMPLOYEES_CACHE_V1';
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hodín
 
 /**
- * Načíta VŠETKÝCH zamestnancov do globálnej mapy allEmployeesData.
+ * Načíta zamestnancov. Najprv skúsi cache, ak je stará alebo vynútená, stiahne z DB.
+ * @param {Object} db - Firestore inštancia
+ * @param {boolean} forceRefresh - Ak je true, ignoruje cache a stiahne z DB
  */
-async function loadGlobalEmployees(db) {
-    console.log('Načítavam globálny zoznam zamestnancov...');
+async function loadGlobalEmployees(db, forceRefresh = false) {
+    console.log('Spúšťam načítanie zamestnancov...');
     if (!db) {
         console.error("loadGlobalEmployees zlyhalo: DB nie je pripravené.");
         return;
     }
 
     allEmployeesData.clear();
-    
+
+    // 1. KROK: Skúsime načítať z LocalStorage (ak nie je vynútený refresh)
+    if (!forceRefresh) {
+        try {
+            const cachedRecord = localStorage.getItem(CACHE_KEY_EMPLOYEES);
+            if (cachedRecord) {
+                const { timestamp, data } = JSON.parse(cachedRecord);
+                const now = Date.now();
+
+                // Skontrolujeme vek cache (napr. 24 hodín)
+                if (now - timestamp < CACHE_DURATION_MS) {
+                    console.log(`[Cache] Načítavam zamestnancov z lokálnej pamäte (Vek: ${((now - timestamp) / 1000 / 60).toFixed(1)} min).`);
+                    
+                    // Rekonštrukcia Mapy z poľa (JSON nepodporuje Map priamo)
+                    data.forEach(item => {
+                        // item je [key, value]
+                        allEmployeesData.set(item[0], item[1]);
+                    });
+
+                    showToast('Zoznam zamestnancov načítaný z pamäte.', TOAST_TYPE.INFO);
+                    return; // UKONČIŤ FUNKCIU - Žiadne čítanie z Firebase!
+                } else {
+                    console.log('[Cache] Dáta sú expirované, sťahujem nové...');
+                }
+            }
+        } catch (e) {
+            console.warn('[Cache] Chyba pri čítaní cache, pokračujem s DB:', e);
+        }
+    }
+
+    // 2. KROK: Sťahovanie z Firestore (Ak nie je cache alebo je stará)
     try {
-        const querySnapshot = await db.collection("employees").orderBy("priezvisko").get(); 
+        console.log('[Firestore] Sťahujem "employees" kolekciu...');
+        const employeesRef = collection(db, "employees");
+        const q = query(employeesRef, orderBy("priezvisko"));
+        const querySnapshot = await getDocs(q); 
         
         querySnapshot.forEach((doc) => {
             const emp = doc.data();
             const empId = emp.kod || doc.id;
             
-            let sluzobný_kontakt = '';
+            let sluzobny_kontakt = '';
             const kontakt = emp.kontakt || ''; 
             if (kontakt.includes(',')) {
                 const parts = kontakt.split(',');
-                sluzobný_kontakt = parts[0] ? parts[0].trim() : '';
+                sluzobny_kontakt = parts[0] ? parts[0].trim() : '';
             } else if (kontakt.trim() !== 'null' && kontakt.trim() !== '') {
-                sluzobný_kontakt = kontakt.trim();
+                sluzobny_kontakt = kontakt.trim();
             }
 
             allEmployeesData.set(empId, {
@@ -571,34 +557,48 @@ async function loadGlobalEmployees(db) {
                 id: empId,
                 displayName: `${emp.titul || ''} ${emp.meno} ${emp.priezvisko}`.trim(),
                 displayFunkcia: emp.funkcia || 'Nezaradený',
-                displayTelefon: sluzobný_kontakt || 'Neuvedený'
+                displayTelefon: sluzobny_kontakt || 'Neuvedený'
             });
         });
+
+        // 3. KROK: Uloženie do Cache
+        try {
+            // Mapu musíme konvertovať na Array pre JSON.stringify
+            const serializedData = {
+                timestamp: Date.now(),
+                data: Array.from(allEmployeesData.entries())
+            };
+            localStorage.setItem(CACHE_KEY_EMPLOYEES, JSON.stringify(serializedData));
+            console.log(`[Cache] Uložených ${allEmployeesData.size} záznamov do localStorage.`);
+        } catch (e) {
+            console.warn('Nepodarilo sa uložiť cache (asi plná pamäť):', e);
+        }
+
         console.log(`Globálny zoznam načítal ${allEmployeesData.size} zamestnancov.`);
+        
+        if (forceRefresh) {
+            showToast('Dáta boli úspešne obnovené z databázy.', TOAST_TYPE.SUCCESS);
+        }
+
     } catch (error) {
         console.error("Kritická chyba: Nepodarilo sa načítať globálny zoznam zamestnancov:", error);
+        showToast('Chyba pri sťahovaní dát.', TOAST_TYPE.ERROR);
     }
 }
 
-
 /**
- * Vykreslí globálny zoznam z 'allEmployeesData', filtruje ho pre ne-vedúcich.
+ * Vykreslí globálny zoznam z 'allEmployeesData'.
  */
-// Pridáme parameter s predvolenou hodnotou 'dashboard-module'
 function renderGlobalEmployeeList(activeModuleId = 'dashboard-module') {
     const listElement = document.getElementById('global-employees-list-items');
     const countElement = document.getElementById('global-emp-count'); 
     
-    if (!listElement || !countElement) { 
-        console.error("Chyba: Globálny zoznam #global-employees-list-items alebo počítadlo #global-emp-count neboli nájdené.");
-        return;
-    }
+    if (!listElement || !countElement) return;
     
     listElement.innerHTML = ''; 
     let visibleCount = 0;
     
     allEmployeesData.forEach((emp, empId) => {
-        // TU JE ZMENA: Posielame activeModuleId do permission funkcie
         const shouldBeVisible = Permissions.canViewEmployeeList(activeUser, emp, activeModuleId);
         
         const li = document.createElement('li');
@@ -652,26 +652,20 @@ function getDateOfISOWeek(w, y) {
 }
 
 /**
- * Inicializuje ovládanie mobilného menu (ľavý a pravý sidebar).
+ * Inicializuje ovládanie mobilného menu.
  */
-/* mainWizard.js - približne riadok 515 */
-
 function initializeMobileMenu() {
-    // Ľavé menu už v novom dizajne nepoužívame (je skryté), riešime len pravé
     const rightToggle = document.getElementById('mobile-menu-right-toggle');
     const rightSidebar = document.querySelector('.sidebar-right');
-    const closeRightBtn = document.getElementById('close-right-sidebar'); // Pridané tlačidlo X
+    const closeRightBtn = document.getElementById('close-right-sidebar');
 
-    // 1. Otvorenie cez FAB tlačidlo
     if (rightToggle && rightSidebar) {
         rightToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            // OPRAVA: Zmena z 'is-open' na 'active' podľa styles.css
             rightSidebar.classList.toggle('active'); 
         });
     }
 
-    // 2. Zatvorenie cez tlačidlo X vnútri panelu
     if (closeRightBtn && rightSidebar) {
         closeRightBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -679,10 +673,8 @@ function initializeMobileMenu() {
         });
     }
 
-    // 3. Zatvorenie pri kliknutí mimo
     document.addEventListener('click', (e) => {
         if (rightSidebar && rightSidebar.classList.contains('active')) {
-            // Ak klik nebol v sidebare ani na toggle tlačidle
             if (!rightSidebar.contains(e.target) && e.target !== rightToggle && !rightToggle.contains(e.target)) {
                 rightSidebar.classList.remove('active');
             }
@@ -695,18 +687,13 @@ function initializeMobileMenu() {
  */
 async function initializeDashboardCalendar() {
     const calendarEl = document.getElementById('dashboard-calendar-render-area');
-    if (!calendarEl) {
-        console.warn("Element pre kalendár (#dashboard-calendar-render-area) nebol nájdený.");
-        return;
-    }
+    if (!calendarEl) return;
     
     if (!db) {
-         console.error("Dashboard kalendár: Databáza 'db' nie je dostupná.");
          calendarEl.innerHTML = `<p style="color: red; padding: 1rem;">Chyba: Nepodarilo sa pripojiť k databáze pre načítanie rozpisov.</p>`;
          return;
     }
 
-    // === NOVÉ: Referencie na filtre ===
     const filterPohotovost = document.getElementById('filter-pohotovost');
     const filterIzsDay = document.getElementById('filter-izs-day');
     const filterIzsNight = document.getElementById('filter-izs-night');
@@ -729,7 +716,6 @@ async function initializeDashboardCalendar() {
             height: 'auto',
             dayMaxEvents: 4, 
 
-            // --- Interakcia myšou (Hover) ---
             eventMouseEnter: function(info) {
                 const employeeList = info.event.extendedProps.employeeNames || [];
                 const groupName = info.event.extendedProps.tooltipTitle || info.event.title || ''; 
@@ -761,7 +747,6 @@ async function initializeDashboardCalendar() {
             // --- LOGIKA NAČÍTANIA DÁT ---
             events: async function(fetchInfo, successCallback, failureCallback) {
                 
-                // === NOVÉ: Získanie stavu filtrov ===
                 const showPohotovost = filterPohotovost ? filterPohotovost.checked : true;
                 const showIzsDay = filterIzsDay ? filterIzsDay.checked : true;
                 const showIzsNight = filterIzsNight ? filterIzsNight.checked : true;
@@ -783,12 +768,9 @@ async function initializeDashboardCalendar() {
                 try {
                     const docIds = Array.from(monthsToQuery);
                     
-                    // Optimalizácia: Načítame len to, čo je zapnuté vo filtroch
-                    // (Avšak, pre jednoduchosť kódu a cache radšej načítame všetko a filtrujeme pole,
-                    //  pretože Firebase snapshoty sú "lacné" ak sa nemenia dáta)
-                    
-                    const promisesPohotovost = docIds.map(docId => db.collection("publishedSchedules").doc(docId).get());
-                    const promisesIZS = docIds.map(docId => db.collection("publishedSchedulesIZS").doc(docId).get());
+                    // ZMENA: Modular Doc Fetching
+                    const promisesPohotovost = docIds.map(docId => getDoc(doc(db, "publishedSchedules", docId)));
+                    const promisesIZS = docIds.map(docId => getDoc(doc(db, "publishedSchedulesIZS", docId)));
 
                     const [snapshotsPohotovost, snapshotsIZS] = await Promise.all([
                         Promise.all(promisesPohotovost),
@@ -798,7 +780,6 @@ async function initializeDashboardCalendar() {
                     let allCalendarEvents = [];
 
                     // --- A. SPRACOVANIE POHOTOVOSTI ---
-                    // === NOVÉ: Podmienka if (showPohotovost) ===
                     if (showPohotovost) {
                         const GROUP_COLORS = {
                             "Skupina 1": "#dd590d",
@@ -813,10 +794,10 @@ async function initializeDashboardCalendar() {
                             return `${y}-${m}-${d}`;
                         };
 
-                        for (const doc of snapshotsPohotovost) {
-                            if (!doc.exists) continue;
+                        for (const docSnap of snapshotsPohotovost) {
+                            if (!docSnap.exists()) continue;
 
-                            const schedule = doc.data();
+                            const schedule = docSnap.data();
                             const dutyAssignments = schedule.dutyAssignments || {};
                             const serviceOverrides = schedule.serviceOverrides || {};
                             const docYear = schedule.year;
@@ -879,15 +860,14 @@ async function initializeDashboardCalendar() {
                                 }
                             }
                         }
-                    } // koniec if (showPohotovost)
+                    } 
 
                     // --- B. SPRACOVANIE IZS ---
-                    // Spustíme iba ak je aspoň jeden IZS filter zapnutý
                     if (showIzsDay || showIzsNight) {
-                        for (const doc of snapshotsIZS) {
-                            if (!doc.exists) continue;
+                        for (const docSnap of snapshotsIZS) {
+                            if (!docSnap.exists()) continue;
                             
-                            const data = doc.data();
+                            const data = docSnap.data();
                             const year = data.year;
                             const monthIndex = data.monthIndex; 
                             const daysMap = data.days || {};
@@ -896,7 +876,6 @@ async function initializeDashboardCalendar() {
                                 const day = parseInt(dayStr, 10);
                                 
                                 // 1. DENNÁ SLUŽBA (06:30 - 18:30)
-                                // === NOVÉ: Podmienka if (showIzsDay) ===
                                 if (showIzsDay && shifts.dayShift && shifts.dayShift.length > 0) {
                                     const startD = new Date(year, monthIndex, day, 6, 30);
                                     const endD = new Date(year, monthIndex, day, 18, 30);
@@ -919,7 +898,6 @@ async function initializeDashboardCalendar() {
                                 }
 
                                 // 2. NOČNÁ SLUŽBA
-                                // === NOVÉ: Podmienka if (showIzsNight) ===
                                 if (showIzsNight && shifts.nightShift && shifts.nightShift.length > 0) {
                                     const startN = new Date(year, monthIndex, day, 18, 30);
                                     const endN = new Date(year, monthIndex, day, 23, 59); 
@@ -955,10 +933,6 @@ async function initializeDashboardCalendar() {
 
         calendar.render();
 
-        // === NOVÉ: Pridanie listenerov na checkboxy ===
-        // Keď sa zmení checkbox, zavolá sa calendar.refetchEvents(),
-        // čo znovu spustí funkciu 'events' (vyššie), ktorá si načíta nové stavy checkboxov.
-        
         if (filterPohotovost) {
             filterPohotovost.addEventListener('change', () => calendar.refetchEvents());
         }
@@ -985,10 +959,7 @@ async function loadDashboardDutyToday(db) {
     }
 
     const listElement = document.getElementById('duty-list-items');
-    if (!listElement) {
-        console.warn("Dashboard duty list element (#duty-list-items) nebol nájdený.");
-        return;
-    }
+    if (!listElement) return;
 
     listElement.innerHTML = '<li>Načítavam dáta...</li>';
     
@@ -998,10 +969,11 @@ async function loadDashboardDutyToday(db) {
         const weekInfo = getWeekNumber(today); 
         const weekKey = `${weekInfo.year}-${weekInfo.week}`;
 
-        const docRef = db.collection("publishedSchedules").doc(docId);
-        const docSnap = await docRef.get();
+        // ZMENA: Modular Doc Fetch
+        const docRef = doc(db, "publishedSchedules", docId);
+        const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists) {
+        if (!docSnap.exists()) {
             listElement.innerHTML = '<li>Pre dnešok nie je zverejnený rozpis.</li>';
             return;
         }
@@ -1082,7 +1054,6 @@ async function loadDashboardDutyToday(db) {
 
 /**
  * Nastaví logiku pre zmenu hesla.
- * Volá sa až po inicializácii aplikácie.
  */
 function setupPasswordChangeLogic() {
     console.log("[MW] Inicializujem logiku zmeny hesla...");
@@ -1093,10 +1064,6 @@ function setupPasswordChangeLogic() {
     const changePassForm = document.getElementById('change-password-form');
     const passErrorMsg = document.getElementById('password-error-msg');
 
-    // Debuggovanie
-    if (!changePassBtn) console.error("Chyba: Tlačidlo #change-password-btn sa nenašlo.");
-    if (!changePassModal) console.error("Chyba: Modál #change-password-modal sa nenašiel.");
-
     if (changePassBtn && changePassModal) {
         // 1. Otvorenie modálu
         changePassBtn.onclick = (e) => {
@@ -1104,7 +1071,6 @@ function setupPasswordChangeLogic() {
             changePassModal.classList.remove('hidden');
             
             if(changePassForm) changePassForm.reset();
-            // Skryjeme starú chybu pri otvorení
             if(passErrorMsg) {
                 passErrorMsg.style.display = 'none';
                 passErrorMsg.textContent = '';
@@ -1122,15 +1088,12 @@ function setupPasswordChangeLogic() {
         if (changePassForm) {
             changePassForm.onsubmit = async (e) => {
                 e.preventDefault();
-                
-                // Skryjeme predchádzajúcu chybu pri novom pokuse
                 if(passErrorMsg) passErrorMsg.style.display = 'none';
 
                 const currentPass = document.getElementById('current-password').value;
                 const newPass = document.getElementById('new-password').value;
                 const confirmPass = document.getElementById('confirm-password').value;
                 
-                // Lokálne validácie
                 if (newPass !== confirmPass) {
                     showError("Nové heslá sa nezhodujú.");
                     return;
@@ -1141,39 +1104,35 @@ function setupPasswordChangeLogic() {
                 }
 
                 try {
-                    const user = firebase.auth().currentUser;
+                    // ZMENA: Modular Auth User
+                    const user = auth.currentUser;
                     if (!user) throw new Error("Používateľ nie je prihlásený.");
 
-                    // Loading stav tlačidla
                     const submitBtn = changePassForm.querySelector('button[type="submit"]');
                     submitBtn.textContent = "Overujem...";
                     submitBtn.disabled = true;
 
-                    // A. Re-autentifikácia (Overenie starého hesla)
-                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
-                    await user.reauthenticateWithCredential(credential);
+                    // A. Re-autentifikácia (ZMENA: Modular)
+                    const credential = EmailAuthProvider.credential(user.email, currentPass);
+                    await reauthenticateWithCredential(user, credential);
 
-                    // B. Zmena hesla
+                    // B. Zmena hesla (ZMENA: Modular)
                     submitBtn.textContent = "Ukladám...";
-                    await user.updatePassword(newPass);
+                    await updatePassword(user, newPass);
 
-                    // Logovanie úspechu
                     await logUserAction("ZMENA_HESLA", "Používateľ si úspešne zmenil heslo.", true);
 
-                    // Úspech UI
                     showToast("Heslo bolo úspešne zmenené.", TOAST_TYPE.SUCCESS);
                     changePassModal.classList.add('hidden');
                     changePassForm.reset();
 
                 } catch (error) {
                     console.error("Chyba pri zmene hesla:", error);
-                    
-                    // --- PREKLAD CHÝB PRE POUŽÍVATEĽA ---
                     let msg = "Nepodarilo sa zmeniť heslo.";
                     
                     switch (error.code) {
                         case 'auth/wrong-password':
-                        case 'auth/invalid-credential': // <--- PRIDANÉ: Zachytáva novší typ chyby pre zlé heslo
+                        case 'auth/invalid-credential':
                             msg = "Zadali ste nesprávne súčasné heslo.";
                             break;
                         case 'auth/weak-password':
@@ -1189,17 +1148,12 @@ function setupPasswordChangeLogic() {
                             msg = "Chyba pripojenia. Skontrolujte internet.";
                             break;
                         default:
-                            // Fallback pre neznáme chyby
                             msg = `Chyba: ${error.message}`;
                     }
 
-                    // Logovanie chyby
                     await logUserAction("ZMENA_HESLA", "Zlyhal pokus o zmenu hesla", false, msg);
-                    
-                    // Zobrazenie chyby vo formulári
                     showError(msg);
                 } finally {
-                     // Reset tlačidla
                      const submitBtn = changePassForm.querySelector('button[type="submit"]');
                      if(submitBtn) {
                         submitBtn.textContent = "Zmeniť heslo";
@@ -1224,7 +1178,6 @@ function setupPasswordChangeLogic() {
 
 /**
  * Inicializuje logiku pre "Zabudol som heslo".
- * VERZIA: Priame odoslanie žiadosti adminovi (bez DB kontroly, ktorá vyžaduje prihlásenie).
  */
 function setupForgotPasswordLogic() {
     const forgotLink = document.getElementById('forgot-password-link');
@@ -1235,12 +1188,10 @@ function setupForgotPasswordLogic() {
     const emailInputLogin = document.getElementById('email-input');
     const forgotEmailInput = document.getElementById('forgot-email');
 
-    // === KONFIGURÁCIA ADMINA ===
     const ADMIN_EMAIL = "mario.banic2@minv.sk"; 
 
     if (!forgotLink || !forgotModal || !forgotForm) return;
 
-    // 1. Otvorenie modálu
     forgotLink.addEventListener('click', (e) => {
         e.preventDefault();
         forgotModal.classList.remove('hidden');
@@ -1254,7 +1205,6 @@ function setupForgotPasswordLogic() {
         forgotEmailInput.focus();
     });
 
-    // 2. Zatvorenie modálu
     if (closeForgotModalBtn) {
         closeForgotModalBtn.addEventListener('click', () => {
             forgotModal.classList.add('hidden');
@@ -1267,7 +1217,6 @@ function setupForgotPasswordLogic() {
         }
     });
 
-    // 3. Odoslanie žiadosti
     forgotForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const userEmail = forgotEmailInput.value.trim();
@@ -1275,21 +1224,16 @@ function setupForgotPasswordLogic() {
         if (!userEmail) return;
 
         const submitBtn = forgotForm.querySelector('button[type="submit"]');
-        
-        // UI feedback
         submitBtn.disabled = true;
         submitBtn.textContent = 'Otváram e-mail...';
 
-        // Príprava e-mailu
         const subject = `Žiadosť o reset hesla - OKR Portál`;
         const body = `Dobrý deň,\n\nprosím o resetovanie hesla pre používateľa s e-mailom: ${userEmail}.\n\nĎakujem.`;
 
         const mailtoLink = `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-        // Otvorenie klienta
         window.location.href = mailtoLink;
 
-        // Reset UI
         showToast("Otvoril sa váš e-mailový klient. Odošlite správu adminovi.", TOAST_TYPE.INFO);
         forgotModal.classList.add('hidden');
         forgotForm.reset();
@@ -1300,7 +1244,6 @@ function setupForgotPasswordLogic() {
 }
 
 async function initializeApp() {
-    
     try {
         setupForgotPasswordLogic();
         const userProfile = await handleLogin();
@@ -1321,7 +1264,6 @@ async function initializeApp() {
             oddelenie: userProfile.oddelenie || 'Nezaradené'
         };
 
-        // Aktualizujeme logy, aby už "vedeli" o role
         updateLogsUser(activeUser);
 
         await loadGlobalEmployees(db);
@@ -1363,15 +1305,10 @@ async function initializeApp() {
             titleElement.textContent = moduleTitles['dashboard-module'] || 'Prehľad udalostí';
         }
         
-        // Predvolené skrytie tlačidiel pre ne-vedúcich (inicializácia)
         const editBtn = document.getElementById('edit-btn');
-        // Export button už neriešime tu cez jednoduchý toggle, ale cez novú funkciu
-        
         if (editBtn) editBtn.classList.add('hidden');
         
-        // --- ZMENA: Aktivácia exportu okamžite po prihlásení ---
         activateGlobalExport(activeUser, allEmployeesData);
-        // -------------------------------------------------------
 
         renderGlobalEmployeeList();
         await initializeDashboardCalendar(); 

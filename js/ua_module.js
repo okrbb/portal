@@ -1,3 +1,9 @@
+/* ua_module.js - Modular SDK v9+ */
+import { 
+    collection, 
+    getDocs 
+} from 'firebase/firestore';
+
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
@@ -6,7 +12,7 @@ import { Permissions } from './accesses.js';
 
 export function initializeUAModule(db, activeUser) { 
     
-    console.log('Inicializujem modul Príspevky UA...');
+    console.log('Inicializujem modul Príspevky UA (Modular)...');
 
     // --- KONTROLA OPRÁVNENÍ ---
     if (!Permissions.canViewModule(activeUser, 'ua-contributions-module')) {
@@ -19,7 +25,7 @@ export function initializeUAModule(db, activeUser) {
     // 1. Premenné pre dáta
     let excelData = [];
     let obceData = {};
-    let emailData = {}; // Táto premenná sa naplní z Firestore
+    let emailData = {}; 
 
     let globalMesiac = ''; 
     let globalRok = '';    
@@ -36,7 +42,9 @@ export function initializeUAModule(db, activeUser) {
 
     console.log('Načítavam e-maily obcí z Firestore (kolekcia towns_em)...');
     
-    db.collection("towns_em").get()
+    // ZMENA: Modular Get Docs
+    const townsRef = collection(db, "towns_em");
+    getDocs(townsRef)
         .then(querySnapshot => {
             
             const tempEmailData = {};

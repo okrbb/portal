@@ -1,29 +1,37 @@
-/* announcements.js - Opravená verzia */
+/* announcements.js - Modular SDK v9+ */
+import { 
+    collection, 
+    query, 
+    orderBy, 
+    limit, 
+    getDocs, 
+    addDoc, 
+    deleteDoc, 
+    serverTimestamp 
+} from 'firebase/firestore';
+
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 import { logUserAction } from './logs_module.js';
 
 /**
  * Hlavná funkcia pre vykreslenie Widgetu Oznámenia.
- * @param {Object} db - Firestore inštancia
+ * @param {Object} db - Firestore inštancia (z config.js)
  * @param {Object} user - Aktívny používateľ
  */
 export function renderAnnouncementWidget(db, user) {
-    // 1. Nájdeme existujúci kontajner z HTML (index.html)
-    // Pôvodne ste mali 'announcement-widget-card', v HTML je 'announcement-widget-container'
+    // 1. Nájdeme existujúci kontajner z HTML
     let card = document.getElementById('announcement-widget-container');
     
-    // Ak by náhodou v HTML nebol, skúsime ho vytvoriť (fallback)
+    // Fallback ak neexistuje
     if (!card) {
         const rightCol = document.querySelector('.dashboard-right-col');
         if (rightCol) {
             card = document.createElement('div');
             card.id = 'announcement-widget-container';
             card.className = 'announcement-card';
-            // Vložíme na začiatok alebo na vhodné miesto
             rightCol.insertBefore(card, rightCol.firstChild);
         } else {
-            // Ak nie je ani pravý stĺpec, končíme
             return;
         }
     }
@@ -32,9 +40,8 @@ export function renderAnnouncementWidget(db, user) {
     loadAnnouncementData(db, user, card);
 
     // 3. Inicializácia modálneho okna (ak je užívateľ admin/vedúci)
-    // Toto stačí spustiť raz, ale kontrolujeme, či už nebolo spustené
     if (Permissions.canManageAnnouncements(user)) {
-    setupAnnouncementModal(db, user);
+        setupAnnouncementModal(db, user);
     }
 }
 
@@ -43,10 +50,10 @@ export function renderAnnouncementWidget(db, user) {
  */
 async function loadAnnouncementData(db, user, cardElement) {
     try {
-        const snapshot = await db.collection('announcements')
-            .orderBy('timestamp', 'desc')
-            .limit(1)
-            .get();
+        // ZMENA: Modular Query
+        const announcementsRef = collection(db, 'announcements');
+        const q = query(announcementsRef, orderBy('timestamp', 'desc'), limit(1));
+        const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
             if (!Permissions.canManageLogs(user)) {
@@ -61,8 +68,8 @@ async function loadAnnouncementData(db, user, cardElement) {
             return;
         }
 
-        const doc = snapshot.docs[0];
-        const data = doc.data();
+        const docSnap = snapshot.docs[0];
+        const data = docSnap.data();
 
         // Zobrazíme widget
         cardElement.style.display = 'block';
@@ -87,8 +94,6 @@ function renderCardContent(card, data, isAdmin) {
 
     let editBtnHtml = '';
     if (isAdmin) {
-        // Pridáme ID aj pre Delete tlačidlo, ak by sme ho chceli inline (voliteľné)
-        // Pre istotu pridáme type="button", aby to neodosielalo formuláre
         editBtnHtml = `
             <button type="button" id="edit-announcement-btn" class="announcement-edit-btn" title="Upraviť oznam">
                 <i class="fas fa-pen"></i>
@@ -108,18 +113,14 @@ function renderCardContent(card, data, isAdmin) {
         <div class="announcement-content" style="white-space: pre-wrap;">${text}</div>
     `;
 
-    // Pridáme triedu pre animáciu (ak v CSS existuje)
     setTimeout(() => card.classList.add('visible'), 50);
 
-    // === KĽÚČOVÉ: PRIPOJENIE LISTENERU ===
+    // Pripojenie listeneru
     if (isAdmin) {
         const btn = card.querySelector('#edit-announcement-btn');
         if (btn) {
-            // Odstránime starý listener (klonovaním) pre istotu, ak by sa funkcia volala viackrát? 
-            // Nie je nutné, lebo innerHTML prepísalo DOM element, takže starý btn už neexistuje.
-            // Stačí pridať nový listener.
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Pre istotu
+                e.stopPropagation();
                 openAnnouncementModal(data ? data.text : '');
             });
         }
@@ -133,11 +134,10 @@ const formId = 'announcement-form';
 const textareaId = 'announcement-text';
 
 function setupAnnouncementModal(db, user) {
-    // Dynamicky vytvoríme modál, ak v HTML neexistuje (aby sme nemuseli meniť index.html)
     let modal = document.getElementById(modalId);
     
     if (!modal) {
-        createModalHTML(); // Vytvoríme ho v DOMe
+        createModalHTML();
         modal = document.getElementById(modalId);
     }
 
@@ -147,12 +147,10 @@ function setupAnnouncementModal(db, user) {
     
     if (!modal || !form) return;
 
-    // Zatváranie
     if (closeBtn) {
         closeBtn.onclick = () => modal.classList.add('hidden');
     }
     
-    // Zatvorenie klikom mimo
     modal.onclick = (e) => {
         if (e.target === modal) modal.classList.add('hidden');
     };
@@ -168,10 +166,11 @@ function setupAnnouncementModal(db, user) {
         }
 
         try {
-            await db.collection('announcements').add({
+            // ZMENA: Modular AddDoc
+            await addDoc(collection(db, 'announcements'), {
                 text: text,
                 author: user.email,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: serverTimestamp() // ZMENA: Modular timestamp
             });
 
             showToast("Oznam bol zverejnený.", TOAST_TYPE.SUCCESS);
@@ -192,13 +191,13 @@ function setupAnnouncementModal(db, user) {
         deleteBtn.onclick = async () => {
             if(confirm("Naozaj chcete odstrániť aktuálny oznam?")) {
                 try {
-                    const snapshot = await db.collection('announcements')
-                        .orderBy('timestamp', 'desc')
-                        .limit(1)
-                        .get();
+                    // ZMENA: Modular Delete
+                    const announcementsRef = collection(db, 'announcements');
+                    const q = query(announcementsRef, orderBy('timestamp', 'desc'), limit(1));
+                    const snapshot = await getDocs(q);
                     
                     if (!snapshot.empty) {
-                        await snapshot.docs[0].ref.delete();
+                        await deleteDoc(snapshot.docs[0].ref); // ref je stále dostupný na objekte
                     }
 
                     showToast("Oznam bol odstránený.", TOAST_TYPE.INFO);
@@ -225,7 +224,6 @@ function openAnnouncementModal(currentText) {
     }
 }
 
-// Pomocná funkcia na vloženie HTML modálu do stránky (ak tam nie je)
 function createModalHTML() {
     const modalHtml = `
     <div id="announcement-modal" class="modal-overlay hidden" style="z-index: 10000;">

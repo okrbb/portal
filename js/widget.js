@@ -1,3 +1,4 @@
+/* widget.js - Modular SDK Ready (No Firebase calls here) */
 /**
  * ===================================
  * WIDGET PRE PRIVÍTANIE, POČASIE, MENINY (Lokálne JSON) A SVIATKY (API)

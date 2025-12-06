@@ -1,3 +1,4 @@
+/* schd_bbkraj_module.js - Modular SDK Ready (No Firebase calls here) */
 import { showToast, TOAST_TYPE } from './utils.js';
 
 /* ======================================= */
@@ -148,12 +149,11 @@ async function processFiles() {
     }
 
     if (processBtn) processBtn.disabled = true;
-    // ZMENA: Žiadny text v statusMsg počas spracovania
     if (statusMsg) statusMsg.textContent = ""; 
 
     let rawData = [];
     let successCount = 0;
-    let errorCount = 0; // Nové počítadlo chýb
+    let errorCount = 0;
 
     try {
         for (let i = 0; i < selectedFiles.length; i++) {
@@ -161,7 +161,6 @@ async function processFiles() {
             const rowElem = document.getElementById(`bbk-file-row-${i}`);
             const iconElem = document.getElementById(`bbk-status-icon-${i}`);
 
-            // Reset štýlov riadku (už nie je potrebné resetovať bg color, lebo sa nenastavuje)
             if(rowElem) {
                 rowElem.style.color = "inherit";
             }
@@ -171,13 +170,11 @@ async function processFiles() {
                 const workbook = XLSX.read(data);
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 
-                // header: 1 vráti pole polí (array of arrays)
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
                 let headerRowIndex = -1;
                 let colIndexStart = 0;
 
-                // 1. Nájdenie hlavičky tabuľky (hľadáme "okresný" a "úrad")
                 for (let r = 0; r < jsonData.length; r++) {
                     const row = jsonData[r];
                     for (let c = 0; c < row.length; c++) {
@@ -193,25 +190,21 @@ async function processFiles() {
                     if (headerRowIndex !== -1) break;
                 }
 
-                // Ak sa nenašla tabuľka -> Chyba
                 if (headerRowIndex === -1) {
                     throw new Error("Tabuľka s hlavičkou 'Okresný úrad' nebola nájdená.");
                 }
 
-                // 2. Extrahovanie dát
                 for (let r = headerRowIndex + 1; r < jsonData.length; r++) {
                     const row = jsonData[r];
-                    // Bezpečné čítanie stĺpcov
                     const valUrad = row[colIndexStart];
                     const valMeno = row[colIndexStart + 1];
                     const valPriezvisko = row[colIndexStart + 2];
                     
                     const lowerUrad = String(valUrad || "").toLowerCase().trim();
 
-                    // Podmienky na ukončenie čítania alebo preskočenie
                     if (lowerUrad.includes("schválil") || lowerUrad.includes("vypracoval") || lowerUrad.includes("dátum") || lowerUrad.includes("poznámka:")) break;
                     if (!valMeno && !String(valPriezvisko).trim()) continue;
-                    if (lowerUrad.includes("okresný úrad")) continue; // Preskočenie opakovaných hlavičiek
+                    if (lowerUrad.includes("okresný úrad")) continue; 
 
                     rawData.push({
                         urad: valUrad,
@@ -224,13 +217,10 @@ async function processFiles() {
                     });
                 }
 
-                // Úspech pre tento súbor
-                // ZMENA: Iba zmena ikony a jej farby
                 if (iconElem) {
                     iconElem.textContent = "✅";
-                    iconElem.style.color = "#48BB78"; // Zelená
+                    iconElem.style.color = "#48BB78";
                 }
-                // ZMENA: Žiadne pozadie pre riadok
                 
                 successCount++;
 
@@ -238,44 +228,34 @@ async function processFiles() {
                 console.error(`Chyba pri súbore ${file.name}:`, err);
                 errorCount++;
                 
-                // ZMENA: Iba zmena ikony a jej farby pri chybe
                 if (iconElem) {
                     iconElem.textContent = "❌";
-                    iconElem.style.color = "#E53E3E"; // Červená
+                    iconElem.style.color = "#E53E3E";
                 }
                 if (rowElem) {
                     rowElem.title = err.message || "Chyba čítania";
                 }
 
-                // --- PRIDANÁ NOTIFIKÁCIA O CHYBE ---
                 showToast(`Chyba pri spracovaní súboru "${file.name}": ${err.message}`, TOAST_TYPE.ERROR);
             }
-        } // Koniec cyklu cez súbory
+        } 
 
         if (rawData.length === 0) {
             showToast("Žiadne platné dáta neboli spracované.", TOAST_TYPE.ERROR);
-            // ZMENA: Žiadny text v statusMsg
             if (processBtn) processBtn.disabled = false;
             return;
         }
 
-        // Ak nastali nejaké chyby, ale aspoň niečo sa spracovalo
         if (errorCount > 0) {
             showToast(`Spracovanie dokončené s chybami (${errorCount} súborov zlyhalo).`, TOAST_TYPE.INFO);
         }
 
-        // ... (Zvyšok funkcie pre generovanie Excelu zostáva nezmenený) ...
-        
-        // 3. Zoradenie podľa úradu
         rawData.sort((a, b) => String(a.urad).localeCompare(String(b.urad), 'sk'));
 
-        // ... (Kód pre generovanie XLSX - viď predchádzajúca odpoveď) ...
-
-        // 4. Príprava dát pre výstupný Excel
         let finalRows = rawData.map((item, index) => {
             return [
-                "",         // A: Empty
-                index + 1,  // B: P.č.
+                "",         
+                index + 1,  
                 item.urad,
                 item.meno,
                 item.priezvisko,
@@ -288,7 +268,6 @@ async function processFiles() {
 
         const dateInfo = getDateRangeFromWeek(inputYear, inputWeek);
 
-        // Štruktúra hárku
         let wsData = [
             [null, "služobná pohotovosť zamestnancov OKR OÚ BB"], 
             [], 
@@ -304,24 +283,18 @@ async function processFiles() {
 
         const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-        // 5. Formátovanie (Štýly)
-        // Pozor: Toto vyžaduje aby v prostredí bola knižnica, ktorá podporuje štýly (napr. xlsx-js-style)
-        // Ak v mainWizard.js alebo index.html nie je načítaná, štýly sa nemusia aplikovať.
-        
         if(!ws['!merges']) ws['!merges'] = [];
-        ws['!merges'].push({ s: {r:0, c:1}, e: {r:0, c:8} }); // Merge nadpisu
+        ws['!merges'].push({ s: {r:0, c:1}, e: {r:0, c:8} }); 
 
         ws['!cols'] = [
             {wch: 5}, {wch: 5}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 30}, {wch: 25}
         ];
 
-        // Helper pre bezpečné nastavenie štýlu
         const setStyle = (cellRef, styleObj) => {
             if (!ws[cellRef]) ws[cellRef] = { t: 's', v: '' };
             ws[cellRef].s = styleObj;
         };
 
-        // Nadpis
         setStyle('B1', {
             font: { bold: true, sz: 14 },
             alignment: { horizontal: "center", vertical: "center" }
@@ -336,7 +309,6 @@ async function processFiles() {
         const dateStyle = { alignment: { horizontal: "center" } };
         ['E5', 'F5', 'H5'].forEach(cell => setStyle(cell, dateStyle));
 
-        // Orámovanie tabuľky
         const range = XLSX.utils.decode_range(ws['!ref']);
         const tableStartRow = 6; 
         const thinBorder = { style: "thin", color: { auto: 1 } };
@@ -347,18 +319,15 @@ async function processFiles() {
                 const cellRef = XLSX.utils.encode_cell({r: R, c: C});
                 if (!ws[cellRef]) ws[cellRef] = { t: 's', v: '' };
 
-                // Základný štýl bunky
                 const cellStyle = {
                     border: borderStyle,
                     alignment: { vertical: "center", wrapText: true, horizontal: "center" } 
                 };
 
-                // Zarovnanie vľavo pre textové stĺpce
                 if (C === 2 || C === 3 || C === 4 || C === 8) { 
                     cellStyle.alignment.horizontal = "left";
                 }
 
-                // Tučná hlavička tabuľky
                 if (R === tableStartRow) {
                     cellStyle.font = { bold: true };
                     cellStyle.alignment.horizontal = "center";
@@ -368,28 +337,23 @@ async function processFiles() {
             }
         }
 
-        // Výška riadkov
         const rowHeights = [];
         for(let i=0; i < tableStartRow; i++) rowHeights.push({}); 
         for(let i=tableStartRow; i <= range.e.r; i++) rowHeights.push({ hpx: 27 });
         ws['!rows'] = rowHeights;
 
-        // Generovanie a uloženie
         const newWorkbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(newWorkbook, ws, "Pohotovosť");
 
-        // ... na konci funkcie:
         const filename = `Pohotovost_BBKraj_Tyzden_${inputWeek}_${inputYear}.xlsx`;
         XLSX.writeFile(newWorkbook, filename);
         
         showToast(`Hotovo! Úspešne spracovaných ${successCount} súborov.`, TOAST_TYPE.SUCCESS);
-        // ZMENA: Žiadny text v statusMsg
         if (statusMsg) statusMsg.textContent = "";
 
     } catch (e) {
         console.error("BBK Modul Error:", e);
         showToast("Kritická chyba: " + e.message, TOAST_TYPE.ERROR);
-        // ZMENA: Žiadny text v statusMsg
         if (statusMsg) statusMsg.textContent = "";
     } finally {
         if (processBtn) processBtn.disabled = false;

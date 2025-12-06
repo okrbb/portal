@@ -1,3 +1,4 @@
+/* emp_module.js - Modular SDK Ready (No Firebase calls here) */
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
@@ -124,7 +125,7 @@ function exportEmployeesToExcel() {
     }
 }
 
-// --- Pomocná funkcia pre filtrovanie (zachovaná logika z pôvodného súboru) ---
+// --- Pomocná funkcia pre filtrovanie ---
 function filterEmployeesForExport(allEmployeesArray) {
     if (!localActiveUser) return [];
 

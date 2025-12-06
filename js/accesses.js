@@ -1,3 +1,4 @@
+/* accesses.js - Modular SDK Ready (No Firebase calls here) */
 /* =================================== */
 /* CENTRÁLNE RIADENIE PRÍSTUPOV        */
 /* (accesses.js) - RBAC Model          */

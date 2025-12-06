@@ -1,3 +1,4 @@
+/* utils.js - Modular SDK Ready (No Firebase calls here) */
 import { APP_CONSTANTS } from './config.js';
 
 // Typy notifikácií
