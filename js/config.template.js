@@ -10,7 +10,7 @@ export const firebaseConfig = {
 
 export const AI_CONFIG = {
     API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 
-    MODEL_NAME: "gemini-2.0-flash-lite-preview-02-05",
+    MODEL_NAME: "gemini-2.0-flash",
     GROQ_API_KEY: "GROQ_API_KEY_PLACEHOLDER",
     GROQ_MODEL: "llama-3.1-8b-instant"
 };
@@ -21,3 +21,4 @@ export const APP_CONSTANTS = {
     DEFAULT_AVATAR: '--'
 
 };
+
