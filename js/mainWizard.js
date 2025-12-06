@@ -259,7 +259,7 @@ const moduleTitles = {
     'cestovny-prikaz-module': 'Cestovný príkaz',
     'pohotovost-module': 'Rozpis pohotovosti',
     'bbk-module': 'Rozpis pohotovosti BB kraj', 
-    'izs-module': 'Rozpis služieb IZS',
+    'izs-module': 'Agenda služieb IZS',
     'ua-contributions-module': 'Príspevky UA', 
     'fuel-module': 'Evidencia spotreby PHM', 
 };
