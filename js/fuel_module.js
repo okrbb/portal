@@ -5,6 +5,7 @@ import { logUserAction } from './logs_module.js';
 let _db = null;
 let _user = null;
 let _carsUnsubscribe = null;
+let _historyChart = null;
 
 // Stav filtrov
 let filterState = {
@@ -889,6 +890,15 @@ async function openHistoryModal(carId, carBrand) {
 
         events.sort((a, b) => b.date - a.date);
 
+        // === PRIDANÝ KÓD ===
+        // Pre graf potrebujeme chronologické poradie (najstaršie prvé)
+        // Urobíme kópiu poľa, aby sme nerozbili poradie v tabuľke
+        const eventsForChart = [...events].sort((a, b) => a.date - b.date);
+
+        // Zavoláme vykreslenie grafu
+        renderHistoryChart(eventsForChart, normCity, normOutside);
+        // ====================
+
         const monthlyStats = {};
         events.forEach(e => {
             const monthKey = `${e.date.getFullYear()}-${e.date.getMonth()}`; 
@@ -1453,4 +1463,119 @@ async function recalculateHistoryChain(carId) {
     });
 
     await recalculateCarStats(carId);
+}
+
+// fuel_module.js - na úplný koniec súboru
+
+function renderHistoryChart(events, normCity, normOutside) {
+    const ctx = document.getElementById('fuel-history-chart');
+    if (!ctx) return;
+
+    // 1. Reset starého grafu (aby sa neprekrývali pri opakovanom otvorení)
+    if (_historyChart) {
+        _historyChart.destroy();
+    }
+
+    // 2. Príprava dát
+    // Filtrujeme len tankovania, ktoré majú vypočítanú spotrebu
+    const chartData = events
+        .filter(e => e.type === 'tankovanie' && e.consumption > 0 && e.consumption < 50) // < 50 je poistka proti chybám
+        .sort((a, b) => a.date - b.date) // Zoradenie od najstaršieho
+        .map(e => ({
+            x: e.date.toLocaleDateString('sk-SK'), // Os X: Dátum
+            y: e.consumption,                      // Os Y: Spotreba
+            liters: e.liters,
+            km: e.distance
+        }));
+
+    if (chartData.length === 0) return;
+
+    // Pripravíme pole pre normy (čiary)
+    const labels = chartData.map(d => d.x);
+    const dataPoints = chartData.map(d => d.y);
+    const normCityLine = new Array(labels.length).fill(normCity || null);
+    const normOutLine = new Array(labels.length).fill(normOutside || null);
+
+    // 3. Konfigurácia Chart.js
+    _historyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Reálna spotreba (L/100km)',
+                    data: dataPoints,
+                    borderColor: '#bc8700', // Vaša oranžová accent farba
+                    backgroundColor: 'rgba(188, 135, 0, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3, // Jemné zaoblenie čiary
+                    pointBackgroundColor: '#1F2937',
+                    pointBorderColor: '#bc8700',
+                    pointRadius: 4,
+                    fill: true
+                },
+                {
+                    label: 'Norma (Mesto)',
+                    data: normCityLine,
+                    borderColor: 'rgba(229, 62, 62, 0.6)', // Červená
+                    borderWidth: 2,
+                    borderDash: [5, 5], // Prerušovaná čiara
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: 'Norma (Mimo)',
+                    data: normOutLine,
+                    borderColor: 'rgba(72, 187, 120, 0.6)', // Zelená
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#9CA3AF' } // Farba textu legendy
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) label += context.parsed.y.toFixed(2) + ' L';
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            // Extra info v tooltipe
+                            if (context.datasetIndex === 0) { // Len pre hlavnú čiaru
+                                const idx = context.dataIndex;
+                                const item = chartData[idx];
+                                return `Natankované: ${item.liters.toFixed(1)} L\nPrejdené: ${item.km} km`;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                },
+                y: {
+                    beginAtZero: false, // Nezačínať od nuly, aby boli vidieť rozdiely
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    title: { display: true, text: 'L / 100km', color: '#6B7280' }
+                }
+            }
+        }
+    });
 }
