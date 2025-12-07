@@ -1031,114 +1031,6 @@ input[type="text"], select, textarea {
     animation: skeleton-shimmer 2s infinite linear;
 }
 
-/* =================================== */
-/* LOGIN MODAL - HIGH-TECH */
-/* =================================== */
-
-.login-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Tmavomodrá z loga + priehľadnosť */
-    background: rgba(10, 44, 85, 0.5); 
-    backdrop-filter: blur(8px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.login-modal {
-    background: var(--color-bg-light);
-    border: 1px solid var(--color-orange-accent);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    width: 90%;
-    max-width: 440px;
-    text-align: center;
-    animation: slideUp 0.4s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.login-modal .logo {
-    margin-bottom: var(--spacing-lg); 
-}
-
-/* Štýl pre inputy */
-.login-modal input[type="password"],
-.login-modal input[type="email"] {
-    width: 100%;
-    padding: var(--spacing-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    background: var(--color-bg);
-    color: var(--color-text-primary);
-    transition: all var(--transition-fast);
-    margin-bottom: var(--spacing-sm);
-}
-
-.login-modal input[type="password"]:focus,
-.login-modal input[type="email"]:focus {
-    outline: none;
-    border-color: var(--color-orange-accent);
-    box-shadow: 0 0 0 4px rgba(255, 184, 0, 0.2);
-}
-
-/* Štýl pre tlačidlo */
-.login-modal button {
-    width: 100%;
-    padding: var(--spacing-md);
-    border: none;
-    border-radius: var(--radius-md);
-    background: var(--color-orange-accent);
-    color: var(--color-text-dark); 
-    font-size: 1rem;
-    font-weight: 700;
-    font-family: var(--font-primary);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    margin-top: var(--spacing-md);
-    box-shadow: 0 4px 15px rgba(255, 184, 0, 0.2);
-}
-
-.login-modal button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 184, 0, 0.3);
-    background: var(--color-orange-hover);
-}
-
-/* Chybové hlásenie */
-.login-error {
-    color: #fc8181;
-    background: rgba(254, 178, 178, 0.1);
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    margin-top: var(--spacing-md);
-    display: none; /* Dôležité: predvolene je skryté */
-    border: 1px solid rgba(254, 178, 178, 0.2);
-    font-size: 0.9rem;
-}
-
 /* Indikácia, že iniciály sú klikateľné (len pre vedúceho) */
 .user-initials.clickable-logs {
     cursor: pointer;
@@ -3058,4 +2950,267 @@ input:focus, select:focus, textarea:focus {
         opacity: 1; 
         transform: translateY(0); 
     }
+}
+
+/* =================================== */
+/* --- MODERN LOGIN SCREEN REDESIGN --- */
+/* =================================== */
+
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Tmavší, modrejší podklad */
+    backdrop-filter: blur(15px); /* Silnejšie rozmazanie pozadia */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.login-container-modern {
+    display: flex;
+    width: 900px;
+    max-width: 95vw;
+    height: 550px;
+    max-height: 90vh;
+    background: var(--color-bg); /* Použije vašu tému (tmavá/svetlá) */
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+        0 0 0 1px rgba(255, 255, 255, 0.1); /* Jemný okraj */
+    animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 2. Ľavá strana - Brand */
+.login-brand-side {
+    flex: 1.2; /* O niečo širšia ako pravá strana */
+    position: relative;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    overflow: hidden;
+}
+
+/* Abstraktné pozadie pre brandovú časť */
+.brand-bg-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(var(--color-orange-accent-rgb), 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(49, 130, 206, 0.2) 0%, transparent 40%);
+    z-index: 1;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.logo-modern-wrapper img.logo-img {
+    /* Zachovaná pôvodná animácia */
+    height: 120px; /* Trochu väčšie logo */
+    width: auto;
+    margin-bottom: 4rem;
+    filter: drop-shadow(0 10px 15px rgba(var(--color-orange-accent-rgb), 0.4));
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), filter 0.7s ease;
+    cursor: pointer; 
+    transform-origin: center;
+}
+
+/* 2. Stav po nabehnutí myšou (Hover) */
+.logo-modern-wrapper:hover img.logo-img {
+    /* Rotácia o 360 stupňov + zväčšenie */
+    /* Poznámka: Scale 1.4 je pre túto veľkosť ideálne (cca 170px), 
+       pôvodných 2.9 by urobilo logo príliš obrovským (350px). */
+    transform: scale(2.7) rotate(360deg);
+}
+
+.brand-content h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    
+    /* Gradient pre text */
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    
+    /* Oreže pozadie podľa tvaru textu */
+    -webkit-background-clip: text; /* Safari, Chrome */
+    background-clip: text;         /* Štandardná vlastnosť (CHÝBALA) */
+    
+    /* Spraví text priehľadným, aby presvitalo pozadie */
+    color: transparent;            /* Fallback */
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-content p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* 3. Pravá strana - Formulár */
+.login-form-side {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03); /* Veľmi jemný sklenený efekt */
+    backdrop-filter: blur(10px);
+}
+
+.form-header {
+    margin-bottom: 2.5rem;
+}
+
+.form-header h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-header p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+/* 4. Moderné vstupné polia (Floating Labels) */
+.input-group-modern {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.input-group-modern input {
+    width: 100%;
+    padding: 15px 15px 15px 45px; /* Miesto pre ikonu vľavo */
+    background: var(--color-bg-secondary);
+    border: 1px solid transparent; /* Skryjeme defaultný border */
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Efekt po kliknutí do inputu */
+.input-group-modern input:focus {
+    background: var(--color-bg);
+    border-color: rgba(var(--color-orange-accent-rgb), 0.5);
+    box-shadow: 0 0 0 4px rgba(var(--color-orange-accent-rgb), 0.1);
+}
+.input-group-modern input:focus + label {
+    color: var(--color-orange-accent);
+}
+.input-group-modern input:focus ~ .input-icon {
+    color: var(--color-orange-accent);
+}
+
+/* Floating Label Logika */
+.input-group-modern label {
+    position: absolute;
+    left: 45px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+    transition: 0.25s ease all;
+    font-size: 1rem;
+    background: transparent;
+}
+
+/* Keď je input aktívny ALEBO nie je prázdny, posuň label hore */
+.input-group-modern input:focus ~ label,
+.input-group-modern input:not(:placeholder-shown) ~ label {
+    top: 0;
+    left: 15px;
+    font-size: 0.85rem;
+    padding: 0 5px;
+    background: var(--color-bg); /* Prekrytie čiary inputu */
+    color: var(--color-text-secondary);
+}
+
+/* 5. Odkaz a Tlačidlo */
+.forgot-password-wrapper.modern {
+    text-align: right;
+    margin-bottom: 2rem;
+}
+
+.forgot-password-wrapper.modern a {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.forgot-password-wrapper.modern a:hover {
+    color: var(--color-orange-accent);
+    text-decoration: underline;
+}
+
+.btn-modern-login {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(90deg, var(--color-orange-accent), #ffb347);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(var(--color-orange-accent-rgb), 0.3);
+}
+
+.btn-modern-login:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(var(--color-orange-accent-rgb), 0.4);
+}
+.btn-modern-login:active {
+    transform: translateY(1px) scale(0.98);
+}
+.btn-modern-login i {
+    transition: transform 0.3s ease;
+}
+.btn-modern-login:hover i {
+    transform: translateX(5px);
+}
+
+/* Chybová hláška */
+.login-error.modern {
+    margin-top: 1.5rem;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(229, 62, 62, 0.1);
+    color: #E53E3E;
+    text-align: center;
+    font-size: 0.9rem;
+    display: none; /* Skryté defaultne */
 }
