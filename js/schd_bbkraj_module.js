@@ -28,6 +28,7 @@ export function initializeBBKModule(db, activeUser) {
     if (weekInput) weekInput.value = currentWeek;
 
     setupEventListeners();
+    updateFileListUI();
 }
 
 function setupEventListeners() {
@@ -112,7 +113,7 @@ function updateFileListUI() {
     } else {
         listContainer.classList.add('hidden');
         dropZone.classList.remove('file-selected');
-        if (processBtn) processBtn.disabled = true;
+        if (processBtn) processBtn.disabled = false;
     }
 }
 
@@ -139,7 +140,12 @@ async function processFiles() {
     const yearInput = document.getElementById('bbk-year-input');
     const weekInput = document.getElementById('bbk-week-input');
     const processBtn = document.getElementById('bbk-process-btn');
-
+  
+    if (!selectedFiles || selectedFiles.length === 0) {
+        showToast('Prosím nahrajte aspoň jeden súbor.', TOAST_TYPE.ERROR);
+        return;
+    }
+    
     const inputYear = parseInt(yearInput.value);
     const inputWeek = parseInt(weekInput.value);
 
