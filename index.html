@@ -15,23 +15,54 @@
 </head>
 <body>
     <div id="login-modal-overlay" class="login-overlay">
-        <div class="login-modal">
-            <div class="logo">
+    <div class="login-container-modern">
+        
+        <div class="login-brand-side">
+            <div class="brand-content">
+                <div class="logo-modern-wrapper">
                     <img src="./css/logo2.svg" alt="Logo Odbor Krízového Riadenia" class="logo-img">
+                </div>
+                <h1>OKR Portál</h1>
+                <p>Odbor Krízového Riadenia</p>
             </div>
+            <div class="brand-bg-overlay"></div>
+        </div>
+
+        <div class="login-form-side">
+            <div class="form-header">
+                <h2>Prihlásenie</h2>
+                <p>Zadajte svoje údaje pre vstup do systému.</p>
+            </div>
+            
             <form id="login-form">
-                <input type="email" id="email-input" placeholder="E-mail" required autocomplete="username">
-                <input type="password" id="password-input" placeholder="Heslo" required autocomplete="current-password">
-                    <div class="forgot-password-wrapper">
-                        <a href="#" id="forgot-password-link">Zabudol som heslo</a>
-                    </div>
-                <button type="submit">
-                    <i class="fas fa-sign-in-alt"></i> Prihlásiť sa
+                <div class="input-group-modern">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email-input" required autocomplete="username" placeholder=" ">
+                    <label for="email-input">E-mail</label>
+                    <div class="input-border"></div>
+                </div>
+
+                <div class="input-group-modern">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password-input" required autocomplete="current-password" placeholder=" ">
+                    <label for="password-input">Heslo</label>
+                    <div class="input-border"></div>
+                </div>
+
+                <div class="forgot-password-wrapper modern">
+                    <a href="#" id="forgot-password-link">Zabudli ste heslo?</a>
+                </div>
+
+                <button type="submit" class="btn-modern-login">
+                    <span>Prihlásiť sa</span>
+                    <i class="fas fa-arrow-right"></i>
                 </button>
-                <div id="login-error-msg" class="login-error"></div>
+
+                <div id="login-error-msg" class="login-error modern"></div>
             </form>
         </div>
     </div>
+</div>
 
     <nav class="top-nav">
         <div class="nav-left sidebar-header">
