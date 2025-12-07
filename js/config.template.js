@@ -1,6 +1,11 @@
-// js/config.template.js
+/* js/config.js - Opravená verzia s importom */
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+// 👇 OPRAVENÝ IMPORT
+import { 
+    getFirestore, 
+    enableIndexedDbPersistence, 
+    CACHE_SIZE_UNLIMITED 
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 export const firebaseConfig = {
@@ -19,6 +24,19 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
+// === OPTIMALIZÁCIA: Zapnutie Offline Cache (šetrí čítania) ===
+// Toto zabezpečí, že dáta sa načítajú z lokálneho disku, ak sa nezmenili.
+enableIndexedDbPersistence(db, { forceOwnership: true })
+    .then(() => {
+        console.log('[Persistence] Offline cache bola úspešne aktivovaná.');
+    })
+    .catch((err) => {
+        if (err.code == 'failed-precondition') {
+            console.warn('[Persistence] Viacero otvorených tabov blokuje cache.');
+        } else if (err.code == 'unimplemented') {
+            console.warn('[Persistence] Prehliadač nepodporuje offline cache.');
+        }
+    });
 
 export const AI_CONFIG = {
     API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 

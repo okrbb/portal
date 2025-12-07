@@ -1,4 +1,4 @@
-/* schd_module.js - Modular SDK v9+ (FIX: DOCX Export + PDF Značky) */
+/* schd_module.js - Modular SDK v9+ (Enhanced Notifications) */
 import { 
     doc, 
     setDoc, 
@@ -44,8 +44,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     const UNICODE_SUBSTITUTION = ' \u27F2'; // ⟲
 
     const monthNames = ["január", "február", "marec", "apríl", "máj", "jún", "júl", "august", "september", "október", "november", "december"];
-    const dayNames = ["Pondelok", "Utorok", "Streda", "Štvrtok", "Piatok", "Sobota", "Nedeľa"];
-
+    
     let generatedPDFDataURI = null;
     let generatedPDFFilename = '';
     let customFontBase64 = null;
@@ -172,20 +171,28 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         render(); 
     }
 
+    // === UPRAVENÉ: Dvojklik pre zástup ===
     function handleCalendarDutyDblClick(e) {
         if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
         e.preventDefault(); appState.firstSwapSelection = null; 
+        
         const employeeItem = e.target.closest('.employee-item-calendar');
         if (!employeeItem) return;
+        
         const { employeeId, weekKey } = employeeItem.dataset;
+        // Získame meno pre notifikáciu
+        const empName = employeeItem.textContent.trim().replace(/\s+/, ' '); // Odstránime prípadné ikony/medzery
+
         document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
         
         if (appState.selectedDutyForSwap && appState.selectedDutyForSwap.weekKey === weekKey && appState.selectedDutyForSwap.originalId === employeeId) {
-            appState.selectedDutyForSwap = null; showToast('Zrušené.', TOAST_TYPE.INFO);
+            appState.selectedDutyForSwap = null; 
+            showToast('Zrušené.', TOAST_TYPE.INFO);
         } else {
             appState.selectedDutyForSwap = { weekKey, originalId: employeeId, month: appState.selectedMonth, year: appState.selectedYear };
             employeeItem.classList.add('swap-selected');
-            showToast(`Vybraná služba. Kliknite na náhradníka.`, TOAST_TYPE.INFO);
+            // ZOBRAZÍME MENO
+            showToast(`Vybraný: <strong>${empName}</strong>. Kliknite na náhradníka v zozname.`, TOAST_TYPE.INFO);
         }
     }
 
@@ -194,73 +201,117 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         const employeeListItem = e.target.closest(`.duty-group-card li`);
         if (!employeeListItem) return;
         const newEmployeeId = employeeListItem.dataset.id;
+        const newEmployeeName = employeeListItem.textContent; // Meno nového
+
         const { weekKey, originalId, month, year } = appState.selectedDutyForSwap;
         if (newEmployeeId === originalId) { showToast('Nemôže byť tá istá osoba.', TOAST_TYPE.ERROR); return; }
         const stateKey = `${year}-${month}-${weekKey}`;
         if (!appState.serviceOverrides[stateKey]) appState.serviceOverrides[stateKey] = {};
+        
         const newEmp = findEmployeeById(newEmployeeId);
+        // Získame meno pôvodného pre správu (cez ID)
+        const oldEmp = findEmployeeById(originalId);
+        const oldName = oldEmp ? oldEmp.meno : 'Pôvodný';
+
         appState.serviceOverrides[stateKey][originalId] = { id: newEmployeeId, meno: newEmp ? newEmp.meno : 'Neznámy', type: 'sub' };
         appState.selectedDutyForSwap = null;
         document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
-        showToast(`Prepísané.`, TOAST_TYPE.SUCCESS);
+        
+        showToast(`Zastupovanie nastavené: <strong>${oldName} -> ${newEmployeeName}</strong>.`, TOAST_TYPE.SUCCESS);
         render();
     }
 
     function handleCalendarDutyClick(e) {
+        // Kliknutie slúži na 2 veci:
+        // 1. Ak je aktívny výber pre zástup (dblclick) -> dokončí zástup (kliknutím na iného v kalendári namiesto zoznamu)
+        // 2. Ak nie je aktívny -> prepne Hlásenie (reporting)
+
         const item = e.target.closest('.employee-item-calendar');
         if (!item) { 
+            // Klik mimo -> zruší výbery
             if (appState.firstSwapSelection) { appState.firstSwapSelection = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
             return; 
         }
+        
         const { renderedId, originalId, weekKey } = item.dataset;
         const clickId = renderedId || originalId;
+        const clickName = item.textContent.trim();
+
         if (clickTimer) clearTimeout(clickTimer);
         clickTimer = setTimeout(() => {
             clickTimer = null;
             if (appState.firstSwapSelection) { appState.firstSwapSelection = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
+            
+            // 1. Dokončenie zástupu (namiesto kliku v zozname)
             if (appState.selectedDutyForSwap) {
                 const { weekKey: wKey, originalId: oId, month, year } = appState.selectedDutyForSwap;
                 if (clickId === oId) { showToast('Tá istá osoba.', TOAST_TYPE.ERROR); return; }
+                
                 const sKey = `${year}-${month}-${wKey}`;
                 if (!appState.serviceOverrides[sKey]) appState.serviceOverrides[sKey] = {};
                 const newEmp = findEmployeeById(clickId);
+                const oldEmp = findEmployeeById(oId); // Pôvodný
+
                 appState.serviceOverrides[sKey][oId] = { id: clickId, meno: newEmp ? newEmp.meno : 'Neznámy', type: 'sub' };
                 appState.selectedDutyForSwap = null;
                 document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
-                showToast(`Prepísané.`, TOAST_TYPE.SUCCESS);
+                
+                showToast(`Zastupovanie nastavené: <strong>${oldEmp ? oldEmp.meno : 'Pôvodný'} -> ${newEmp ? newEmp.meno : clickName}</strong>.`, TOAST_TYPE.SUCCESS);
                 render();
             } else {
+                // 2. Prepnutie hlásenia (Pôvodná funkcia)
                 const sKey = `${appState.selectedYear}-${appState.selectedMonth}-${weekKey}`;
                 if (!appState.reporting[sKey]) appState.reporting[sKey] = [];
                 const idx = appState.reporting[sKey].indexOf(clickId);
-                if (idx > -1) appState.reporting[sKey].splice(idx, 1);
-                else appState.reporting[sKey].push(clickId);
+                let msg = '';
+                
+                if (idx > -1) {
+                    appState.reporting[sKey].splice(idx, 1);
+                    msg = `Hlásenie zrušené: ${clickName}`;
+                } else {
+                    appState.reporting[sKey].push(clickId);
+                    msg = `Hlásenie pridané: ${clickName}`;
+                }
+                
+                // Voliteľné: Zobraziť toast aj pri hlásení (ak chcete, odkomentujte)
+                // showToast(msg, TOAST_TYPE.INFO);
                 render();
             }
         }, 250);
     }
 
+    // === UPRAVENÉ: Pravý klik pre výmenu ===
     function handleCalendarSwapClick(e) {
         e.preventDefault();
         const item = e.target.closest('.employee-item-calendar');
         if (!item) return;
+        
         const { renderedId, originalId, weekKey } = item.dataset;
         const clickRender = renderedId || originalId;
         const clickOrig = originalId;
+        const empName = item.textContent.trim(); // Meno kliknutej osoby
         
         if (appState.selectedDutyForSwap) { appState.selectedDutyForSwap = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
         
         if (!appState.firstSwapSelection) {
-            appState.firstSwapSelection = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear };
+            // Prvý klik
+            appState.firstSwapSelection = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear, name: empName };
             document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
             item.classList.add('swap-selected');
-            showToast(`Vybraný prvý. Kliknite na druhého.`, TOAST_TYPE.INFO);
+            
+            showToast(`Výmena - prvý: <strong>${empName}</strong>. Kliknite pravým na druhého.`, TOAST_TYPE.INFO);
         } else {
+            // Druhý klik
             const first = appState.firstSwapSelection;
-            const second = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear };
+            const second = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear, name: empName };
+            
             appState.firstSwapSelection = null;
             document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
-            if (first.weekKey === second.weekKey && first.originalId === second.originalId) { showToast('Zrušené.', TOAST_TYPE.INFO); return; }
+            
+            if (first.weekKey === second.weekKey && first.originalId === second.originalId) { 
+                showToast('Zrušené (tá istá osoba).', TOAST_TYPE.INFO); 
+                return; 
+            }
             
             const sk1 = `${first.year}-${first.month}-${first.weekKey}`;
             const sk2 = `${second.year}-${second.month}-${second.weekKey}`;
@@ -272,7 +323,8 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
             
             appState.serviceOverrides[sk1][first.originalId] = { id: second.renderedId, meno: emp2 ? emp2.meno : 'Neznámy', type: 'swap' };
             appState.serviceOverrides[sk2][second.originalId] = { id: first.renderedId, meno: emp1 ? emp1.meno : 'Neznámy', type: 'swap' };
-            showToast(`Vymenené.`, TOAST_TYPE.SUCCESS);
+            
+            showToast(`Vymenené: <strong>${first.name} ↔ ${second.name}</strong>.`, TOAST_TYPE.SUCCESS);
             render();
         }
     }
@@ -447,15 +499,12 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                         if (ovrs && ovrs[oid]) { 
                             const overrideData = ovrs[oid];
                             rend = findEmployeeById(overrideData.id);
-                            
-                            // === OPRAVA: Pridanie unicode značiek do PDF ===
                             if (overrideData.type === 'sub') iconUnicode = UNICODE_SUBSTITUTION; 
                             else if (overrideData.type === 'swap') iconUnicode = UNICODE_SWAP;
                         }
                         
                         if (!rend) return;
                         
-                        // Pridanie ikony k menu v PDF
                         const finalName = rend.meno + iconUnicode;
 
                         body.push([ 
@@ -479,20 +528,8 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                 body: body, 
                 startY: 30, 
                 theme: 'grid', 
-                
-                // --- SEM VLOŽTE VÁŠ KÓD ---
-                headStyles: { 
-                    fillColor: [0, 51, 102],  // Tmavomodré pozadie
-                    textColor: [255, 255, 255], // Biely text
-                    fontStyle: 'bold', 
-                    fontSize: 10 
-                },
-                // ---------------------------
-
-                styles: { 
-                    font: customFontBase64 ? PDF_FONT_INTERNAL_NAME : 'DejaVuSans', 
-                    fontSize: 10 
-                } 
+                headStyles: { fillColor: [0, 51, 102], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 10 },
+                styles: { font: customFontBase64 ? PDF_FONT_INTERNAL_NAME : 'DejaVuSans', fontSize: 10 } 
             });
 
             const fy = doc.lastAutoTable.finalY;
@@ -512,7 +549,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         const weeks = getWeeksForMonth(appState.selectedYear, appState.selectedMonth).map(w => w.key);
         const data = {
             year: appState.selectedYear, month: appState.selectedMonth, monthName: monthNames[appState.selectedMonth],
-            lastSaved: serverTimestamp(), // ZMENA: Modular Timestamp
+            lastSaved: serverTimestamp(),
             dutyAssignments: {}, serviceOverrides: {}, reporting: {}
         };
         weeks.forEach(k => {
@@ -522,7 +559,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
             if(appState.reporting[sk]) data.reporting[k] = appState.reporting[sk];
         });
         
-        // ZMENA: Modular Set Doc
         await setDoc(doc(db, "publishedSchedules", docId), data);
         showToast('Uložené do DB.', TOAST_TYPE.SUCCESS);
     }
@@ -536,9 +572,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
 
     function closeModal() { if (elPreviewModal) elPreviewModal.classList.add('hidden'); }
 
-    // === OPRAVA: Vložená kompletná logika pre DOCX export ===
     async function generateDocxReport() {
-        // Kontrola oprávnenia
         if (!Permissions.canViewModule(_activeUser, 'pohotovost-module')) {
              showToast("Nemáte oprávnenie na stiahnutie výkazu.", TOAST_TYPE.ERROR);
              return;

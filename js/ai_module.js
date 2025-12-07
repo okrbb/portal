@@ -13,6 +13,7 @@ import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generat
 import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.0/+esm"; 
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import MiniSearch from 'https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/es/index.js';
+import { saveAIIndexToIDB, getAIIndexFromIDB } from './db_service.js';
 
 marked.use({ breaks: true, gfm: true });
 
@@ -64,21 +65,62 @@ export async function initializeAIModule(db, userProfile = null) {
     }
 }
 
+// Konštanta pre expiráciu cache (napr. 12 hodín pre dokumenty)
+const AI_CACHE_DURATION_MS = 12 * 60 * 60 * 1000; 
+
 /**
- * RAG: Vytvorí lokálny vyhľadávací index z Firestore metadát
+ * RAG: Vytvorí alebo načíta lokálny vyhľadávací index.
+ * Optimalizované pre IndexedDB.
  */
 async function buildLocalSearchIndex() {
     if (!firestoreDB) return;
-    
+
+    // Inicializácia MiniSearch inštancie (prázdnej)
+    searchEngine = new MiniSearch({
+        fields: ['title', 'description', 'keywords'],
+        storeFields: ['title', 'description', 'id'],
+        searchOptions: {
+            boost: { title: 2, keywords: 1.5 },
+            fuzzy: 0.2
+        }
+    });
+
     try {
+        // 1. Pokus o načítanie z IndexedDB
+        const cachedData = await getAIIndexFromIDB();
+        
+        if (cachedData) {
+            const { index, timestamp } = cachedData;
+            const now = Date.now();
+            const ageMinutes = ((now - timestamp) / 1000 / 60).toFixed(1);
+
+            // Ak je cache čerstvá (menej ako 12 hodín)
+            if (now - timestamp < AI_CACHE_DURATION_MS) {
+                console.log(`[RAG-IDB] Načítavam index z disku (Vek: ${ageMinutes} min).`);
+                
+                // KĽÚČOVÉ: Načítanie JSONu späť do MiniSearch objektu
+                searchEngine = MiniSearch.loadJSON(index, {
+                    fields: ['title', 'description', 'keywords'],
+                    storeFields: ['title', 'description', 'id'],
+                    searchOptions: { boost: { title: 2, keywords: 1.5 }, fuzzy: 0.2 }
+                });
+                
+                isIndexBuilt = true;
+                return; // Hotovo, nevoláme Firebase!
+            } else {
+                console.log(`[RAG-IDB] Index je expirovaný (${ageMinutes} min), prepočítavam...`);
+            }
+        } else {
+            console.log('[RAG-IDB] Index nenájdený v cache, sťahujem z Firebase...');
+        }
+
+        // 2. Fallback: Načítanie z Firebase (ak nie je cache alebo je stará)
         const q = query(collection(firestoreDB, 'knowledge_base'), where('isActive', '==', true));
         const snapshot = await getDocs(q);
         
         const docs = [];
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            // Pripravíme dokument pre indexovanie
-            // Obsah neindexujeme celý, len meta-dáta pre rýchlosť a relevanciu výberu
             docs.push({
                 id: docSnap.id,
                 title: data.title || '',
@@ -87,22 +129,19 @@ async function buildLocalSearchIndex() {
             });
         });
 
-        // Konfigurácia MiniSearch
-        searchEngine = new MiniSearch({
-            fields: ['title', 'description', 'keywords'], // Polia na vyhľadávanie
-            storeFields: ['title', 'description', 'id'],  // Polia, ktoré vráti výsledok
-            searchOptions: {
-                boost: { title: 2, keywords: 1.5 },       // Váhy: Titul a kľúčové slová sú dôležitejšie
-                fuzzy: 0.2                                // Tolerancia preklepov
-            }
-        });
-
+        // Vloženie dokumentov do MiniSearch
         searchEngine.addAll(docs);
         isIndexBuilt = true;
-        console.log(`RAG: Zaindexovaných ${docs.length} dokumentov.`);
+        console.log(`RAG: Zaindexovaných ${docs.length} dokumentov z DB.`);
+
+        // 3. Uloženie do IndexedDB pre budúce použitie
+        const serializedIndex = JSON.stringify(searchEngine.toJSON());
+        await saveAIIndexToIDB(serializedIndex);
+        console.log('[RAG-IDB] Index úspešne uložený do cache.');
 
     } catch (e) {
         console.error("RAG Error (Indexovanie):", e);
+        // Ak zlyhá cache, pokúsime sa pokračovať aspoň v pamäti bez uloženia
     }
 }
 

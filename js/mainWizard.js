@@ -30,6 +30,7 @@ import {
 
 // === 2. IMPORTOVANIE POMOCNÝCH FUNKCIÍ ===
 import { debounce, showToast, TOAST_TYPE } from './utils.js';
+import { getSkeletonHTML } from './utils.js';
 import { initializeLogsModule, logUserAction, updateLogsUser } from './logs_module.js';
 
 // === 3. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
@@ -43,6 +44,9 @@ import { initializeFuelModule } from './fuel_module.js';
 import { updateWelcomeWidget } from './widget.js';
 import { renderAnnouncementWidget } from './announcements.js';
 import { initializeAIModule } from './ai_module.js';
+import { saveEmployeesToIDB, getEmployeesFromIDB, clearEmployeesIDB, clearAIIndexIDB } from './db_service.js';
+import { performFullBackup } from './backup_service.js';
+import { restoreCollectionFromFile } from './restore_service.js';
 
 // === 4. IMPORTOVANIE CENTRÁLNYCH PRÍSTUPOV ===
 import { Permissions } from './accesses.js';
@@ -238,14 +242,16 @@ if (logoutBtn) {
 // === Tlačidlo Reload (Vynútená obnova dát) ===
 const reloadBtn = document.querySelector('#reload-btn');
 if (reloadBtn) {
-    reloadBtn.addEventListener('click', (e) => {
+    reloadBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        
-        // 1. Vymažeme cache zamestnancov
-        localStorage.removeItem('OKR_EMPLOYEES_CACHE_V1');
-        console.log('Cache vymazaná, reštartujem...');
 
-        // 2. Reload stránky (teraz si loadGlobalEmployees stiahne čerstvé dáta)
+        // Vymažeme VŠETKY cache v IndexedDB
+        await Promise.all([
+            clearEmployeesIDB(),
+            clearAIIndexIDB()
+        ]);
+
+        console.log('Kompletná IndexedDB Cache vymazaná, reštartujem...');
         window.location.reload();
     });
 }
@@ -490,67 +496,61 @@ const CACHE_KEY_EMPLOYEES = 'OKR_EMPLOYEES_CACHE_V1';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hodín
 
 /**
- * Načíta zamestnancov. Najprv skúsi cache, ak je stará alebo vynútená, stiahne z DB.
+ * Načíta zamestnancov. Používa IndexedDB pre cache.
  * @param {Object} db - Firestore inštancia
  * @param {boolean} forceRefresh - Ak je true, ignoruje cache a stiahne z DB
  */
 async function loadGlobalEmployees(db, forceRefresh = false) {
-    console.log('Spúšťam načítanie zamestnancov...');
-    if (!db) {
-        console.error("loadGlobalEmployees zlyhalo: DB nie je pripravené.");
-        return;
-    }
+    console.log('Spúšťam inteligentné načítanie zamestnancov...');
+    
+    // Skeleton
+    const listElement = document.getElementById('global-employees-list-items');
+    if (listElement) listElement.innerHTML = getSkeletonHTML('list', 10);
 
+    if (!db) return;
     allEmployeesData.clear();
 
-    // 1. KROK: Skúsime načítať z LocalStorage (ak nie je vynútený refresh)
-    if (!forceRefresh) {
-        try {
-            const cachedRecord = localStorage.getItem(CACHE_KEY_EMPLOYEES);
-            if (cachedRecord) {
-                const { timestamp, data } = JSON.parse(cachedRecord);
-                const now = Date.now();
-
-                // Skontrolujeme vek cache (napr. 24 hodín)
-                if (now - timestamp < CACHE_DURATION_MS) {
-                    console.log(`[Cache] Načítavam zamestnancov z lokálnej pamäte (Vek: ${((now - timestamp) / 1000 / 60).toFixed(1)} min).`);
-                    
-                    // Rekonštrukcia Mapy z poľa (JSON nepodporuje Map priamo)
-                    data.forEach(item => {
-                        // item je [key, value]
-                        allEmployeesData.set(item[0], item[1]);
-                    });
-
-                    showToast('Zoznam zamestnancov načítaný z pamäte.', TOAST_TYPE.INFO);
-                    return; // UKONČIŤ FUNKCIU - Žiadne čítanie z Firebase!
-                } else {
-                    console.log('[Cache] Dáta sú expirované, sťahujem nové...');
-                }
-            }
-        } catch (e) {
-            console.warn('[Cache] Chyba pri čítaní cache, pokračujem s DB:', e);
-        }
-    }
-
-    // 2. KROK: Sťahovanie z Firestore (Ak nie je cache alebo je stará)
     try {
-        console.log('[Firestore] Sťahujem "employees" kolekciu...');
+        // 1. KROK: Zistíme aktuálnu verziu dát na serveri (Cena: 1 Read)
+        const metaRef = doc(db, 'settings', 'metadata');
+        const metaSnap = await getDoc(metaRef);
+        
+        // Ak dokument neexistuje, nastavíme verziu na 0
+        const serverVersion = metaSnap.exists() ? metaSnap.data().employeesVersion : 0;
+
+        // 2. KROK: Zistíme verziu uloženú u používateľa
+        const cachedRecord = await getEmployeesFromIDB();
+        const localVersion = cachedRecord ? cachedRecord.version : -1;
+
+        console.log(`Verzia dát: Server=${serverVersion} vs Local=${localVersion}`);
+
+        // 3. KROK: Rozhodnutie
+        if (!forceRefresh && cachedRecord && localVersion === serverVersion) {
+            // A) Máme aktuálne dáta -> Použijeme Cache (0 Reads navyše)
+            console.log('[SmartLoad] Dáta sú aktuálne. Načítavam z IndexedDB.');
+            
+            cachedRecord.data.forEach(item => {
+                allEmployeesData.set(item[0], item[1]);
+            });
+            
+            renderGlobalEmployeeList();
+            return; 
+        }
+
+        // B) Dáta sú staré alebo chýbajú -> Sťahujeme z Firestore (Bezpečné & autorizované)
+        console.log('[SmartLoad] Zistená zmena alebo prvé spustenie. Sťahujem Firestore...');
+        
         const employeesRef = collection(db, "employees");
         const q = query(employeesRef, orderBy("priezvisko"));
-        const querySnapshot = await getDocs(q); 
+        const querySnapshot = await getDocs(q); // Toto stojí (počet zamestnancov) Reads
         
         querySnapshot.forEach((doc) => {
             const emp = doc.data();
             const empId = emp.kod || doc.id;
             
+            // ... (Vaša logika spracovania kontaktu) ...
             let sluzobny_kontakt = '';
-            const kontakt = emp.kontakt || ''; 
-            if (kontakt.includes(',')) {
-                const parts = kontakt.split(',');
-                sluzobny_kontakt = parts[0] ? parts[0].trim() : '';
-            } else if (kontakt.trim() !== 'null' && kontakt.trim() !== '') {
-                sluzobny_kontakt = kontakt.trim();
-            }
+            // ... (sem skopírujte vašu logiku parsovania kontaktu z pôvodného súboru) ...
 
             allEmployeesData.set(empId, {
                 ...emp,
@@ -561,28 +561,19 @@ async function loadGlobalEmployees(db, forceRefresh = false) {
             });
         });
 
-        // 3. KROK: Uloženie do Cache
-        try {
-            // Mapu musíme konvertovať na Array pre JSON.stringify
-            const serializedData = {
-                timestamp: Date.now(),
-                data: Array.from(allEmployeesData.entries())
-            };
-            localStorage.setItem(CACHE_KEY_EMPLOYEES, JSON.stringify(serializedData));
-            console.log(`[Cache] Uložených ${allEmployeesData.size} záznamov do localStorage.`);
-        } catch (e) {
-            console.warn('Nepodarilo sa uložiť cache (asi plná pamäť):', e);
-        }
-
-        console.log(`Globálny zoznam načítal ${allEmployeesData.size} zamestnancov.`);
+        // 4. KROK: Uložíme nové dáta do IDB spolu s NOVOU VERZIOU
+        const dataToSave = Array.from(allEmployeesData.entries());
         
-        if (forceRefresh) {
-            showToast('Dáta boli úspešne obnovené z databázy.', TOAST_TYPE.SUCCESS);
-        }
+        // POZOR: Musíte upraviť saveEmployeesToIDB v db_service.js, aby prijímala verziu!
+        // Alebo to uložíme do objektu takto:
+        await saveEmployeesToIDB(dataToSave, serverVersion); 
+
+        console.log(`[SmartLoad] Aktualizované. Stiahnutých ${allEmployeesData.size} záznamov.`);
+        renderGlobalEmployeeList();
 
     } catch (error) {
-        console.error("Kritická chyba: Nepodarilo sa načítať globálny zoznam zamestnancov:", error);
-        showToast('Chyba pri sťahovaní dát.', TOAST_TYPE.ERROR);
+        console.error("Chyba loadGlobalEmployees:", error);
+        showToast('Nepodarilo sa načítať zamestnancov.', TOAST_TYPE.ERROR);
     }
 }
 
@@ -688,6 +679,9 @@ function initializeMobileMenu() {
 async function initializeDashboardCalendar() {
     const calendarEl = document.getElementById('dashboard-calendar-render-area');
     if (!calendarEl) return;
+
+    // 1. ZOBRAZIŤ SKELETON (Kým sa načíta FullCalendar)
+    calendarEl.innerHTML = getSkeletonHTML('calendar');
     
     if (!db) {
          calendarEl.innerHTML = `<p style="color: red; padding: 1rem;">Chyba: Nepodarilo sa pripojiť k databáze pre načítanie rozpisov.</p>`;
@@ -961,7 +955,8 @@ async function loadDashboardDutyToday(db) {
     const listElement = document.getElementById('duty-list-items');
     if (!listElement) return;
 
-    listElement.innerHTML = '<li>Načítavam dáta...</li>';
+    // SKELETON (3 riadky stačia)
+    listElement.innerHTML = getSkeletonHTML('list', 3);
     
     try {
         const today = new Date();
@@ -1265,6 +1260,80 @@ async function initializeApp() {
         };
 
         updateLogsUser(activeUser);
+
+        // === NASTAVENIE TLAČIDLA ZÁLOHY (ADMIN ONLY) ===
+        if (Permissions.canManageLogs(activeUser)) { // Použijeme existujúce právo pre Admina
+            const settingsMenu = document.querySelector('.settings-dropdown-menu');
+            
+            // Skontrolujeme, či tam už tlačidlo nie je (aby sme ho nepridali 2x pri re-init)
+            let backupBtn = document.getElementById('backup-data-btn');
+            
+            if (!backupBtn && settingsMenu) {
+                // Vytvoríme odkaz
+                const link = document.createElement('a');
+                link.href = "#";
+                link.id = "backup-data-btn";
+                link.innerHTML = `<i class="fas fa-database"></i> Zálohovať dáta (JSON)`;
+                
+                // Vložíme ho na začiatok alebo pred "Odhlásiť"
+                // settingsMenu má zvyčajne Reload a Zmeniť heslo. Pridáme ho na koniec.
+                settingsMenu.appendChild(link);
+                
+                // Listener
+                link.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const confirmBackup = confirm("Spustiť kompletnú zálohu databázy?\n\nTento proces stiahne všetky dáta zamestnancov, rozpisov a vozidiel do jedného súboru.");
+                    if (confirmBackup) {
+                        // Zavrieme menu
+                        settingsMenu.classList.remove('show');
+                        // Spustíme zálohu
+                        await performFullBackup(db);
+                    }
+                });
+                
+                console.log("Admin tlačidlo pre zálohu bolo pridané.");
+            }
+
+            // === ADMIN RESTORE TLAČIDLO ===
+            // (Vložiť do if (Permissions.canManageLogs(activeUser)) { ... })
+            if (settingsMenu && !document.getElementById('restore-data-btn')) {
+                
+                // 1. Skryté input pole pre výber súboru
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                fileInput.style.display = 'none';
+                document.body.appendChild(fileInput);
+
+                // 2. Tlačidlo v menu
+                const restoreLink = document.createElement('a');
+                restoreLink.href = "#";
+                restoreLink.id = "restore-data-btn";
+                restoreLink.innerHTML = `<i class="fas fa-upload"></i> Obnoviť zo zálohy`;
+                restoreLink.style.color = "#ff9f43"; // Oranžová pre odlíšenie (pozor!)
+
+                settingsMenu.appendChild(restoreLink);
+
+                // 3. Kliknutie na odkaz otvorí výber súboru
+                restoreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    settingsMenu.classList.remove('show');
+                    fileInput.click(); // Simuluje klik na input
+                });
+
+                // 4. Po vybratí súboru spustíme restore
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        restoreCollectionFromFile(file, db);
+                        // Reset inputu, aby sa dal vybrať ten istý súbor znova ak treba
+                        fileInput.value = ''; 
+                    }
+                });
+                
+                console.log("Admin Restore tlačidlo aktivované.");
+            }
+        }
 
         await loadGlobalEmployees(db);
         

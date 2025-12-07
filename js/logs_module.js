@@ -1,4 +1,4 @@
-/* logs_module.js - Modular SDK v9+ */
+/* logs_module.js - Optimized SDK v9+ (Quota Protection) */
 import { 
     collection, 
     addDoc, 
@@ -7,7 +7,10 @@ import {
     orderBy, 
     deleteDoc, 
     writeBatch, 
-    serverTimestamp 
+    serverTimestamp,
+    where,
+    limit,
+    getCountFromServer
 } from 'firebase/firestore';
 
 import { showToast, TOAST_TYPE } from './utils.js';
@@ -15,7 +18,7 @@ import { Permissions } from './accesses.js';
 
 /* =================================== */
 /* MODUL PRE LOGOVANIE A AUDIT         */
-/* (logs_module.js) - UPRAVENÝ         */
+/* (logs_module.js) - OPTIMALIZOVANÝ   */
 /* =================================== */
 
 let _db = null;
@@ -23,8 +26,6 @@ let _activeUser = null;
 
 /**
  * Inicializuje modul logov.
- * @param {Object} db - Inštancia Firestore DB (povinné)
- * @param {Object|null} activeUser - Aktívny používateľ (voliteľné)
  */
 export function initializeLogsModule(db, activeUser = null) {
     console.log('Inicializujem modul Logov (DB pripojená)...');
@@ -42,7 +43,6 @@ export function initializeLogsModule(db, activeUser = null) {
  * Aktualizuje aktívneho používateľa po prihlásení.
  */
 export function updateLogsUser(user) {
-    console.log('Log modul: Aktualizujem používateľa...');
     _activeUser = user;
     setupLogListeners();
 }
@@ -56,6 +56,7 @@ function setupLogListeners() {
             userInitialsButton.classList.add('clickable-logs'); 
             userInitialsButton.setAttribute('title', 'Ľavý klik: stiahnuť logy\nPravý klik: zmazať logy'); 
             
+            // Clone node na odstránenie starých listenerov pri re-init
             const newBtn = userInitialsButton.cloneNode(true);
             userInitialsButton.parentNode.replaceChild(newBtn, userInitialsButton);
             
@@ -98,7 +99,7 @@ export async function logUserAction(action, details, success = true, error = nul
 
     try {
         const logData = {
-            timestamp: serverTimestamp(), // ZMENA: Modular Timestamp
+            timestamp: serverTimestamp(),
             email: _activeUser?.email || 'neznamy@email.sk',
             meno: _activeUser?.displayName || _activeUser?.meno || 'Neznámy',
             oec: _activeUser?.oec || 'N/A',
@@ -109,9 +110,9 @@ export async function logUserAction(action, details, success = true, error = nul
             error: error
         };
 
-        // ZMENA: Modular Add Doc
         await addDoc(collection(_db, "access_logs"), logData);
-        console.log(`[LOG] ${action}: ${details}`);
+        // Console log len pre dev účely, v produkcii možno vypnúť
+        // console.log(`[LOG] ${action}: ${details}`);
 
     } catch (err) {
         console.error('[LOG] Chyba pri zápise logu:', err);
@@ -124,6 +125,14 @@ async function downloadAccessLogs() {
     const userInitialsButton = document.querySelector('#sidebar-user-initials');
     if (!userInitialsButton || userInitialsButton.classList.contains('downloading')) return; 
     
+    // === OCHRANA KVÓTY (FREE TIER PROTECTION) ===
+    // Namiesto automatického stiahnutia všetkého sa opýtame používateľa.
+    const downloadMode = confirm(
+        "Chcete stiahnuť logy len za posledných 30 dní (Odporúčané)?\n\n" +
+        "OK = Posledných 30 dní (Šetrí databázu)\n" +
+        "Zrušiť = Stiahnuť VŠETKO (Môže vyčerpať denný limit!)"
+    );
+
     const deleteModalOverlay = document.querySelector('#delete-logs-overlay');
     const modalMessage = deleteModalOverlay ? deleteModalOverlay.querySelector('p') : null;
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
@@ -145,11 +154,36 @@ async function downloadAccessLogs() {
     userInitialsButton.classList.add('downloading'); 
 
     try {
-        // ZMENA: Modular Query & Get Docs
         const logsRef = collection(_db, "access_logs");
-        const q = query(logsRef, orderBy("timestamp", "desc"));
+        let q;
+
+        if (downloadMode) {
+            // MOŽNOSŤ A: Bezpečné sťahovanie (Posledných 30 dní)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            q = query(
+                logsRef, 
+                where("timestamp", ">=", thirtyDaysAgo),
+                orderBy("timestamp", "desc"),
+                limit(2000) // Bezpečnostná brzda: max 2000 záznamov naraz
+            );
+            console.log("[Logs] Sťahujem optimalizované logy (30 dní / max 2000).");
+        } else {
+            // MOŽNOSŤ B: Všetko (Nebezpečné pre Free Tier)
+            // Stále dáme limit 5000, aby sme nezhodili prehliadač a kvótu naraz
+            q = query(logsRef, orderBy("timestamp", "desc"), limit(5000));
+            console.warn("[Logs] POZOR: Sťahujem hromadné logy (max 5000).");
+        }
+
         const snapshot = await getDocs(q);
         
+        if (snapshot.empty) {
+            modalMessage.textContent = 'Za vybrané obdobie sa nenašli žiadne logy.';
+            userInitialsButton.classList.remove('downloading');
+            return;
+        }
+
         const headers = ["Časová pečiatka", "E-mail", "Meno", "OEČ", "Funkcia", "Akcia", "Detaily", "Stav", "Chybová hláška"];
         const data = snapshot.docs.map(docSnap => {
             const log = docSnap.data();
@@ -182,47 +216,65 @@ async function downloadAccessLogs() {
         XLSX.utils.book_append_sheet(wb, ws, "Logy Prístupov");
         XLSX.writeFile(wb, `access_logs_OKR_${new Date().toISOString().slice(0,10)}.xlsx`);
         
-        modalMessage.textContent = 'Logy boli úspešne stiahnuté.';
+        modalMessage.textContent = `Logy boli úspešne stiahnuté (${snapshot.size} záznamov).`;
 
     } catch (error) {
         console.error('Chyba pri sťahovaní logov:', error);
-        modalMessage.textContent = 'Nastala chyba pri sťahovaní logov.';
+        modalMessage.textContent = 'Nastala chyba pri sťahovaní logov. Skúste neskôr.';
     } finally {
         userInitialsButton.classList.remove('downloading');
     }
 }
 
-function handleDeleteLogsRequest(event) {
+async function handleDeleteLogsRequest(event) {
     event.preventDefault(); 
-    console.log('Požiadavka na mazanie logov...');
-    
+
     const deleteModalOverlay = document.querySelector('#delete-logs-overlay');
     const modalMessage = deleteModalOverlay ? deleteModalOverlay.querySelector('p') : null;
+
+    // Zobrazíme modál s textom "Počítam..."
+    if (deleteModalOverlay && modalMessage) {
+        modalMessage.textContent = 'Analyzujem počet logov...';
+        deleteModalOverlay.classList.remove('hidden');
+    }
+
+    // Zistíme počet efektívne
+    const totalLogs = await getLogsCount();
+
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
     const modalBtnCancel = document.querySelector('#modal-btn-cancel');
 
     if (!deleteModalOverlay || !modalMessage) return;
-    
-    modalMessage.innerHTML = 'Naozaj chcete permanentne zmazať <strong>všetky</strong> logy prístupu?';
-    if (modalBtnConfirmDelete) {
-        modalBtnConfirmDelete.classList.remove('hidden', 'loading');
-        modalBtnConfirmDelete.disabled = false;
+
+    if (totalLogs === 0) {
+         modalMessage.innerHTML = 'V databáze nie sú žiadne logy na vymazanie.';
+         if (modalBtnConfirmDelete) modalBtnConfirmDelete.classList.add('hidden');
+         if (modalBtnCancel) modalBtnCancel.textContent = 'Zatvoriť';
+    } else {
+        // Ponúkneme mazanie po dávkach
+        modalMessage.innerHTML = `V databáze je celkom <strong>${totalLogs}</strong> logov.<br><br>
+        Naozaj chcete zmazať najstarších 500 záznamov?<br>
+        <small>(Pre úplné vymazanie opakujte akciu)</small>`;
+
+        if (modalBtnConfirmDelete) {
+            modalBtnConfirmDelete.classList.remove('hidden', 'loading');
+            modalBtnConfirmDelete.disabled = false;
+        }
+        if (modalBtnCancel) {
+            modalBtnCancel.classList.remove('hidden');
+            modalBtnCancel.disabled = false;
+            modalBtnCancel.textContent = 'Zrušiť';
+        }
     }
-    if (modalBtnCancel) {
-        modalBtnCancel.classList.remove('hidden');
-        modalBtnCancel.disabled = false;
-        modalBtnCancel.textContent = 'Zrušiť';
-    }
-    deleteModalOverlay.classList.remove('hidden');
 }
 
 async function executeBatchDelete() {
-    console.log('Spúšťam mazanie logov...');
+    console.log('Spúšťam mazanie logov (Optimalizované)...');
     const modalMessage = document.querySelector('#delete-logs-overlay p');
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
     const modalBtnCancel = document.querySelector('#modal-btn-cancel');
 
-    if (modalMessage) modalMessage.textContent = 'Prebieha mazanie logov...';
+    if (modalMessage) modalMessage.textContent = 'Prebieha mazanie...';
     if (modalBtnConfirmDelete) {
         modalBtnConfirmDelete.disabled = true;
         modalBtnConfirmDelete.classList.add('loading');
@@ -230,36 +282,26 @@ async function executeBatchDelete() {
     if (modalBtnCancel) modalBtnCancel.disabled = true;
 
     try {
-        // ZMENA: Modular Get Docs
         const logsRef = collection(_db, "access_logs");
-        const snapshot = await getDocs(logsRef);
+        
+        // ZMENA: Nenačítame všetko! Len 500 kusov, aby sme nezničili pamäť a kvótu.
+        // Mazanie vo Free pláne je lepšie robiť po menších dávkach.
+        const q = query(logsRef, orderBy("timestamp", "asc"), limit(500));
+        const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
             if (modalMessage) modalMessage.textContent = 'Nenašli sa žiadne logy na mazanie.';
             return;
         }
 
-        const batchSize = 500;
-        let currentBatch = writeBatch(_db); // ZMENA: Modular Batch
-        let i = 0;
-        let batchCount = 0;
+        const batch = writeBatch(_db);
+        snapshot.docs.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
 
-        for (const docSnap of snapshot.docs) {
-            currentBatch.delete(docSnap.ref); // ref je na objekte
-            i++;
-            if (i === batchSize) {
-                await currentBatch.commit();
-                currentBatch = writeBatch(_db);
-                i = 0;
-                batchCount++;
-            }
-        }
+        await batch.commit();
 
-        if (i > 0) {
-            await currentBatch.commit();
-        }
-
-        if (modalMessage) modalMessage.textContent = `Všetky logy (${snapshot.size} záznamov) boli zmazané.`;
+        if (modalMessage) modalMessage.textContent = `Úspešne zmazaných ${snapshot.size} najstarších logov. Pre zmazanie ďalších opakujte akciu.`;
 
     } catch (error) {
         console.error('Chyba pri mazaní logov:', error);
@@ -274,5 +316,21 @@ async function executeBatchDelete() {
             modalBtnCancel.disabled = false;
             modalBtnCancel.textContent = 'Zatvoriť';
         }
+    }
+}
+
+/**
+ * Zistí celkový počet logov bez sťahovania dokumentov.
+ * Cena: 1 Read za každých 1000 indexovaných položiek (veľmi lacné).
+ */
+export async function getLogsCount() {
+    if (!_db) return 0;
+    try {
+        const coll = collection(_db, "access_logs");
+        const snapshot = await getCountFromServer(coll);
+        return snapshot.data().count;
+    } catch (error) {
+        console.error("Chyba pri počítaní logov:", error);
+        return 0;
     }
 }
