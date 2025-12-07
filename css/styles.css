@@ -919,6 +919,22 @@ input[type="text"], select, textarea {
 .oznamenie.error { background-color: #E53E3E; color: white; border: none; }
 .oznamenie.info { background-color: var(--color-orange-accent); color: var(--color-text-dark); }
 
+/* Pridajte toto na koniec styles.css */
+.oznamenie.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 /* === OPRAVA: Čierna farba pre názvy dní v kalendári === */
 #dashboard-calendar-render-area .fc-col-header-cell-content {
     color: #000000 !important;
