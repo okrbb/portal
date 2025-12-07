@@ -436,9 +436,33 @@ function filterGlobalEmployeeList(searchTerm) {
     }
 }
 
-if (searchInput) {
+// --- NOVÁ LOGIKA PRE VYHĽADÁVANIE A MAZANIE ---
+const clearSearchBtn = document.getElementById('clear-search-btn');
+
+if (searchInput && clearSearchBtn) {
+    // 1. Pri písaní zobraz/skry krížik a filtruj
     searchInput.addEventListener('input', (e) => {
-        debounce(filterGlobalEmployeeList, 300)(e.target.value);
+        const term = e.target.value;
+        
+        // Zobraz krížik len ak je tam text
+        if (term.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+        }
+
+        // Spusti filtrovanie (debounce)
+        debounce(filterGlobalEmployeeList, 300)(term);
+    });
+
+    // 2. Kliknutie na krížik
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';                 // Vymazať text
+        clearSearchBtn.classList.add('hidden'); // Skryť krížik
+        searchInput.focus();                    // Vrátiť kurzor do poľa
+        
+        // Okamžite resetovať zoznam (bez čakania 300ms)
+        filterGlobalEmployeeList('');
     });
 }
 
