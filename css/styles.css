@@ -212,17 +212,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =================================== */
-/* === ZMENA: RESPONZIVITA (Mobil) === */
-/* =================================== */
-
-@media (max-width: 1200px) { 
-    .sidebar-right {
-        display: none; /* Pravý panel sa skryje */
-    }
-}
-
-
-/* =================================== */
 /* ŠTÝLY PRE MODÁLY (Bez zmeny) */
 /* =================================== */
 
@@ -345,16 +334,6 @@ h1, h2, h3, h4, h5, h6 {
     background: var(--color-bg);
 }
 
-/* Úprava pre veľmi malé obrazovky na výšku (notebooky) */
-@media (max-height: 700px) {
-    .modal-content {
-        max-height: 95vh; /* Využijeme takmer celú výšku */
-        margin-top: 10px;
-    }
-    .modal-body {
-        padding: var(--spacing-sm);
-    }
-}
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -454,10 +433,6 @@ h1, h2, h3, h4, h5, h6 {
 .dashboard-emp-details { display: flex; flex-direction: column; line-height: 1.4; }
 .dashboard-emp-name { font-weight: 600; color: var(--color-text-primary); font-size: 0.95rem; }
 .dashboard-emp-position { font-size: 0.85rem; color: var(--color-text-secondary); font-style: italic; }
-@media (max-width: 1200px) {
-    .dashboard-container { flex-direction: column; }
-    .dashboard-main { flex: none; width: 100%; }
-}
 
 /* === FullCalendar === */
 #dashboard-calendar-render-area {
@@ -803,7 +778,6 @@ input[type="text"], select, textarea {
 /* === Modul: Cestovný príkaz (CP) === */
 .cp-module-layout { display: grid; grid-template-columns: minmax(350px, 1.2fr) 2fr; gap: var(--spacing-lg); }
 .cp-employee-info-col { display: flex; flex-direction: column; gap: var(--spacing-sm); }
-@media (max-width: 1200px) { .cp-module-layout { grid-template-columns: 1fr; } }
 .cp-fieldset-wrapper { margin-top: var(--spacing-lg); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-border); }
 .cp-legend {
     font-family: var(--font-primary); font-size: 1.25rem; font-weight: 700;
@@ -878,52 +852,12 @@ input[type="text"], select, textarea {
     border: 1px solid var(--color-border);
 }
 .cp-row-label { font-weight: 600; color: var(--color-text-secondary); font-size: 0.875rem; }
-@media (max-width: 768px) { .cp-vyuctovanie-riadok { grid-template-columns: 1fr; } }
 .cp-button-container { display: flex; justify-content: flex-end; gap: var(--spacing-sm); margin-top: var(--spacing-lg); }
 .cp-form-start { margin-top: 0; border-top: none; }
 
-
 /* =================================== */
-/* === Toast Notifikácie (Opravené) === */
+/* === Toast Notifikácie (Vylepšené) === */
 /* =================================== */
-
-/* Samotná notifikácia */
-.oznamenie {
-    /* ZMENA: Musí byť relative, aby sa ukladali pod seba vo flexboxe */
-    position: relative; 
-    pointer-events: auto; /* Aby sa dalo kliknúť na notifikáciu (napr. zavretie) */
-    
-    /* Vzhľad */
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-radius: var(--radius-md);
-    font-family: var(--font-secondary);
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--color-text-dark);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--color-border);
-    
-    /* Zarovnanie vpravo a šírka */
-    min-width: 300px;
-    max-width: 400px;
-    margin-left: auto; 
-
-    /* Animácia príchodu - začína mimo obrazovky vpravo */
-    transform: translateX(120%); 
-    opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-}
-
-/* Farby podľa typu */
-.oznamenie.success { background-color: #4CAF50; color: white; border: none; }
-.oznamenie.error { background-color: #E53E3E; color: white; border: none; }
-.oznamenie.info { background-color: var(--color-orange-accent); color: var(--color-text-dark); }
-
-/* Pridajte toto na koniec styles.css */
-.oznamenie.show {
-    transform: translateX(0);
-    opacity: 1;
-}
 
 #toast-container {
     position: fixed;
@@ -931,45 +865,89 @@ input[type="text"], select, textarea {
     right: 20px;
     z-index: 99999;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: column; /* Toasty sa ukladajú pod seba */
+    gap: 10px;              /* Medzera medzi nimi */
+    pointer-events: none;   /* Kontajner neblokuje kliknutia na stránku pod ním */
 }
 
-/* === OPRAVA: Čierna farba pre názvy dní v kalendári === */
-#dashboard-calendar-render-area .fc-col-header-cell-content {
-    color: #000000 !important;
-}
-
-.fc .fc-col-header-cell-content {
-    color: #000000 !important;
-}
-
-.fc-theme-standard .fc-scrollgrid .fc-col-header-cell {
-    color: #000000 !important;
-}
-
-/* --- NOVÉ: Kontajner pre notifikácie --- */
-/* Kontajner - fixná pozícia, aby bol vždy navrchu */
-#toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px; /* Alebo left: 50% + transform pre center */
-    z-index: 99999; /* Veľmi vysoké číslo, aby prekryl modály */
+.oznamenie {
+    position: relative;
+    pointer-events: auto; /* Samotný toast je interaktívny */
+    
+    /* Layout */
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none; /* Kliknutia prejdú cez prázdny kontajner */
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    /* Vzhľad */
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-light); /* Default fallback */
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    
+    /* Typografia */
+    font-family: var(--font-secondary);
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    /* Rozmery */
+    min-width: 300px;
+    max-width: 400px;
+    margin-left: auto; /* Zarovnanie vpravo v flex kontajneri */
+
+    /* Animácia */
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
 }
 
-/* Štýly pre inputy v edit móde */
-.edit-select {
-    width: 100%;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 8px;
-    color: var(--color-text-primary);
-    margin-bottom: 10px;
+.oznamenie.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Farby */
+.oznamenie.success { background-color: #2f855a; border-color: #48bb78; } /* Tmavšia zelená */
+.oznamenie.error { background-color: #9b2c2c; border-color: #f56565; }   /* Tmavšia červená */
+.oznamenie.info { background-color: #2b6cb0; border-color: #4299e1; }    /* Tmavšia modrá */
+
+/* Obsah (Ikona + Text) */
+.toast-content {
+    display: flex;
+    align-items: flex-start; /* Aby ikona bola hore pri dlhom texte */
+    gap: 10px;
+    flex: 1;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+    margin-top: 2px; /* Optické zarovnanie s textom */
+    flex-shrink: 0;
+}
+
+.toast-message {
+    word-break: break-word;
+}
+
+/* Tlačidlo Zatvoriť (Krížik) */
+.toast-close-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    line-height: 1; /* Aby nebol zbytočne vysoký */
+    cursor: pointer;
+    padding: 0;
+    margin: -4px -4px 0 0; /* Jemné posunutie do rohu */
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toast-close-btn:hover {
+    color: #ffffff;
 }
 
 /* =================================== */
@@ -990,21 +968,6 @@ input[type="text"], select, textarea {
     padding: 12px;
     border-bottom: 1px solid var(--color-border);
 }
-
-.skeleton-line {
-    height: 14px;
-    background: #1f2937; /* Základná farba (tmavšia) */
-    background-image: linear-gradient(
-        90deg,
-        #1f2937 0px,
-        #374151 60px, /* Svetlejší prechod */
-        #1f2937 120px
-    );
-    background-size: 600px;
-    border-radius: 4px;
-    animation: skeleton-shimmer 2s infinite linear;
-}
-
 .skeleton-line.short { width: 40%; }
 .skeleton-line.medium { width: 70%; }
 .skeleton-line.long { width: 90%; }
@@ -1012,6 +975,60 @@ input[type="text"], select, textarea {
 @keyframes skeleton-shimmer {
     0% { background-position: -300px 0; }
     100% { background-position: 300px 0; }
+}
+
+/* Animácia pre skeleton */
+@keyframes skeleton-pulse {
+    0% { background-color: rgba(255, 255, 255, 0.03); }
+    50% { background-color: rgba(255, 255, 255, 0.06); }
+    100% { background-color: rgba(255, 255, 255, 0.03); }
+}
+
+/* 1. Skeleton pre Zoznam zamestnancov */
+.skeleton-list-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.02); /* Jemné pozadie ako reálne itemy */
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 2. Skeleton pre Kalendár (Mriežka) */
+.skeleton-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 dní */
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.skeleton-calendar-day {
+    height: 120px; /* Výška dňa v kalendári */
+    background: rgba(31, 41, 55, 0.4);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+/* Využitie tvojej existujúcej triedy, len ju doladíme pre flexibilitu */
+.skeleton-line {
+    border-radius: 4px;
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0px,
+        rgba(255, 255, 255, 0.1) 40px,
+        rgba(255, 255, 255, 0.05) 80px
+    );
+    background-size: 600px;
+    animation: skeleton-shimmer 2s infinite linear;
 }
 
 /* =================================== */
@@ -1359,15 +1376,6 @@ input[type="text"], select, textarea {
     text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Jemný tieň pre lepšiu čitateľnosť */
 }
 
-/* Responzivita pre mobil */
-@media (max-width: 1200px) {
-    .dashboard-right-col {
-        max-width: 100%; /* Na mobile na celú šírku */
-        width: 100%;
-    }
-}
-
-
 /* =================================== */
 /* === WIDGET OZNAMY (NÁSTENKA) === */
 /* =================================== */
@@ -1596,18 +1604,6 @@ input[type="text"], select, textarea {
 .filter-label input[type="checkbox"]:checked + .dot-orange { box-shadow: 0 0 8px rgba(221, 89, 13, 0.4); }
 .filter-label input[type="checkbox"]:checked + .dot-blue   { box-shadow: 0 0 8px rgba(79, 195, 247, 0.4); }
 .filter-label input[type="checkbox"]:checked + .dot-yellow { box-shadow: 0 0 8px rgba(255, 192, 0, 0.4); }
-
-/* Responzivita filtrov */
-@media (max-width: 600px) {
-    .calendar-header-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .calendar-filters {
-        width: 100%;
-        justify-content: space-between;
-    }
-}
 
 /* Voliteľné doplnenie do styles.css */
 #bbk-file-list-ul li {
@@ -2369,19 +2365,6 @@ input:focus, select:focus, textarea:focus {
     text-align: center;
 }
 
-/* --- Responzivita pre Top Nav --- */
-@media (max-width: 1100px) {
-    .global-search-wrapper { width: 250px; }
-}
-
-@media (max-width: 768px) {
-    .top-nav { padding: 0 10px; }
-    .global-search-wrapper { display: none; } /* Skryť search na mobile */
-    .nav-user-details { display: none; }
-    .nav-dropdown-menu { width: 200px; }
-    .sidebar-right { width: 100%; } /* Sidebar na celú obrazovku mobilu */
-}
-
 /* =================================== */
 /* === DASHBOARD LAYOUT (3 STĹPCE) === */
 /* =================================== */
@@ -2422,21 +2405,6 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 0 !important; /* Margin rieši gap v rodičovi */
 }
 
-/* RESPONZIVITA - Mobil (do 1200px) */
-/* Všetko pod seba */
-@media (max-width: 1200px) {
-    .dashboard-row {
-        flex-direction: column;
-    }
-    
-    .dashboard-right-col, 
-    .dashboard-calendar-card {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-    }
-}
-
 /* =================================== */
 /* OPRAVA: IZS MODÁLNE OKNO (Notebook) */
 /* =================================== */
@@ -2466,30 +2434,6 @@ input:focus, select:focus, textarea:focus {
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     overflow: hidden; 
-}
-
-/* --- NASTAVENIE PRE NOTEBOOKY (Malá výška) --- */
-@media (max-height: 800px) {
-    #izsPreviewModal .modal-content {
-        /* Na malom notebooku ho prilepíme ešte bližšie k vrchu */
-        margin-top: 10px;    /* Len 10px od horného okraja */
-        max-height: 85vh;    /* Využijeme maximum priestoru */
-        width: 96%;
-    }
-    
-    #izsPreviewModal .modal-header {
-        padding: 5px 15px; 
-        min-height: 40px; 
-    }
-    
-    #izsPreviewModal h2 {
-        font-size: 1.1rem;
-    }
-    
-    #izsPreviewModal .modal-close {
-        font-size: 1.5rem;
-        line-height: 1;
-    }
 }
 
 #izsModalBody {
@@ -2726,23 +2670,6 @@ input:focus, select:focus, textarea:focus {
     transform: scale(1.05);
 }
 
-/* Responsivita na mobil */
-@media (max-width: 600px) {
-    .ai-fab-btn {
-        bottom: 100px;
-        right: 20px;
-        width: 55px;
-        height: 55px;
-    }
-    
-    .ai-modal-window {
-        width: 100%;
-        height: 100%;
-        max-height: 100%;
-        border-radius: 0;
-    }
-}
-
 /* Oprava formátovania v AI chate */
 /* Zväčšenie riadkovania a medzier */
 .ai-msg {
@@ -2859,13 +2786,6 @@ input:focus, select:focus, textarea:focus {
 .modal-content .ua-btn.accent {
     font-size: 1.1rem !important;
     padding: 12px 24px !important;
-}
-
-/* Pridajte do styles.css ak chcete lepšiu responzivitu */
-@media (max-width: 600px) {
-    #refuel-fields > div {
-        grid-template-columns: 1fr !important; /* Na mobile pod sebou */
-    }
 }
 
 /* === História Tabuľka === */
@@ -3137,14 +3057,5 @@ input:focus, select:focus, textarea:focus {
     to { 
         opacity: 1; 
         transform: translateY(0); 
-    }
-}
-
-/* Pre používateľov, ktorí preferujú obmedzený pohyb (Accessibility) */
-@media (prefers-reduced-motion) {
-    ::view-transition-group(*),
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-        animation: none !important;
     }
 }
