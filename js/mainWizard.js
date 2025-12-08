@@ -572,16 +572,20 @@ async function loadGlobalEmployees(db, forceRefresh = false) {
             const emp = doc.data();
             const empId = emp.kod || doc.id;
             
-            // ... (Vaša logika spracovania kontaktu) ...
-            let sluzobny_kontakt = '';
-            // ... (sem skopírujte vašu logiku parsovania kontaktu z pôvodného súboru) ...
+            // Logika spracovania kontaktu
+            let kontakt = '';
+            
+            // 1. Skontrolujeme primárne pole 'kontakt'
+            if (emp.kontakt && String(emp.kontakt).trim() !== '') {
+                kontakt = String(emp.kontakt).trim();
+            } 
 
             allEmployeesData.set(empId, {
                 ...emp,
                 id: empId,
                 displayName: `${emp.titul || ''} ${emp.meno} ${emp.priezvisko}`.trim(),
                 displayFunkcia: emp.funkcia || 'Nezaradený',
-                displayTelefon: sluzobny_kontakt || 'Neuvedený'
+                displayTelefon: kontakt || 'Neznáme telefóone číslo'
             });
         });
 
@@ -1031,7 +1035,13 @@ async function loadDashboardDutyToday(db) {
             }
             
             const employeeInfo = allEmployeesData.get(finalEmployeeId);
-            const displayInfo = (employeeInfo && employeeInfo.displayTelefon) ? employeeInfo.displayTelefon : 'Telefón neuvedený';
+            let displayInfo = 'Telefón neuvedený';
+            if (employeeInfo && employeeInfo.displayTelefon) {
+                // .split(',') rozdelí text na pole častí podľa čiarky
+                // [0] vyberie prvú časť
+                // .trim() odstráni prípadné medzery okolo
+                displayInfo = employeeInfo.displayTelefon.split(',')[0].trim();
+            }
             const isReporting = reportersForWeek.includes(finalEmployeeId);
 
             finalEmployees.push({
