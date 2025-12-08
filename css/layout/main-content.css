@@ -1,0 +1,172 @@
+/* ============================================
+   HLAVNÝ LAYOUT & ĽAVÝ SIDEBAR
+   ============================================ */
+
+/* === PORTAL CONTAINER (Wrapper celej appky) === */
+.portal-container {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    
+    /* Stavy pre animáciu prihlásenia */
+    opacity: 0;
+    filter: blur(20px);
+    transform: scale(0.92);
+    transition: 
+        opacity 0.8s ease-out, 
+        filter 0.8s ease-out, 
+        transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    pointer-events: none;
+}
+
+.portal-container.app-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* ============================================
+   ĽAVÝ SIDEBAR (Statický panel s logom a menu)
+   Poznámka: V novom dizajne je toto často fixná súčasť layoutu
+   ============================================ */
+
+.sidebar-header .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: 0; 
+    background: none;
+    box-shadow: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.logo .logo-img { 
+    width: 50px;
+    height: 50px;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo:hover .logo-img {
+    transform: scale(2.9) rotate(360deg);
+    filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3));
+    position: relative; 
+    z-index: 10; 
+}
+
+.logo h2 {
+    color: var(--color-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* === HLAVNÉ MENU (Ľavý stĺpec) === */
+.main-menu {
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    overflow: visible; 
+}
+
+.main-menu ul { 
+    list-style: none; 
+}
+
+.main-menu li { 
+    margin-bottom: var(--spacing-sm); 
+}
+
+.main-menu li:last-child { 
+    margin-bottom: 0; 
+}
+
+.main-menu li a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    color: var(--color-text-secondary);
+    background: transparent;
+    font-weight: 500;
+    position: relative; 
+    z-index: 2; 
+    text-decoration: none; 
+    overflow: hidden; 
+}
+
+.main-menu li a i { 
+    font-size: 1.1rem; 
+}
+
+.main-menu li a:hover:not(.active) {
+    background: var(--color-bg-light); 
+    color: var(--color-text-primary); 
+    transform: translateX(4px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Aktívny stav menu s gradientom */
+.main-menu li a.active {
+    color: var(--color-orange-accent); 
+    background: transparent; 
+    box-shadow: none;
+    transform: translateX(4px); 
+}
+
+.main-menu li a.active::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    background: var(--color-bg-light); 
+    border-radius: calc(var(--radius-md) - 2px); 
+    z-index: -1; 
+}
+
+.main-menu li a.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: var(--radius-md);
+    background: conic-gradient(
+        from 90deg at 50% 50%, 
+        var(--color-orange-accent) var(--grad-angle), 
+        transparent 0deg 
+    );
+    z-index: -2; 
+    animation: fill-border-reverse 0.8s linear forwards;
+}
+
+/* ============================================
+   HLAVNÝ OBSAH (Rolovateľná oblasť)
+   ============================================ */
+
+.main-content {
+    /* Padding pre fixný Top Nav */
+    padding-top: 20px !important; 
+    padding-left: var(--spacing-lg) !important;
+    padding-right: var(--spacing-lg) !important;
+    padding-bottom: 40px !important;
+    
+    width: 100%;
+    max-width: 1600px;
+    height: calc(100vh - 90px); /* Výška viewportu mínus výška Top Nav */
+    margin: 0 auto;
+    
+    overflow-y: auto; /* Obsah sa roluje tu, nie na body */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Helper pre scroll content */
+.content-scroll-area {
+    flex: 1; 
+    padding-bottom: var(--spacing-xl);
+    padding-top: var(--spacing-xs); 
+    padding-left: 0;
+    padding-right: 0;
+}

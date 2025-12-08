@@ -1,0 +1,372 @@
+/* ============================================
+   AI ASISTENT - CHAT WIDGET
+   ============================================ */
+
+/* === MODÁLNY OVERLAY === */
+.ai-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.ai-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* === OKNO CHATU === */
+.ai-modal-window {
+    width: 600px;
+    height: 800px;
+    max-width: 95%;
+    max-height: 90vh;
+    background: rgba(31, 41, 55, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    overflow: hidden;
+}
+
+.ai-modal-overlay.active .ai-modal-window {
+    transform: translateY(0) scale(1);
+}
+
+/* === HLAVIČKA === */
+.ai-modal-header {
+    padding: 15px 20px;
+    background: linear-gradient(90deg, #1a365d 0%, #2d3748 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.ai-header-title {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-header-title i {
+    color: var(--color-orange-accent);
+}
+
+.ai-header-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.ai-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-action-btn:hover {
+    color: white;
+}
+
+.ai-action-btn.close:hover {
+    background: transparent;
+    color: #E53E3E;                    
+    transform: rotate(90deg);            
+}
+
+/* === KONTAJNER SPRÁV === */
+.ai-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(17, 24, 39, 0.6);
+}
+
+/* Scrollbar */
+.ai-messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ai-messages-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ai-messages-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.ai-messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* === SPRÁVY === */
+.ai-msg {
+    padding: 12px 16px !important;
+    border-radius: 18px;
+    max-width: 85%;
+    word-wrap: break-word;
+    line-height: 1.6 !important;
+    font-size: 0.95rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Bot správa */
+.ai-bot {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* User správa */
+.ai-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* === FORMÁTOVANIE OBSAHU === */
+.ai-msg p {
+    font-size: 0.95rem !important;
+    color: var(--color-text-primary) !important;
+    font-weight: 400 !important;
+    line-height: 1.6 !important;
+    margin-bottom: 24px !important;
+    display: block;
+    margin-top: 0 !important;
+}
+
+.ai-msg h1,
+.ai-msg h2,
+.ai-msg h3,
+.ai-msg h4 {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
+    color: var(--color-orange-accent);
+    display: block;
+}
+
+.ai-msg ul,
+.ai-msg ol {
+    margin-left: 20px !important;
+    margin-bottom: 12px !important;
+    padding-left: 0;
+    list-style-type: disc;
+}
+
+.ai-msg ol {
+    list-style-type: decimal;
+}
+
+.ai-msg li {
+    margin-bottom: 12px !important;
+    line-height: 1.6;
+}
+
+.ai-msg strong {
+    color: white;
+    font-weight: 700;
+}
+
+.ai-msg code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #e2e8f0;
+}
+
+/* === TYPING KURZOR === */
+.typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.2em;
+    background-color: var(--color-orange-accent);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink-smooth 1s infinite;
+    opacity: 1;
+}
+
+.ai-msg.finished .typing-cursor {
+    display: none;
+}
+
+/* === CITÁCIE === */
+.ai-citation {
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ai-citation:hover {
+    cursor: help;
+}
+
+.ai-citation-text {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-citation i {
+    font-size: 1.5rem;
+    font-style: normal;
+    display: inline-block;
+    background: linear-gradient(
+        60deg,
+        var(--color-orange-accent) 20%,
+        rgba(255, 255, 255, 1) 50%,
+        var(--color-orange-accent) 80%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    background-position: 0% 50%;
+    transition: transform 0.3s ease;
+}
+
+.ai-citation:hover i {
+    animation: icon-shine-effect 1.5s infinite linear;
+    transform: scale(1.2);
+}
+
+.ai-citation-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: 26px;
+}
+
+.ai-doc-link {
+    font-size: 0.8rem;
+    font-family: var(--font-secondary);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ai-doc-link:hover {
+    background: var(--color-orange-accent);
+    color: var(--color-text-dark);
+    border-color: var(--color-orange-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.ai-doc-link i {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* === INPUT WRAPPER === */
+.ai-input-wrapper {
+    padding: 15px;
+    background: #1f2937;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 10px;
+}
+
+.ai-input-wrapper textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    color: white;
+    font-family: var(--font-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    padding: 12px 20px !important;
+    height: 48px;
+    min-height: 48px;
+    max-height: 120px;
+    resize: none;
+    overflow-y: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ai-input-wrapper textarea:focus {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-color: var(--color-orange-accent) !important;
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2) !important;
+    outline: none;
+}
+
+.ai-input-wrapper button {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--color-orange-accent);
+    border: none;
+    color: var(--color-text-dark);
+    font-size: 1.2rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-input-wrapper button:hover {
+    background: var(--color-orange-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(188, 135, 0, 0.3);
+}

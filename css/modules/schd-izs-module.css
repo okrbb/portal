@@ -1,0 +1,138 @@
+/* ============================================
+   IZS MODUL (Notebook)
+   ============================================ */
+
+/* === OBMEDZENIE ŠÍRKY === */
+#izs-module .ua-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#izs-module .ua-card {
+    width: 100%;
+}
+
+/* === FORMULÁR === */
+#izs-module .form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+#izs-module .form-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* === ŠPECIFICKÉ INPUTY === */
+#izs-module input[type="date"],
+#izs-module input[type="time"] {
+    width: 100%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+}
+
+#izs-module input[type="date"]:focus,
+#izs-module input[type="time"]:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.4);
+}
+
+/* === TLAČIDLÁ V HLAVIČKE === */
+/* === NADPISY KARIET (Breadcrumbs štýl) === */
+#izs-module .ua-card h2 {
+    display: flex;
+    justify-content: flex-start; /* Zarovnanie doľava k sebe */
+    align-items: center;
+    gap: 10px; /* Medzera medzi textom a šípkou */
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+}
+
+/* Štýl pre šípku (Chevron) */
+#izs-module .title-separator {
+    font-size: 0.8em;
+    color: var(--color-orange-accent); /* Vaša oranžová farba */
+    margin-top: 1px; /* Jemná optická korekcia na stred */
+}
+
+#izs-module .header-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* === TABUĽKA ZÁZNAMOV === */
+#izs-entries-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-md);
+}
+
+#izs-entries-table th {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid var(--color-border);
+}
+
+#izs-entries-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--color-text-primary);
+}
+
+#izs-entries-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* === AKČNÉ TLAČIDLÁ V TABUĽKE === */
+#izs-entries-table .action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+#izs-entries-table .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+#izs-entries-table .action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-orange-accent);
+}
+
+#izs-entries-table .action-btn.delete:hover {
+    color: #E53E3E;
+}
+
+/* === PRÁZDNY STAV === */
+.izs-empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--color-text-secondary);
+}
+
+.izs-empty-state i {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+}
+
+.izs-empty-state p {
+    font-size: 1.1rem;
+    margin: 0;
+}

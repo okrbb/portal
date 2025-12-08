@@ -1,0 +1,111 @@
+/* ============================================
+   ANIMÁCIE - VŠETKY @keyframes
+   ============================================ */
+
+/* === FADE IN/OUT === */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInTooltip {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === SLIDE === */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(20px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* === SPIN === */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* === PULSE === */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse-swap-dark {
+    from { 
+        box-shadow: 0 0 8px -2px #e67e22; 
+        background-color: var(--color-bg); 
+    }
+    to { 
+        box-shadow: 0 0 15px 0px #e67e22; 
+        background-color: rgba(230, 126, 34, 0.1); 
+    }
+}
+
+/* === SKELETON LOADING === */
+@keyframes skeleton-pulse {
+    0% { background-color: rgba(255, 255, 255, 0.03); }
+    50% { background-color: rgba(255, 255, 255, 0.06); }
+    100% { background-color: rgba(255, 255, 255, 0.03); }
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: -300px 0; }
+    100% { background-position: 300px 0; }
+}
+
+/* === BORDER FILL === */
+@keyframes fill-border-reverse {
+    from { --grad-angle: 0deg; }
+    to { --grad-angle: -360deg; }
+}
+
+/* === AI TYPING === */
+@keyframes blink-smooth {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* === ICON SHINE === */
+@keyframes icon-shine-effect {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 150% 50%; }
+}
+
+/* === VIEW TRANSITIONS === */
+@keyframes fade-out {
+    from { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(-40px); 
+    }
+}
+
+@keyframes slide-in {
+    from { 
+        opacity: 0; 
+        transform: translateY(40px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* === VIEW TRANSITION RULES === */
+::view-transition-old(root) {
+    animation: fade-out 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+::view-transition-new(root) {
+    animation: slide-in 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    mix-blend-mode: normal;
+}

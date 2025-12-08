@@ -1,0 +1,183 @@
+/* ============================================
+   CP MODUL (Cestovný Príkaz)
+   ============================================ */
+
+/* === LAYOUT === */
+.cp-module-layout {
+    display: grid;
+    grid-template-columns: minmax(350px, 1.2fr) 2fr;
+    gap: var(--spacing-lg);
+}
+
+.cp-employee-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* === FIELDSET === */
+.cp-fieldset-wrapper {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.cp-legend {
+    font-family: var(--font-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-bg);
+    width: 100%;
+}
+
+.cp-form-start {
+    margin-top: 0;
+    border-top: none;
+}
+
+/* === KARTA ZAMESTNANCA === */
+.cp-employee-card {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+    /* ZMENA: Pridaný transition pre animáciu */
+    transition: all var(--transition-normal);
+}
+
+/* ZMENA: Pridaný hover efekt (rovnaký ako v ostatných moduloch) */
+.cp-employee-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-orange-accent);
+}
+
+.cp-employee-card p {
+    margin: 0 0 12px 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.cp-employee-card p:last-child {
+    margin-bottom: 0;
+}
+
+.cp-employee-card strong {
+    display: block;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* === SELECT WRAPPER === */
+.cp-select-wrapper {
+    position: relative;
+}
+
+.cp-select-wrapper select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 2.5rem;
+}
+
+.cp-select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--color-text-secondary);
+    pointer-events: none;
+}
+
+/* === ČAS GRID === */
+.cp-time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.cp-time-block {
+    background: var(--color-bg-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+}
+
+.cp-time-block-title {
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* === 2 STĹPCE === */
+.cp-columns-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+/* === VYÚČTOVANIE === */
+.cp-accounting-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.cp-vyuctovanie-riadok {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr 1fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm);
+    background: var(--color-bg-light);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.cp-row-label {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+.cp-vyuctovanie-riadok input[type="text"] {
+    width: 100%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.cp-vyuctovanie-riadok input:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.4);
+}
+
+/* === BUTTON CONTAINER === */
+.cp-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}

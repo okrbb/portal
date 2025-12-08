@@ -1,0 +1,260 @@
+/* ============================================
+   FORMULÁRE - INPUT, SELECT, TEXTAREA
+   ============================================ */
+
+/* === ZÁKLADNÉ INPUTY === */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    background: rgba(17, 24, 39, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    background: rgba(17, 24, 39, 0.9) !important;
+    border-color: var(--color-orange-accent) !important;
+    box-shadow: 0 0 0 3px rgba(188, 135, 0, 0.15) !important;
+}
+
+/* === SELECT (Dropdown) === */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23c7c8ca' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+select option {
+    background: var(--color-bg-light);
+    color: var(--color-text-primary);
+}
+
+select option:hover,
+select option:checked {
+    background: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+}
+
+/* === FORM GROUP === */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* CP Modul form group */
+.form-group-cp {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group-cp label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.label-required {
+    color: var(--color-orange-accent);
+}
+
+/* === FILE UPLOAD === */
+.file-upload-section {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.drop-zone {
+    width: 100%;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg) var(--spacing-md);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--color-bg);
+    position: relative;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-orange-accent);
+}
+
+.drop-zone p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.drop-zone p strong {
+    color: var(--color-text-primary);
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.file-name-display {
+    display: none;
+}
+
+.file-name-display span {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-name-display.hidden {
+    display: none;
+}
+
+.drop-zone.file-selected p:nth-child(2) {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    word-break: break-all;
+}
+
+.file-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+}
+
+/* === INPUTY V MODÁLOCH (Zväčšené) === */
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="date"],
+.modal-content select {
+    background-color: #1f2937 !important;
+    border: 1px solid #4b5563 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    padding: 12px 16px !important;
+    font-size: 1.1rem !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+    border-radius: 8px !important;
+    margin-bottom: 15px !important;
+}
+
+.modal-content label {
+    font-size: 1rem !important;
+    margin-bottom: 8px !important;
+    color: #9ca3af !important;
+    font-weight: 500 !important;
+}
+
+.modal-content .ua-btn.accent {
+    font-size: 1.1rem !important;
+    padding: 12px 24px !important;
+}
+
+/* === HEADER INPUT (BB Kraj) === */
+.header-input {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px 10px;
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    font-family: var(--font-secondary);
+    width: 100%;
+    margin-bottom: 0 !important;
+    transition: border-color var(--transition-fast);
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: var(--color-orange-accent);
+    box-shadow: 0 0 0 2px rgba(188, 135, 0, 0.2);
+}
+
+/* === BLURRED TEXT (CP Modul) === */
+.blurred-text {
+    color: transparent;
+    text-shadow: 0 0 5px var(--color-text-secondary);
+    transition: all 0.3s ease;
+    cursor: help;
+    user-select: none;
+}
+
+.blurred-text:hover {
+    color: var(--color-text-primary);
+    text-shadow: none;
+    cursor: default;
+    user-select: auto;
+}
+
+/* === EDIT IBAN ICON === */
+.edit-iban-icon {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-left: 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    opacity: 0.7;
+}
+
+.edit-iban-icon:hover {
+    color: var(--color-orange-accent);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.global-search-wrapper input {
+    width: 100%;
+    /* Pôvodne bolo 40px bez !important. Zvýšime na 45px pre viac vzduchu a pridáme !important */
+    padding-left: 45px !important; 
+    
+    background: #1f2937;
+    border-radius: 20px;
+    margin-bottom: 0 !important;
+    height: 40px;
+    padding-right: 40px !important;
+}

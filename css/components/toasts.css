@@ -1,0 +1,105 @@
+/* ============================================
+   TOAST NOTIFIKÁCIE
+   ============================================ */
+
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.oznamenie {
+    position: relative;
+    pointer-events: auto;
+    
+    /* Layout */
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    /* Vzhľad */
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    
+    /* Typografia */
+    font-family: var(--font-secondary);
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    /* Rozmery */
+    min-width: 300px;
+    max-width: 400px;
+    margin-left: auto;
+
+    /* Animácia */
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+}
+
+.oznamenie.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* === FARBY PODĽA TYPU === */
+.oznamenie.success {
+    background-color: #2f855a;
+    border-color: #48bb78;
+}
+
+.oznamenie.error {
+    background-color: #9b2c2c;
+    border-color: #f56565;
+}
+
+.oznamenie.info {
+    background-color: #2b6cb0;
+    border-color: #4299e1;
+}
+
+/* === OBSAH === */
+.toast-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    word-break: break-word;
+}
+
+/* === TLAČIDLO ZAVRIEŤ === */
+.toast-close-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    margin: -4px -4px 0 0;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toast-close-btn:hover {
+    color: #ffffff;
+}

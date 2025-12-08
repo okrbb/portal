@@ -1,0 +1,59 @@
+/* ============================================
+   RESET & ZÁKLADNÉ ŠTÝLY
+   ============================================ */
+
+/* Definícia pre animované gradienty */
+@property --grad-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-secondary);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden; /* Scrollovanie rieši .main-content */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--color-text-primary);
+}
+
+/* === CUSTOM SCROLLBAR === */
+::-webkit-scrollbar { 
+    width: 10px; 
+    height: 10px; 
+}
+
+::-webkit-scrollbar-track { 
+    background: var(--color-bg); 
+}
+
+::-webkit-scrollbar-thumb { 
+    background: var(--color-border); 
+    border-radius: 10px; 
+    border: 2px solid var(--color-bg); 
+}
+
+::-webkit-scrollbar-thumb:hover { 
+    background: var(--color-orange-accent); 
+}
+
+/* === UTILITY === */
+.hidden { 
+    display: none !important; 
+}

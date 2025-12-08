@@ -1,0 +1,434 @@
+/* ============================================
+   PHM MODUL (Palivá & Autá)
+   Správa áut, tankovania a kilometrov
+   ============================================ */
+
+/* === GRID ÁUT === */
+#fuel-cars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-sx);
+}
+
+/* === KARTA AUTA === */
+.fuel-car-card {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border-top: 4px solid var(--color-orange-accent);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Upravený hover efekt - zhodný s hornou kartou */
+.fuel-car-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-orange-accent); /* ZMENA: Plná oranžová farba */
+}
+
+/* === HLAVIČKA KARTY === */
+.fuel-car-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.fuel-car-title {
+    flex: 1;
+}
+
+.fuel-car-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 4px 0;
+    font-family: var(--font-primary);
+}
+
+.fuel-car-plate {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    font-family: monospace;
+    font-weight: 600;
+    background: var(--color-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.fuel-car-icon {
+    font-size: 2.5rem;
+    color: var(--color-orange-accent);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.fuel-car-card:hover .fuel-car-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* === ŠTATISTIKY === */
+.fuel-car-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.fuel-stat-item {
+    background: var(--color-bg);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+}
+
+.fuel-stat-item:hover {
+    border-color: rgba(188, 135, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.fuel-stat-label {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.fuel-stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.fuel-stat-unit {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+}
+
+/* Stavy štatistík */
+.fuel-stat-value.warning {
+    color: #f59e0b;
+}
+
+.fuel-stat-value.danger {
+    color: #E53E3E;
+}
+
+.fuel-stat-value.success {
+    color: #48bb78;
+}
+
+/* === PROGRESS BAR (Palivo) === */
+.fuel-level-bar {
+    margin-top: var(--spacing-sm);
+    grid-column: 1 / -1;
+}
+
+.fuel-level-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.fuel-level-bar-label span {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.fuel-level-bar-track {
+    width: 100%;
+    height: 8px;
+    background: var(--color-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.fuel-level-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.fuel-level-bar-fill.high {
+    background: linear-gradient(90deg, #48bb78, #68d391);
+}
+
+.fuel-level-bar-fill.medium {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.fuel-level-bar-fill.low {
+    background: linear-gradient(90deg, #E53E3E, #fc8181);
+}
+
+/* === AKCIE === */
+.fuel-car-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.fuel-action-btn {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.fuel-action-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-orange-accent);
+    color: var(--color-orange-accent);
+    transform: translateY(-2px);
+}
+
+.fuel-action-btn i {
+    font-size: 1rem;
+}
+
+/* === MODÁL TANKOVANIA/KM === */
+#fuel-modal .modal-content,
+#km-modal .modal-content {
+    max-width: 650px;
+}
+
+#fuel-modal .form-group,
+#km-modal .form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+/* === HISTÓRIA === */
+.fuel-history-section {
+    margin-top: var(--spacing-xl);
+}
+
+.fuel-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.fuel-history-header h3 {
+    color: var(--color-text-primary);
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+/* Tabuľka histórie (dedí z helpers.css, tu len úpravy) */
+.fuel-history-container {
+    margin-top: var(--spacing-md);
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+/* === FILTER HISTÓRIA === */
+.fuel-history-filters {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.fuel-filter-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.fuel-filter-btn.active {
+    background: var(--color-orange-accent);
+    color: var(--color-text-dark);
+    border-color: var(--color-orange-accent);
+}
+
+.fuel-filter-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-orange-accent);
+    color: var(--color-orange-accent);
+}
+
+/* === INFO PANEL === */
+.fuel-info-panel {
+    background: linear-gradient(135deg, rgba(188, 135, 0, 0.1) 0%, transparent 100%);
+    border: 1px solid rgba(188, 135, 0, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.fuel-info-panel h3 {
+    color: var(--color-orange-accent);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fuel-info-panel p {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* === ŠTATISTIKY CELKOVO === */
+.fuel-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.fuel-summary-card {
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.fuel-summary-icon {
+    font-size: 2rem;
+    color: var(--color-orange-accent);
+    margin-bottom: var(--spacing-xs);
+}
+
+.fuel-summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: var(--font-primary);
+    margin-bottom: 4px;
+}
+
+.fuel-summary-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* === PRÁZDNY STAV === */
+.fuel-empty-state {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    color: var(--color-text-secondary);
+}
+
+.fuel-empty-state i {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.3;
+    color: var(--color-orange-accent);
+}
+
+.fuel-empty-state h3 {
+    font-size: 1.4rem;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.fuel-empty-state p {
+    font-size: 1rem;
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.fuel-empty-state button {
+    margin-top: var(--spacing-md);
+}
+
+/* === BADGE PRE TYP UDALOSTI === */
+.fuel-event-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.fuel-event-badge.refuel {
+    background: rgba(72, 187, 120, 0.2);
+    color: #48bb78;
+    border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.fuel-event-badge.drive {
+    background: rgba(66, 153, 225, 0.2);
+    color: #63b3ed;
+    border: 1px solid rgba(66, 153, 225, 0.3);
+}
+
+/* === RESPONZÍVNOSŤ === */
+@media (max-width: 768px) {
+    #fuel-cars-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .fuel-car-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .fuel-car-actions {
+        flex-direction: column;
+    }
+    
+    .fuel-action-btn {
+        width: 100%;
+    }
+    
+    .fuel-summary-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .fuel-car-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .fuel-car-icon {
+        align-self: flex-start;
+    }
+}
