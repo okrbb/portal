@@ -403,8 +403,8 @@
                     </div>
                 </div>
 
-                <div id="previewModal" class="modal-overlay hidden" style="align-items: flex-start; padding-top: 3vh;"> 
-                    <div class="modal-content" style="height: 90vh; display: flex; flex-direction: column;">
+                <div id="previewModal" class="modal-overlay hidden"> 
+                    <div class="modal-content" style="height: 85vh; max-width: 1000px; display: flex; flex-direction: column;">
                         <div class="modal-header">
                             <h2>Náhľad dokumentu</h2>
                             <button id="closeModalButton" class="modal-close">&times;</button>
@@ -415,7 +415,7 @@
                             </div>
                         
                         <div class="modal-footer">
-                            <button id="downloadPdfButton" class="ua-btn accent">Stiahnuť PDF</button>
+                            <button id="downloadPdfButton" class="ua-btn default">Stiahnuť PDF</button>
                         </div>
                     </div>
                 </div>
@@ -424,7 +424,11 @@
                     <div class="ua-container" style="flex-direction: row; flex-wrap: wrap; gap: 20px; align-items: stretch;"> 
                         
                         <div class="ua-card" style="flex: 1; min-width: 400px;">
-                            <h2>Evidencia dochádzky <i class="fas fa-chevron-right title-separator"></i> Rozpis služieb</h2>
+                            <h2>
+                                <span class="text-muted-header">Evidencia dochádzky</span> 
+                                <i class="fas fa-chevron-right title-separator"></i> 
+                                Rozpis služieb
+                            </h2>
                             <p>- spracovaný súbor sa otvorí v samostatnom okne</p>
                             <div class="file-upload-section">
                                 <div id="izs-drop-zone" class="drop-zone">
@@ -445,7 +449,11 @@
                         </div>
 
                         <div class="ua-card" style="flex: 1; min-width: 400px;">
-                            <h2>Nadčasy <i class="fas fa-chevron-right title-separator"></i> Vyúčtovanie</h2>
+                            <h2>
+                                <span class="text-muted-header">Nadčasy</span> 
+                                <i class="fas fa-chevron-right title-separator"></i> 
+                                Vyúčtovanie
+                            </h2>
                             <p>- výpočet nadčasov a príplatkov (v ľavom okne musí byť vložená evidencia dochádzky)</p>
                             <div class="file-upload-section">
                                 <div id="izs-overtime-drop-zone" class="drop-zone">
@@ -475,6 +483,7 @@
                             <button id="izsCloseModalBtn" class="modal-close">&times;</button>
                         </div>
                         <div id="izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;"></div>
+                        <div class="modal-footer" id="izsModalFooter"></div>
                     </div>
                 </div>
                 
@@ -486,11 +495,11 @@
                                     <h2 style="margin: 0; border: none; padding: 0;">Rozpis pohotovosti BB kraj</h2>
                                 </div>
                                 <div style="display: flex; gap: 10px; align-items: center;">
-                                    <div style="display: flex; flex-direction: column; width: 100px;">
+                                    <div style="display: flex; flex-direction: column; width: 150px;">
                                         <label for="bbk-year-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Rok</label>
                                         <input type="number" id="bbk-year-input" placeholder="Rok" class="header-input">
                                     </div>
-                                    <div style="display: flex; flex-direction: column; width: 100px;">
+                                    <div style="display: flex; flex-direction: column; width: 120px;">
                                         <label for="bbk-week-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Týždeň</label>
                                         <input type="number" id="bbk-week-input" min="1" max="53" placeholder="Týždeň" class="header-input">
                                     </div>
@@ -645,7 +654,7 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button class="ua-btn default" onclick="document.getElementById('history-modal').classList.add('hidden')">Zavrieť</button>
+                <button class="ua-btn default delete-hover" onclick="document.getElementById('history-modal').classList.add('hidden')">Zavrieť</button>
             </div>
         </div>
     </div>
@@ -949,7 +958,7 @@
 
             <div class="ai-messages-container" id="ai-messages-area">
                 <div class="ai-msg ai-bot">
-                    Som virtuálny špecialista na krízové riadenie. Ako vám môžem pomôcť?
+                    Som legislatívny poradca pre krízové riadenie. Pre zobrazenie obsahu legislatívy napíšte dotaz: obsah. Ako vám môžem pomôcť?
                 </div>
             </div>
 
