@@ -423,13 +423,14 @@ function displayMealAllowanceResult(result) {
                 </li>`).join('') + '</ul></div>';
     }
 
+    // TU JE ZMENA: Pridané padding-top: 15px do posledného <p> tagu
     container.innerHTML = `
         <div style="padding: 0.5rem;">
             <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
                 <strong>Celkové trvanie cesty:</strong> ${result.duration} hodín
             </p>
             ${breakdown}
-            <p style="margin-top: 2rem; border-top: 1px solid var(--color-border); font-size: 1.2rem; color: var(--color-orange-accent); font-weight: 700;">
+            <p style="margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 15px; font-size: 1.2rem; color: var(--color-orange-accent); font-weight: 700;">
                 Celková náhrada stravného: ${result.totalAmount} €
             </p>
         </div>`;

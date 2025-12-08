@@ -281,26 +281,21 @@ async function calculateOverallAverage(carId) {
 
 function createCarCard(docId, rawCarData, displayData, isMonthly) {
     const div = document.createElement('div');
-    div.className = 'dashboard-card'; 
-    div.style.flex = '1 0 400px'; 
-    div.style.minWidth = '400px';
-    div.style.maxWidth = '600px';
+    div.className = 'fuel-car-card'; 
 
     const canEdit = Permissions.canEditFuelRecord(_user, rawCarData.evidence_number);
 
-    let consumptionColor = '#48BB78'; 
+    // Farby pre štatistiky
+    let consumptionClass = 'success'; 
     if (rawCarData.norm_city && displayData.average_consumption > rawCarData.norm_city) {
-        consumptionColor = '#E53E3E'; 
+        consumptionClass = 'danger'; 
     }
 
-    let consumptionIcon = '';
-    if (displayData.isVirtual) {
-        consumptionColor = '#DD6B20'; 
-        consumptionIcon = '<i class="fas fa-calculator" style="margin-right:4px; font-size: 0.9em;"></i>';
-    }
+    let isVirtual = displayData.isVirtual;
 
-    const normCityDisplay = rawCarData.norm_city ? Number(rawCarData.norm_city).toFixed(1) + ' L' : '--';
-    const normOutsideDisplay = rawCarData.norm ? Number(rawCarData.norm).toFixed(1) + ' L' : '--';
+    // Formátovanie hodnôt
+    const normCityDisplay = rawCarData.norm_city ? Number(rawCarData.norm_city).toFixed(1) : '--';
+    const normOutsideDisplay = rawCarData.norm ? Number(rawCarData.norm).toFixed(1) : '--';
     const valKm = displayData.current_km ? Number(displayData.current_km).toLocaleString() : '0';
     const valCons = displayData.average_consumption ? Number(displayData.average_consumption).toFixed(2) : '--';
 
@@ -315,25 +310,13 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
     const valKmC = Number(rawKmC).toLocaleString();
     const valKmA = Number(rawKmA).toLocaleString();
 
-    const labelTachometer = isMonthly ? `Najazdené (${parseInt(filterState.month) + 1}/${filterState.year})` : 'Stav tachometra';
-    const labelKmC = isMonthly ? 'Jazdy mesto (mesiac)' : 'Km norma C (celkom)';
-    const labelKmA = isMonthly ? 'Jazdy mimo (mesiac)' : 'Km norma A (celkom)';
-    const labelSpotreba = isMonthly ? (displayData.isVirtual ? 'Odhad spotreby' : 'Priemer v mesiaci') : 'Reálna spotreba';
+    // Texty
+    const labelTachometer = isMonthly ? `Najazdené (${parseInt(filterState.month) + 1}/${filterState.year})` : 'Tachometer';
+    const labelKmC = isMonthly ? 'Mesto (mesiac)' : 'Mesto (celkom)';
+    const labelKmA = isMonthly ? 'Mimo (mesiac)' : 'Mimo (celkom)';
+    const labelSpotreba = isMonthly ? (isVirtual ? 'Odhad spotreby' : 'Priemer mesiac') : 'Priemer celkom';
 
-    let drivenTotalHtml = '';
-    if (!isMonthly && rawCarData.start_km !== undefined) {
-        const drivenTotal = (rawCarData.current_km || 0) - rawCarData.start_km;
-        if (drivenTotal >= 0) {
-            drivenTotalHtml = `<div style="font-size: 0.75rem; color: #48BB78; margin-top: 4px; font-weight: 500;"><i class="fas fa-route"></i> V evidencii: +${Number(drivenTotal).toLocaleString()} km</div>`;
-        }
-    }
-
-    let filterIndicator = '';
-    if (isMonthly) {
-        div.style.borderTopColor = '#3182ce'; 
-        filterIndicator = `<span style="font-size:0.7rem; background:#3182ce; color:white; padding:2px 6px; border-radius:4px; margin-left:auto;">Mesačný výkaz</span>`;
-    }
-
+    // Výpočet paliva
     const tankCapacity = rawCarData.tank_capacity || 50; 
     let currentLevel = isMonthly 
         ? (displayData.monthly_fuel_level !== undefined && displayData.monthly_fuel_level !== null ? displayData.monthly_fuel_level : 0)
@@ -344,83 +327,111 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
     
     const fuelPercentage = Math.min(100, Math.max(0, (currentLevel / tankCapacity) * 100));
     
-    let fuelColor = '#48BB78';
-    if (fuelPercentage < 20) fuelColor = '#E53E3E';
-    else if (fuelPercentage < 50) fuelColor = '#FFC000';
+    let fuelFillClass = 'high';
+    if (fuelPercentage < 20) fuelFillClass = 'low';
+    else if (fuelPercentage < 50) fuelFillClass = 'medium';
 
-    const labelFuelStatus = isMonthly ? 'Stav na konci mesiaca' : 'Aktuálny stav nádrže';
+    const labelFuelStatus = isMonthly ? 'Stav na konci' : 'Nádrž';
     const showFuelWidget = !isMonthly || (isMonthly && displayData.monthly_fuel_level !== null);
 
-    const buttonsHtml = `
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button class="ua-btn default history-btn">História</button>
-            ${canEdit ? '<button class="ua-btn default km-btn">Jazda</button>' : ''}
-            ${canEdit ? '<button class="ua-btn accent refuel-btn">Tankovať</button>' : ''}
-        </div>
-    `;
-
+    // === ZMENA: HTML štruktúra s opravou ŠPZ ===
     div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 10px;">
-            <div>
-                <h3 style="margin:0; font-size:1.2rem;">${rawCarData.brand}</h3>
-                <span style="color:var(--color-orange-accent); font-weight:700; font-size:0.9rem;">${docId}</span>
+        <div class="fuel-car-header">
+            <div class="fuel-car-title">
+                <h3 class="fuel-car-name">${rawCarData.brand}</h3>
+                
+                <div class="fuel-car-plate" style="color: var(--color-orange-accent); background: transparent; padding: 0; font-weight: 700; margin-top: 4px;">
+                    ${docId}
+                </div>
+                
+                ${isMonthly ? '<span class="fuel-event-badge drive" style="margin-top:8px; font-size:0.7rem;">Mesačný výkaz</span>' : ''}
             </div>
-            <div style="text-align:right;">
-                ${filterIndicator}
-                <div style="font-size:0.8rem; color:var(--color-text-secondary); margin-top:4px;">ID: <strong>${rawCarData.evidence_number}</strong></div>
+
+            <div style="text-align: right;">
+                <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
+                    ID: <strong style="color: var(--color-text-primary);">${rawCarData.evidence_number}</strong>
+                </div>
             </div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 1.5rem;">
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.5px;">${labelTachometer}</div>
-                <div style="font-size:1.1rem; font-weight:600;">${valKm} km</div>
-                ${drivenTotalHtml}
-            </div>
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.5px;">${labelSpotreba}</div>
-                <div style="font-size:1.1rem; font-weight:600; color:${consumptionColor};">
-                        ${consumptionIcon}${valCons} L
+
+        <div class="fuel-car-stats">
+            <div class="fuel-stat-item">
+                <div class="fuel-stat-label">${labelTachometer}</div>
+                <div class="fuel-stat-value">
+                    ${valKm} <span class="fuel-stat-unit">km</span>
                 </div>
             </div>
+
+            <div class="fuel-stat-item">
+                <div class="fuel-stat-label">${labelSpotreba}</div>
+                <div class="fuel-stat-value ${consumptionClass}">
+                    ${isVirtual ? '<i class="fas fa-calculator" title="Virtuálny výpočet"></i>' : ''}
+                    ${valCons} <span class="fuel-stat-unit">L/100km</span>
+                </div>
+            </div>
+
+            <div class="fuel-stat-item">
+                <div class="fuel-stat-label">${labelKmC}</div>
+                <div class="fuel-stat-value">
+                    ${valKmC} <span class="fuel-stat-unit">km</span>
+                </div>
+            </div>
+
+            <div class="fuel-stat-item">
+                <div class="fuel-stat-label">${labelKmA}</div>
+                <div class="fuel-stat-value">
+                    ${valKmA} <span class="fuel-stat-unit">km</span>
+                </div>
+            </div>
+
+            <div class="fuel-stat-item" style="opacity: 0.7;">
+                <div class="fuel-stat-label">Norma Mesto</div>
+                <div class="fuel-stat-value" style="font-size: 1rem;">${normCityDisplay} <span class="fuel-stat-unit">L</span></div>
+            </div>
+            <div class="fuel-stat-item" style="opacity: 0.7;">
+                <div class="fuel-stat-label">Norma Mimo</div>
+                <div class="fuel-stat-value" style="font-size: 1rem;">${normOutsideDisplay} <span class="fuel-stat-unit">L</span></div>
+            </div>
+
             ${showFuelWidget ? `
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border); grid-column: span 2;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 5px;">
-                    <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${labelFuelStatus}</div>
-                    <div style="font-size:0.8rem; font-weight:bold; color:${fuelColor};">${Math.round(fuelPercentage)}%</div>
+            <div class="fuel-level-bar">
+                <div class="fuel-level-bar-label">
+                    <span>${labelFuelStatus}</span>
+                    <span style="font-weight:bold;">${Math.round(fuelPercentage)}%</span>
                 </div>
-                <div style="width: 100%; height: 8px; background: #374151; border-radius: 4px; overflow:hidden; margin-bottom: 8px;">
-                    <div style="width: ${fuelPercentage}%; height: 100%; background: ${fuelColor}; transition: width 0.5s;"></div>
+                <div class="fuel-level-bar-track">
+                    <div class="fuel-level-bar-fill ${fuelFillClass}" style="width: ${fuelPercentage}%;"></div>
                 </div>
-                <div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
-                    <span style="color:var(--color-text-primary);">${currentLevel.toFixed(1)} <span style="opacity:0.6;">/ ${tankCapacity} L</span></span>
-                    <span style="color:var(--color-orange-accent);"><i class="fas fa-gas-pump"></i> Dotankovať: <strong>${litersMissing.toFixed(1)} L</strong></span>
+                <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.75rem; color:var(--color-text-secondary);">
+                    <span>${currentLevel.toFixed(1)} L</span>
+                    <span>Dotankovať: ${litersMissing.toFixed(1)} L</span>
                 </div>
             </div>` : ''}
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary);">${labelKmC}</div>
-                <div style="font-size:1.1rem; font-weight:600;">${valKmC} km</div>
-            </div>
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border);">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary);">${labelKmA}</div>
-                <div style="font-size:1.1rem; font-weight:600;">${valKmA} km</div>
-            </div>
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border); opacity: 0.8;">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary);">Norma (mesto)</div>
-                <div style="font-size:1.0rem; font-weight:500;">${normCityDisplay}</div>
-            </div>
-            <div style="background:var(--color-bg); padding:10px; border-radius:8px; border:1px solid var(--color-border); opacity: 0.8;">
-                <div style="font-size:0.75rem; color:var(--color-text-secondary);">Norma (mimo)</div>
-                <div style="font-size:1.0rem; font-weight:500;">${normOutsideDisplay}</div>
-            </div>
         </div>
-        ${buttonsHtml}
+
+        <div class="fuel-car-actions">
+            <button class="fuel-action-btn history-btn">
+                <i class="fas fa-history"></i> História
+            </button>
+            ${canEdit ? `
+            <button class="fuel-action-btn km-btn">
+                <i class="fas fa-road"></i> Jazda
+            </button>
+            <button class="fuel-action-btn refuel-btn" style="color:var(--color-orange-accent); border-color:var(--color-orange-accent);">
+                <i class="fas fa-gas-pump"></i> Tankovať
+            </button>
+            ` : ''}
+        </div>
     `;
 
+    // Event Listeners
     if (canEdit) {
-        div.querySelector('.refuel-btn').onclick = () => openFuelModal(docId, rawCarData.current_km);
-        div.querySelector('.km-btn').onclick = () => openKmModal(docId, rawCarData.current_km);
+        div.querySelector('.refuel-btn').onclick = (e) => { e.stopPropagation(); openFuelModal(docId, rawCarData.current_km); };
+        div.querySelector('.km-btn').onclick = (e) => { e.stopPropagation(); openKmModal(docId, rawCarData.current_km); };
     }
-    div.querySelector('.history-btn').onclick = () => openHistoryModal(docId, rawCarData.brand);
+    div.querySelector('.history-btn').onclick = (e) => { e.stopPropagation(); openHistoryModal(docId, rawCarData.brand); };
+
+    div.onclick = () => openHistoryModal(docId, rawCarData.brand);
 
     return div;
 }
@@ -949,7 +960,7 @@ async function openHistoryModal(carId, carBrand) {
         footer.appendChild(pdfBtn);
         
         const closeBtn = document.createElement('button');
-        closeBtn.className = 'ua-btn default';
+        closeBtn.className = 'ua-btn default delete-hover';
         closeBtn.innerHTML = 'Zavrieť';
         closeBtn.onclick = () => modal.classList.add('hidden');
         footer.appendChild(closeBtn);

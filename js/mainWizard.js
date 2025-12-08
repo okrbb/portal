@@ -36,7 +36,7 @@ import { initializeLogsModule, logUserAction, updateLogsUser } from './logs_modu
 // === 3. IMPORTOVANIE JEDNOTLIVÝCH MODULOV ===
 import { initializeCPModule, displayCPEmployeeDetails } from './cp_module.js';
 import { initializeSCHDModule } from './schd_module.js';
-import { initializeBBKModule } from './schd_bbkraj_module.js';
+import { initializeBBKModule } from './schd_bbk_module.js';
 import { initializeIZSModule } from './schd_izs_module.js';
 import { initializeUAModule } from './ua_module.js';
 import { activateGlobalExport } from './emp_module.js';

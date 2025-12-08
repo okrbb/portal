@@ -325,27 +325,26 @@ async function renderTableFromExcel(file) {
         }
 
         table.appendChild(tbody);
+    
         modalBody.innerHTML = ''; 
-        
-        const controlDiv = document.createElement('div');
-        controlDiv.style.marginBottom = '1rem';
-        controlDiv.style.display = 'flex';
-        controlDiv.style.justifyContent = 'flex-end';
-        controlDiv.style.position = 'sticky';
-        controlDiv.style.left = '0';
-
-        const exportBtn = document.createElement('button');
-        exportBtn.className = 'ua-btn accent';
-        exportBtn.innerHTML = '<i class="fas fa-download"></i> Stiahnuť Rozdeľovník';
-        exportBtn.onclick = generateRozdelovnik;
-
-        controlDiv.appendChild(exportBtn);
-        modalBody.appendChild(controlDiv);
         modalBody.appendChild(table);
+        
+        const modalFooter = document.getElementById('izsModalFooter');
+        if (modalFooter) {
+            modalFooter.innerHTML = ''; // Vyčistiť staré tlačidlá ak tam sú
+            
+            const exportBtn = document.createElement('button');
+            exportBtn.className = 'ua-btn default';
+            exportBtn.innerHTML = 'Stiahnuť Rozdeľovník';
+            exportBtn.onclick = generateRozdelovnik;
+
+            modalFooter.appendChild(exportBtn);
+        }
         
         showToast(`Načítaný hárok: ${sheet.name()}`, TOAST_TYPE.SUCCESS);
 
     } catch (err) {
+        // ... (error handling ostáva rovnaký) ...
         console.error("Chyba pri spracovaní XLSX:", err);
         modalBody.innerHTML = `<p style="color:red; text-align:center;">Chyba pri spracovaní súboru: ${err.message}</p>`;
         showToast("Chyba pri spracovaní súboru.", TOAST_TYPE.ERROR);
