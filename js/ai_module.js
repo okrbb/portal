@@ -1,4 +1,4 @@
-/* ai_module.js - Legislative Specialist (Strict RAG Version) */
+/* ai_module.js - Legislative Specialist (Strict RAG Version with Groq Fallback) */
 import { 
     collection, 
     doc, 
@@ -11,6 +11,8 @@ import {
 // Predpokladáme, že config.js existuje a obsahuje API kľúče
 import { AI_CONFIG } from './config.js'; 
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/+esm";
+// PRIDANÉ: OpenAI import pre Groq
+import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.0/+esm"; 
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import MiniSearch from 'https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/es/index.js';
 import { saveAIIndexToIDB, getAIIndexFromIDB } from './db_service.js';
@@ -21,10 +23,12 @@ marked.use({ breaks: true, gfm: true });
 // --- Globálne premenné ---
 let chatSession = null;
 let genAIModel = null;
+let groqClient = null; // PRIDANÉ: Premenná pre Groq
 let currentUserContext = null;
 let firestoreDB = null; 
 let currentSystemInstruction = ""; 
 let lastUserPrompt = "";
+let allDocumentsMeta = [];
 
 // --- Stav vyhľadávacieho enginu (RAG) ---
 let searchEngine = null;
@@ -54,6 +58,16 @@ export async function initializeAIModule(db, userProfile = null) {
             model: AI_CONFIG.MODEL_NAME 
         });
 
+        // PRIDANÉ: Inicializácia Groq (Fallback)
+        if (AI_CONFIG.GROQ_API_KEY && AI_CONFIG.GROQ_API_KEY.length > 10) {
+            groqClient = new OpenAI({
+                apiKey: AI_CONFIG.GROQ_API_KEY,
+                baseURL: "https://api.groq.com/openai/v1",
+                dangerouslyAllowBrowser: true 
+            });
+            console.log("Groq (Backup) je pripravený.");
+        }
+
         await startNewChatSession();
         console.log(`AI Model pripravený (${AI_CONFIG.MODEL_NAME}).`);
 
@@ -64,6 +78,7 @@ export async function initializeAIModule(db, userProfile = null) {
 
 /**
  * RAG: Vytvorí lokálny vyhľadávací index z Firebase dát (s podporou kategórií)
+ * a naplní globálny zoznam dokumentov pre funkciu "Zobraziť všetko".
  */
 async function buildLocalSearchIndex() {
     if (!firestoreDB) return;
@@ -87,13 +102,25 @@ async function buildLocalSearchIndex() {
         if (cachedData && (now - cachedData.timestamp < AI_CACHE_DURATION_MS)) {
             console.log(`[RAG] Načítavam index z cache (vek: ${((now - cachedData.timestamp)/3600000).toFixed(1)}h).`);
             
+            // Načítanie indexu
             searchEngine = MiniSearch.loadJSON(cachedData.index, {
                 fields: ['title', 'description', 'keywords', 'category'],
                 storeFields: ['title', 'description', 'category', 'id'],
                 searchOptions: { boost: { title: 3, keywords: 2, category: 1.5 }, fuzzy: 0.2, prefix: true }
             });
+
+            // NOVÉ: Musíme obnoviť aj allDocumentsMeta z cacheovaného indexu
+            // Použijeme wildcard search (*), aby sme vytiahli všetko, čo je v indexe
+            const allDocs = searchEngine.search(MiniSearch.wildcard);
+            allDocumentsMeta = allDocs.map(doc => ({
+                id: doc.id,
+                title: doc.title,
+                description: doc.description,
+                category: doc.category
+            }));
             
             isIndexBuilt = true;
+            console.log(`[RAG] Obnovených ${allDocumentsMeta.length} dokumentov pre zoznam.`);
             return;
         }
 
@@ -114,11 +141,15 @@ async function buildLocalSearchIndex() {
             });
         });
 
+        // NOVÉ: Uložíme stiahnuté dokumenty do globálnej premennej
+        allDocumentsMeta = docs;
+
+        // Pridanie do vyhľadávača
         searchEngine.addAll(docs);
         isIndexBuilt = true;
         console.log(`RAG: Zaindexovaných ${docs.length} dokumentov.`);
 
-        // 3. Uložíme do cache
+        // 3. Uložíme index do cache
         const serializedIndex = JSON.stringify(searchEngine.toJSON());
         await saveAIIndexToIDB(serializedIndex);
 
@@ -134,7 +165,34 @@ async function buildLocalSearchIndex() {
 function getRelevantContext(userQuery) {
     if (!searchEngine || !isIndexBuilt || !userQuery) return "";
 
-    // Zoberieme top 5 najrelevantnejších výsledkov
+    // 1. DETEKCIA ÚMYSLU: Chce používateľ zoznam všetkých dokumentov?
+    // Kľúčové slová: zoznam, obsah, všetky predpisy, čo vieš, aké zákony...
+    const listKeywords = ['zoznam', 'všetky predpisy', 'všetky zákony', 'obsah databázy', 'aké máš dokumenty'];
+    const lowerQuery = userQuery.toLowerCase();
+    
+    const isListRequest = listKeywords.some(kw => lowerQuery.includes(kw));
+
+    if (isListRequest && allDocumentsMeta.length > 0) {
+        let listContext = "\n=== KOMPLETNÝ OBSAH DATABÁZY ===\n";
+        listContext += "Používateľ požiadal o prehľad všetkých dostupných dokumentov. Tu je ich zoznam:\n\n";
+        
+        // Zoskupíme podľa kategórií pre krajší výpis
+        const byCategory = {};
+        allDocumentsMeta.forEach(doc => {
+            if (!byCategory[doc.category]) byCategory[doc.category] = [];
+            byCategory[doc.category].push(doc.title);
+        });
+
+        for (const [cat, titles] of Object.entries(byCategory)) {
+            listContext += `Kategória: ${cat.toUpperCase()}\n`;
+            titles.forEach(t => listContext += `- ${t}\n`);
+            listContext += "\n";
+        }
+        
+        return listContext;
+    }
+
+    // 2. ŠTANDARDNÉ VYHĽADÁVANIE (RAG) - Pôvodný kód
     const results = searchEngine.search(userQuery).slice(0, 5);
 
     if (results.length === 0) {
@@ -145,15 +203,13 @@ function getRelevantContext(userQuery) {
     contextString += "Tu je zoznam dokumentov, ktoré môžu obsahovať odpoveď. Pre prečítanie obsahu použi príkaz CMD_READ_DOC: ID.\n\n";
 
     results.forEach((res, index) => {
-        // OPRAVA: Bezpečné získanie kategórie s predvolenou hodnotou
         const categoryLabel = (res.category && typeof res.category === 'string') 
             ? res.category.toUpperCase() 
             : 'VŠEOBECNÉ';
 
         contextString += `${index + 1}. [${categoryLabel}] ${res.title}\n`;
         contextString += `   ID: ${res.id}\n`;
-        contextString += `   POPIS: ${res.description || 'Bez popisu'}\n`; // Pridaný fallback aj pre popis
-        contextString += `   SKÓRE: ${res.score ? res.score.toFixed(2) : 'N/A'}\n`;
+        contextString += `   POPIS: ${res.description || 'Bez popisu'}\n`;
         contextString += `-----------------------------------\n`;
     });
 
@@ -313,8 +369,21 @@ async function sendMessage() {
         await processGeminiStream(fullPrompt, botMsgElement);
 
     } catch (error) {
-        console.error("Communication Error:", error);
-        botMsgElement.innerHTML = "<em>Ospravedlňujem sa, nastala chyba pri spracovaní požiadavky. Skúste to prosím znova.</em>";
+        // PRIDANÉ: Fallback na Groq pri zlyhaní Gemini
+        console.error("Communication Error (Gemini):", error);
+        botMsgElement.innerHTML = "<em>Systém Gemini je preťažený. Prepínam na záložný systém (Groq)...</em> <span class=\"typing-cursor\"></span>";
+        
+        try {
+            // Skúsime záložný systém s rovnakým promptom (vrátane kontextu)
+            // Poznámka: Posielame fullPrompt, aby aj Groq videl zoznam dokumentov,
+            // hoci možno nebude vedieť použiť "CMD_READ_DOC" tak efektívne.
+            const fallbackText = await callGroqFallback(lastUserPrompt, getRelevantContext(lastUserPrompt));
+            botMsgElement.innerHTML = marked.parse(fallbackText);
+            botMsgElement.classList.add('finished');
+        } catch (e2) {
+            console.error("Critical Error (Both AI failed):", e2);
+            botMsgElement.innerHTML = "<em>Ospravedlňujem sa, nastala kritická chyba pri spracovaní požiadavky. Skúste to prosím znova neskôr.</em>";
+        }
     }
     
     scrollToBottom();
@@ -386,21 +455,36 @@ async function processGeminiStream(inputText, element, metadata = null) {
         scrollToBottom();
 
     } catch (e) {
-    console.error("Gemini Error:", e);
-    
-    let userMessage = "<em>(Došlo k chybe pri generovaní)</em>";
-
-    // Detekcia chyby 429 (Prekročený limit)
-    if (e.message.includes('429') || e.message.includes('Quota exceeded')) {
-        userMessage = `<br><br>
-        <div style="color: #e74c3c; border: 1px solid #e74c3c; padding: 10px; border-radius: 5px; background: rgba(231, 76, 60, 0.1);">
-            <strong>⚠️ Systém je preťažený</strong><br>
-            Dosiahli ste limit bezplatných požiadaviek pre AI.<br>
-            Prosím, počkajte približne <strong>10-20 sekúnd</strong> a skúste to znova.
-        </div>`;
+        // Propagujeme chybu vyššie do sendMessage, kde ju zachytí Groq fallback
+        throw e;
     }
+}
 
-    element.innerHTML = marked.parse(fullText) + userMessage;
+/**
+ * PRIDANÉ: Záložná funkcia pre volanie Groq API
+ */
+async function callGroqFallback(userQuery, contextString) {
+    if (!groqClient) throw new Error("Groq client not initialized");
+
+    const fullPrompt = contextString 
+            ? `${contextString}\n\nOTÁZKA POUŽÍVATEĽA:\n${userQuery}` 
+            : userQuery;
+
+    let messages = [{ role: "system", content: currentSystemInstruction }];
+    messages.push({ role: "user", content: fullPrompt });
+
+    try {
+        const completion = await groqClient.chat.completions.create({
+            messages: messages,
+            model: AI_CONFIG.GROQ_MODEL || "llama-3.3-70b-versatile", // Aktualizovaný model
+            temperature: 0.5,
+            max_tokens: 4000
+        });
+        
+        return completion.choices[0]?.message?.content || "Záložný systém: Žiadna odpoveď.";
+    } catch (e) {
+        console.error("Groq Fallback Error:", e);
+        throw e;
     }
 }
 
