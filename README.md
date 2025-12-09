@@ -1,4 +1,4 @@
-# OKR Portál - Interný Zamestnanecký Systém
+# OKR Portál
 
 Moderná webová aplikácia pre správu zamestnancov, rozpisov pohotovostí, cestovných príkazov a príspevkov úrazového poistenia.
 
