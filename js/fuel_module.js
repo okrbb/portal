@@ -1,4 +1,5 @@
-/* fuel_module.js - Modular SDK v9+ */
+/* fuel_module.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     doc, 
@@ -19,8 +20,6 @@ import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 import { logUserAction } from './logs_module.js';
 
-let _db = null;
-let _user = null;
 let _carsUnsubscribe = null;
 let _historyChart = null;
 
@@ -29,17 +28,20 @@ let filterState = {
     year: new Date().getFullYear().toString()
 };
 
-export function initializeFuelModule(db, activeUser) {
-    console.log('Inicializujem modul PHM (Modular SDK)...');
-    _db = db;
-    _user = activeUser;
-
+// Inicializácia modulu (bez parametrov)
+export function initializeFuelModule() {
+    console.log('Inicializujem modul PHM (Store verzia)...');
+    
+    const activeUser = store.getUser();
+    
+    // Kontrola oprávnení
     if (!Permissions.canViewModule(activeUser, 'fuel-module')) return;
 
     setupEventListeners();
     populateYearSelect();
     loadCars(); 
 
+    // Globálne funkcie pre tlačidlá v HTML (história/úprava)
     window.editHistoryRecord = editHistoryRecord;
     window.recalculateHistoryChain = recalculateHistoryChain;
 }
@@ -115,10 +117,12 @@ function loadCars() {
         _carsUnsubscribe();
     }
 
+    const db = store.getDB();
+    if (!db) return;
+
     grid.innerHTML = '<div class="skeleton-wrapper"><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>';
 
-    // ZMENA: Modular onSnapshot
-    const q = query(collection(_db, 'cars'), orderBy('brand'));
+    const q = query(collection(db, 'cars'), orderBy('brand'));
     
     _carsUnsubscribe = onSnapshot(q, async (snapshot) => {
         grid.innerHTML = '';
@@ -173,18 +177,16 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
     const year = parseInt(yearStr);
     const startDate = new Date(year, month, 1);
     const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+    const db = store.getDB();
 
     try {
-        const carRef = doc(_db, 'cars', carId);
-        
         let sumLiters = 0;
         let sumDistance = 0;
         let sumKmC = 0;
         let sumKmA = 0;
         let monthlyEvents = [];
 
-        // ZMENA: Modular Subcollections
-        const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
+        const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
         const qRefuel = query(refuelingsRef, where('date', '>=', startDate), where('date', '<=', endDate));
         const fuelSnap = await getDocs(qRefuel);
 
@@ -197,7 +199,7 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
             monthlyEvents.push({ date: d.date.toDate(), fuelLevel: d.fuel_level_after });
         });
 
-        const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+        const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
         const qKm = query(kmLogsRef, where('date', '>=', startDate), where('date', '<=', endDate));
         const kmSnap = await getDocs(qKm);
 
@@ -263,15 +265,16 @@ async function calculateMonthlyStats(carId, monthStr, yearStr, overallAvgFallbac
 }
 
 async function calculateOverallAverage(carId) {
+    const db = store.getDB();
     try {
         let sumLiters = 0;
         let sumDistance = 0;
         
-        const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
+        const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
         const fuelSnap = await getDocs(refuelingsRef);
         fuelSnap.forEach(d => { sumLiters += (d.data().liters || 0); sumDistance += (d.data().distance_driven || 0); });
         
-        const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+        const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
         const kmSnap = await getDocs(kmLogsRef);
         kmSnap.forEach(d => { sumDistance += (d.data().distance_driven || 0); });
         
@@ -280,12 +283,12 @@ async function calculateOverallAverage(carId) {
 }
 
 function createCarCard(docId, rawCarData, displayData, isMonthly) {
+    const activeUser = store.getUser();
     const div = document.createElement('div');
     div.className = 'fuel-car-card'; 
 
-    const canEdit = Permissions.canEditFuelRecord(_user, rawCarData.evidence_number);
+    const canEdit = Permissions.canEditFuelRecord(activeUser, rawCarData.evidence_number);
 
-    // Farby pre štatistiky
     let consumptionClass = 'success'; 
     if (rawCarData.norm_city && displayData.average_consumption > rawCarData.norm_city) {
         consumptionClass = 'danger'; 
@@ -293,7 +296,6 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
 
     let isVirtual = displayData.isVirtual;
 
-    // Formátovanie hodnôt
     const normCityDisplay = rawCarData.norm_city ? Number(rawCarData.norm_city).toFixed(1) : '--';
     const normOutsideDisplay = rawCarData.norm ? Number(rawCarData.norm).toFixed(1) : '--';
     const valKm = displayData.current_km ? Number(displayData.current_km).toLocaleString() : '0';
@@ -310,13 +312,11 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
     const valKmC = Number(rawKmC).toLocaleString();
     const valKmA = Number(rawKmA).toLocaleString();
 
-    // Texty
     const labelTachometer = isMonthly ? `Najazdené (${parseInt(filterState.month) + 1}/${filterState.year})` : 'Tachometer';
     const labelKmC = isMonthly ? 'Mesto (mesiac)' : 'Mesto (celkom)';
     const labelKmA = isMonthly ? 'Mimo (mesiac)' : 'Mimo (celkom)';
     const labelSpotreba = isMonthly ? (isVirtual ? 'Odhad spotreby' : 'Priemer mesiac') : 'Priemer celkom';
 
-    // Výpočet paliva
     const tankCapacity = rawCarData.tank_capacity || 50; 
     let currentLevel = isMonthly 
         ? (displayData.monthly_fuel_level !== undefined && displayData.monthly_fuel_level !== null ? displayData.monthly_fuel_level : 0)
@@ -334,7 +334,6 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
     const labelFuelStatus = isMonthly ? 'Stav na konci' : 'Nádrž';
     const showFuelWidget = !isMonthly || (isMonthly && displayData.monthly_fuel_level !== null);
 
-    // === ZMENA: HTML štruktúra s opravou ŠPZ ===
     div.innerHTML = `
         <div class="fuel-car-header">
             <div class="fuel-car-title">
@@ -424,7 +423,6 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
         </div>
     `;
 
-    // Event Listeners
     if (canEdit) {
         div.querySelector('.refuel-btn').onclick = (e) => { e.stopPropagation(); openFuelModal(docId, rawCarData.current_km); };
         div.querySelector('.km-btn').onclick = (e) => { e.stopPropagation(); openKmModal(docId, rawCarData.current_km); };
@@ -499,10 +497,11 @@ function closeFuelModal() { document.getElementById('fuel-modal').classList.add(
 function closeKmModal() { document.getElementById('km-modal').classList.add('hidden'); }
 
 async function recalculateCarStats(carId) {
-    const carRef = doc(_db, 'cars', carId);
+    const db = store.getDB();
+    const carRef = doc(db, 'cars', carId);
     
-    const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
-    const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+    const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
+    const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
 
     const [refuelSnap, kmSnap, carDoc] = await Promise.all([
         getDocs(refuelingsRef),
@@ -625,6 +624,7 @@ async function handleKmSubmit(e) {
 }
 
 async function processRefueling() {
+    const db = store.getDB();
     const carId = document.getElementById('fuel-car-id').value;
     const newKm = parseInt(document.getElementById('fuel-km').value);
     const liters = parseFloat(document.getElementById('fuel-liters').value);
@@ -632,7 +632,7 @@ async function processRefueling() {
     const date = document.getElementById('fuel-date').value;
     const kmCityInput = parseFloat(document.getElementById('fuel-km-city').value) || 0;
     
-    const carRef = doc(_db, 'cars', carId);
+    const carRef = doc(db, 'cars', carId);
     const carDoc = await getDoc(carRef);
     if (!carDoc.exists()) throw new Error('Vozidlo neexistuje.');
 
@@ -653,8 +653,7 @@ async function processRefueling() {
     let consumption = 0;
     if (distanceForConsumption > 0) consumption = (liters / distanceForConsumption) * 100;
 
-    // ZMENA: Modular Add
-    const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
+    const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
     await addDoc(refuelingsRef, {
         date: new Date(date),
         liters: liters,
@@ -681,6 +680,7 @@ async function processRefueling() {
 }
 
 async function updateRefueling(docId) {
+    const db = store.getDB();
     const carId = document.getElementById('fuel-car-id').value;
     const date = document.getElementById('fuel-date').value;
     const liters = parseFloat(document.getElementById('fuel-liters').value);
@@ -688,8 +688,7 @@ async function updateRefueling(docId) {
     const newKmTotal = parseInt(document.getElementById('fuel-km').value);
     const newKmCity = parseFloat(document.getElementById('fuel-km-city').value) || 0;
 
-    // ZMENA: Modular Ref
-    const refuelRef = doc(_db, 'cars', carId, 'refuelings', docId);
+    const refuelRef = doc(db, 'cars', carId, 'refuelings', docId);
 
     if (!date || isNaN(liters) || isNaN(newKmTotal)) throw new Error("Prosím, vyplňte všetky povinné polia správne.");
     if (newKmTotal <= 0) throw new Error("Stav tachometra musí byť kladné číslo.");
@@ -707,12 +706,13 @@ async function updateRefueling(docId) {
 }
 
 async function updateKmLog(docId) {
+    const db = store.getDB();
     const carId = document.getElementById('km-car-id').value;
     const dateVal = document.getElementById('km-date').value;
     const kmTotal = parseInt(document.getElementById('km-total-state').value);
     const kmCity = parseFloat(document.getElementById('km-city-input').value) || 0;
 
-    const kmLogRef = doc(_db, 'cars', carId, 'km_logs', docId);
+    const kmLogRef = doc(db, 'cars', carId, 'km_logs', docId);
     await updateDoc(kmLogRef, {
         date: new Date(dateVal),
         km_total: kmTotal,
@@ -724,12 +724,14 @@ async function updateKmLog(docId) {
 }
 
 async function processKmLogInternal() {
+    const db = store.getDB();
+    const user = store.getUser();
     const carId = document.getElementById('km-car-id').value;
     const dateVal = document.getElementById('km-date').value;
     const newKm = parseInt(document.getElementById('km-total-state').value);
     const kmCityInput = parseFloat(document.getElementById('km-city-input').value) || 0;
 
-    const carRef = doc(_db, 'cars', carId);
+    const carRef = doc(db, 'cars', carId);
     const carDoc = await getDoc(carRef);
     const prevKm = carDoc.data().current_km;
 
@@ -738,7 +740,7 @@ async function processKmLogInternal() {
     if (kmCityInput > distanceTotal) throw new Error(`Km v meste (${kmCityInput}) nemôžu byť vyššie ako celková trasa.`);
     const distanceOutside = distanceTotal - kmCityInput; 
 
-    const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+    const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
     await addDoc(kmLogsRef, {
         date: new Date(dateVal),
         km_total: newKm,        
@@ -746,7 +748,7 @@ async function processKmLogInternal() {
         km_c: kmCityInput,      
         km_a: distanceOutside,  
         created_at: serverTimestamp(),
-        user_email: _user.email || 'unknown'
+        user_email: user.email || 'unknown'
     });
 
     await updateDoc(carRef, {
@@ -757,6 +759,8 @@ async function processKmLogInternal() {
 }
 
 async function openHistoryModal(carId, carBrand) {
+    const db = store.getDB();
+    const activeUser = store.getUser();
     const modal = document.getElementById('history-modal');
     const title = document.getElementById('history-modal-title');
     const tbody = document.getElementById('history-table-body');
@@ -771,9 +775,9 @@ async function openHistoryModal(carId, carBrand) {
     modal.classList.remove('hidden');
 
     try {
-        const carRef = doc(_db, 'cars', carId);
-        const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
-        const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+        const carRef = doc(db, 'cars', carId);
+        const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
+        const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
 
         const [refuelSnap, kmSnap, carDoc] = await Promise.all([
             getDocs(refuelingsRef),
@@ -784,7 +788,7 @@ async function openHistoryModal(carId, carBrand) {
         const carData = carDoc.data();
         const normCity = parseFloat(carData.norm_city) || 0;
         const normOutside = parseFloat(carData.norm) || 0;
-        const canEdit = Permissions.canEditFuelRecord(_user, carData.evidence_number);
+        const canEdit = Permissions.canEditFuelRecord(activeUser, carData.evidence_number);
 
         let events = [];
         let grandTotalLiters = 0;
@@ -1161,11 +1165,12 @@ function arrayBufferToBase64(buffer) {
 }
 
 async function recalculateHistoryChain(carId) {
+    const db = store.getDB();
     console.log(`[ChainReaction] Spúšťam prepočet histórie pre auto: ${carId}`);
     
-    const carRef = doc(_db, 'cars', carId);
-    const refuelingsRef = collection(_db, 'cars', carId, 'refuelings');
-    const kmLogsRef = collection(_db, 'cars', carId, 'km_logs');
+    const carRef = doc(db, 'cars', carId);
+    const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
+    const kmLogsRef = collection(db, 'cars', carId, 'km_logs');
 
     const [refuelSnap, kmSnap, carDoc] = await Promise.all([
         getDocs(refuelingsRef),
@@ -1193,7 +1198,7 @@ async function recalculateHistoryChain(carId) {
 
     let previousKm = startKm;
     let baseKmForConsumption = startKm; 
-    const batch = writeBatch(_db);
+    const batch = writeBatch(db);
     let changesCount = 0;
 
     for (let i = 0; i < timeline.length; i++) {
@@ -1227,8 +1232,7 @@ async function recalculateHistoryChain(carId) {
         const isChanged = orig.distance_driven !== updateData.distance_driven || orig.km_a !== updateData.km_a || (record.collection === 'refuelings' && orig.consumption_l100 !== updateData.consumption_l100) || orig.fuel_level_after !== updateData.fuel_level_after; 
 
         if (isChanged) {
-            // ZMENA: Modular Batch Update
-            const docRef = doc(_db, 'cars', carId, record.collection, record.id);
+            const docRef = doc(db, 'cars', carId, record.collection, record.id);
             batch.update(docRef, updateData);
             changesCount++;
         }

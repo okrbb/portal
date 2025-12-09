@@ -1,14 +1,19 @@
-/* js/restore_service.js - Modular SDK v9+ */
+/* js/restore_service.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { doc, setDoc, writeBatch, Timestamp, collection } from 'firebase/firestore';
 import { showToast, TOAST_TYPE } from './utils.js';
 
 /**
  * Hlavná funkcia na obnovu dát zo súboru.
  * @param {File} file - JSON súbor vybraný používateľom
- * @param {Object} db - Inštancia Firestore
  */
-export async function restoreCollectionFromFile(file, db) {
-    if (!file || !db) return;
+export async function restoreCollectionFromFile(file) {
+    const db = store.getDB();
+
+    if (!file || !db) {
+        if (!db) showToast("Chyba: Databáza nie je pripojená.", TOAST_TYPE.ERROR);
+        return;
+    }
 
     const reader = new FileReader();
 
@@ -90,6 +95,11 @@ export async function restoreCollectionFromFile(file, db) {
             const successMsg = `Úspešne obnovené: ${collectionName} (${totalRecords} dok. + ${subCollectionOps} pod-dok.)`;
             showToast(successMsg, TOAST_TYPE.SUCCESS);
             console.log(`[Restore] Hotovo. ${successMsg}`);
+
+            // Ak sme obnovili zamestnancov, môžeme (voliteľne) požiadať store o refresh
+            if (collectionName === 'employees') {
+                store.loadEmployees(true); // Vynútený refresh
+            }
 
         } catch (error) {
             console.error("[Restore] Chyba:", error);

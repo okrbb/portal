@@ -1,18 +1,17 @@
-/* schd_module.js - Modular SDK v9+ (Enhanced Notifications) */
+/* schd_module.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     doc, 
     setDoc, 
+    getDoc, // Pridané pre načítanie (chýbalo v pôvodnom importe, ale používalo sa)
     serverTimestamp 
 } from 'firebase/firestore';
 
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
-let _activeUser = null; 
-
-export function initializeSCHDModule(db, employeesData, activeUser) { 
-    console.log('Inicializujem modul Rozpis Pohotovosti (Modular SDK - Full)...');
-    _activeUser = activeUser; 
+export function initializeSCHDModule() { 
+    console.log('Inicializujem modul Rozpis Pohotovosti (Store verzia)...');
 
     let allEmployees = [];
     let employeeGroups = []; 
@@ -35,13 +34,10 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     const PDF_FONT_FILENAME = 'DejaVuSans.ttf';
     const PDF_FONT_INTERNAL_NAME = 'DejaVuSans';
 
-    // Ikony pre HTML (kalendár na obrazovke)
     const ICON_SWAP = '<i class="fas fa-exchange-alt swap-icon"></i>'; 
     const ICON_SUBSTITUTION = '<i class="fas fa-user-clock swap-icon"></i>'; 
-    
-    // Znaky pre PDF (tlač)
-    const UNICODE_SWAP = ' \u21C4';        // ⇄
-    const UNICODE_SUBSTITUTION = ' \u27F2'; // ⟲
+    const UNICODE_SWAP = ' \u21C4';        
+    const UNICODE_SUBSTITUTION = ' \u27F2'; 
 
     const monthNames = ["január", "február", "marec", "apríl", "máj", "jún", "júl", "august", "september", "október", "november", "december"];
     
@@ -54,6 +50,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     let elGroupsList, elCalendarContainer;
     let elPdfPreviewFrame, elPreviewModal;
 
+    // Inicializačná logika
     (async () => {
         elMonthSelect = document.getElementById('duty-month-select');
         elYearSelect = document.getElementById('duty-year-select');
@@ -72,25 +69,40 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
             return;
         }
 
+        // 1. Načítanie konfigurácie (zamestnancov) zo Store
         loadConfig();
+        
+        // 2. Načítanie fontov a nastavenie UI
         loadFontData();
         populateYearSelect();
         elMonthSelect.value = appState.selectedMonth;
         elYearSelect.value = appState.selectedYear;
         initSortableList(elGroupsList); 
         initEventListeners();
+        
+        // 3. Render
         render();
+
+        // 4. REAKTIVITA: Ak sa zmenia dáta v Store (napr. dotiahne sa DB), prepočítame config
+        store.subscribe((state) => {
+            if (!state.isLoading && state.employees.size > 0) {
+                // Skontrolujeme, či máme nové dáta, a ak áno, prekreslíme skupiny
+                // (Optimalizácia: dalo by sa porovnávať verzie, ale loadConfig je rýchly)
+                loadConfig();
+                renderGroupLists(); // Prekreslíme len ľavý panel, kalendár ostáva
+            }
+        });
     })();
 
     function loadConfig() {
+        const employeesData = store.getEmployees(); // Ťaháme zo Store
         let allEmpsArray = [];
         let zodpovedaPerson = null;
         let schvalujePerson = null;
         employeeSignatures = {}; 
 
         if (!employeesData || employeesData.size === 0) {
-            console.warn("SCHD Modul: Žiadne dáta v cache.");
-            showToast('Nepodarilo sa načítať zoznam zamestnancov.', TOAST_TYPE.ERROR);
+            // Zatiaľ ticho, skeleton rieši mainWizard, tu len čakáme na dáta
             return;
         }
 
@@ -113,9 +125,11 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                 if (empFunkcia === 'vedúci oddelenia' && empOddelenie === 'OCOaKP') zodpovedaPerson = { meno: empMeno, funkcia: empFunkcia, oddelenie: empOddelenie };
                 
                 let groupName = null;
-                if (String(data.poh) === "1") groupName = "Skupina 1";
-                else if (String(data.poh) === "2") groupName = "Skupina 2";
-                else if (String(data.poh) === "3") groupName = "Skupina 3";
+                // Prevod na string pre istotu
+                const pohVal = String(data.poh || '');
+                if (pohVal === "1") groupName = "Skupina 1";
+                else if (pohVal === "2") groupName = "Skupina 2";
+                else if (pohVal === "3") groupName = "Skupina 3";
                 
                 allEmpsArray.push({ id: data.id, meno: empMeno, telefon: sluzobny_kontakt, skupina: groupName, coz: data.coz || "", funkcia: empFunkcia });
             });
@@ -145,9 +159,12 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
 
     function populateYearSelect() {
         const currentYear = appState.selectedYear; 
+        elYearSelect.innerHTML = ''; // Reset
         for (let year = currentYear - 5; year <= currentYear + 5; year++) {
             const option = document.createElement('option');
-            option.value = year; option.textContent = year; elYearSelect.appendChild(option);
+            option.value = year; 
+            option.textContent = year; 
+            elYearSelect.appendChild(option);
         }
     }
 
@@ -171,7 +188,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         render(); 
     }
 
-    // === UPRAVENÉ: Dvojklik pre zástup ===
     function handleCalendarDutyDblClick(e) {
         if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
         e.preventDefault(); appState.firstSwapSelection = null; 
@@ -180,8 +196,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         if (!employeeItem) return;
         
         const { employeeId, weekKey } = employeeItem.dataset;
-        // Získame meno pre notifikáciu
-        const empName = employeeItem.textContent.trim().replace(/\s+/, ' '); // Odstránime prípadné ikony/medzery
+        const empName = employeeItem.textContent.trim().replace(/\s+/, ' ');
 
         document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
         
@@ -191,7 +206,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         } else {
             appState.selectedDutyForSwap = { weekKey, originalId: employeeId, month: appState.selectedMonth, year: appState.selectedYear };
             employeeItem.classList.add('swap-selected');
-            // ZOBRAZÍME MENO
             showToast(`Vybraný: <strong>${empName}</strong>. Kliknite na náhradníka v zozname.`, TOAST_TYPE.INFO);
         }
     }
@@ -201,7 +215,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         const employeeListItem = e.target.closest(`.duty-group-card li`);
         if (!employeeListItem) return;
         const newEmployeeId = employeeListItem.dataset.id;
-        const newEmployeeName = employeeListItem.textContent; // Meno nového
+        const newEmployeeName = employeeListItem.textContent;
 
         const { weekKey, originalId, month, year } = appState.selectedDutyForSwap;
         if (newEmployeeId === originalId) { showToast('Nemôže byť tá istá osoba.', TOAST_TYPE.ERROR); return; }
@@ -209,7 +223,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         if (!appState.serviceOverrides[stateKey]) appState.serviceOverrides[stateKey] = {};
         
         const newEmp = findEmployeeById(newEmployeeId);
-        // Získame meno pôvodného pre správu (cez ID)
         const oldEmp = findEmployeeById(originalId);
         const oldName = oldEmp ? oldEmp.meno : 'Pôvodný';
 
@@ -222,13 +235,8 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     }
 
     function handleCalendarDutyClick(e) {
-        // Kliknutie slúži na 2 veci:
-        // 1. Ak je aktívny výber pre zástup (dblclick) -> dokončí zástup (kliknutím na iného v kalendári namiesto zoznamu)
-        // 2. Ak nie je aktívny -> prepne Hlásenie (reporting)
-
         const item = e.target.closest('.employee-item-calendar');
         if (!item) { 
-            // Klik mimo -> zruší výbery
             if (appState.firstSwapSelection) { appState.firstSwapSelection = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
             return; 
         }
@@ -242,7 +250,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
             clickTimer = null;
             if (appState.firstSwapSelection) { appState.firstSwapSelection = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
             
-            // 1. Dokončenie zástupu (namiesto kliku v zozname)
             if (appState.selectedDutyForSwap) {
                 const { weekKey: wKey, originalId: oId, month, year } = appState.selectedDutyForSwap;
                 if (clickId === oId) { showToast('Tá istá osoba.', TOAST_TYPE.ERROR); return; }
@@ -250,7 +257,7 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                 const sKey = `${year}-${month}-${wKey}`;
                 if (!appState.serviceOverrides[sKey]) appState.serviceOverrides[sKey] = {};
                 const newEmp = findEmployeeById(clickId);
-                const oldEmp = findEmployeeById(oId); // Pôvodný
+                const oldEmp = findEmployeeById(oId);
 
                 appState.serviceOverrides[sKey][oId] = { id: clickId, meno: newEmp ? newEmp.meno : 'Neznámy', type: 'sub' };
                 appState.selectedDutyForSwap = null;
@@ -259,7 +266,6 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                 showToast(`Zastupovanie nastavené: <strong>${oldEmp ? oldEmp.meno : 'Pôvodný'} -> ${newEmp ? newEmp.meno : clickName}</strong>.`, TOAST_TYPE.SUCCESS);
                 render();
             } else {
-                // 2. Prepnutie hlásenia (Pôvodná funkcia)
                 const sKey = `${appState.selectedYear}-${appState.selectedMonth}-${weekKey}`;
                 if (!appState.reporting[sKey]) appState.reporting[sKey] = [];
                 const idx = appState.reporting[sKey].indexOf(clickId);
@@ -272,15 +278,11 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
                     appState.reporting[sKey].push(clickId);
                     msg = `Hlásenie pridané: ${clickName}`;
                 }
-                
-                // Voliteľné: Zobraziť toast aj pri hlásení (ak chcete, odkomentujte)
-                // showToast(msg, TOAST_TYPE.INFO);
                 render();
             }
         }, 250);
     }
 
-    // === UPRAVENÉ: Pravý klik pre výmenu ===
     function handleCalendarSwapClick(e) {
         e.preventDefault();
         const item = e.target.closest('.employee-item-calendar');
@@ -289,19 +291,16 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
         const { renderedId, originalId, weekKey } = item.dataset;
         const clickRender = renderedId || originalId;
         const clickOrig = originalId;
-        const empName = item.textContent.trim(); // Meno kliknutej osoby
+        const empName = item.textContent.trim();
         
         if (appState.selectedDutyForSwap) { appState.selectedDutyForSwap = null; document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected')); }
         
         if (!appState.firstSwapSelection) {
-            // Prvý klik
             appState.firstSwapSelection = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear, name: empName };
             document.querySelectorAll(`.swap-selected`).forEach(el => el.classList.remove('swap-selected'));
             item.classList.add('swap-selected');
-            
             showToast(`Výmena - prvý: <strong>${empName}</strong>. Kliknite pravým na druhého.`, TOAST_TYPE.INFO);
         } else {
-            // Druhý klik
             const first = appState.firstSwapSelection;
             const second = { weekKey, originalId: clickOrig, renderedId: clickRender, month: appState.selectedMonth, year: appState.selectedYear, name: empName };
             
@@ -460,7 +459,8 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     }
 
     async function showSchedulePreview() {
-        if (!Permissions.canViewModule(_activeUser, 'pohotovost-module')) return showToast("Nemáte oprávnenie.", TOAST_TYPE.ERROR);
+        const user = store.getUser();
+        if (!Permissions.canViewModule(user, 'pohotovost-module')) return showToast("Nemáte oprávnenie.", TOAST_TYPE.ERROR);
         
         const keys = Object.keys(appState.dutyAssignments).filter(k => k.startsWith(`${appState.selectedYear}-${appState.selectedMonth}-`));
         if (keys.length === 0) return showToast("Priraďte aspoň jedného zamestnanca.", TOAST_TYPE.ERROR);
@@ -544,7 +544,10 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     }
 
     async function saveScheduleToDB() {
-        if (!Permissions.canViewModule(_activeUser, 'pohotovost-module')) return;
+        const user = store.getUser();
+        if (!Permissions.canViewModule(user, 'pohotovost-module')) return;
+        
+        const db = store.getDB();
         const docId = `${appState.selectedYear}-${appState.selectedMonth}`; 
         const weeks = getWeeksForMonth(appState.selectedYear, appState.selectedMonth).map(w => w.key);
         const data = {
@@ -573,7 +576,8 @@ export function initializeSCHDModule(db, employeesData, activeUser) {
     function closeModal() { if (elPreviewModal) elPreviewModal.classList.add('hidden'); }
 
     async function generateDocxReport() {
-        if (!Permissions.canViewModule(_activeUser, 'pohotovost-module')) {
+        const user = store.getUser();
+        if (!Permissions.canViewModule(user, 'pohotovost-module')) {
              showToast("Nemáte oprávnenie na stiahnutie výkazu.", TOAST_TYPE.ERROR);
              return;
         }

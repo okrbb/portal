@@ -1,4 +1,5 @@
-/* logs_module.js - Optimized SDK v9+ (Quota Protection) */
+/* logs_module.js - Optimized SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     addDoc, 
@@ -21,36 +22,33 @@ import { Permissions } from './accesses.js';
 /* (logs_module.js) - OPTIMALIZOVANÝ   */
 /* =================================== */
 
-let _db = null;
-let _activeUser = null;
-
 /**
  * Inicializuje modul logov.
  */
-export function initializeLogsModule(db, activeUser = null) {
-    console.log('Inicializujem modul Logov (DB pripojená)...');
-    _db = db;
-    _activeUser = activeUser;
-
-    if (_activeUser) {
-        setupLogListeners();
-    }
-
+export function initializeLogsModule() {
+    console.log('Inicializujem modul Logov (Store verzia)...');
+    
+    // Nastavenie listenerov (ak je user už prihlásený)
+    setupLogListeners();
     initDeleteModalListeners();
+
+    // Reaktivita: Ak sa zmení user, obnovíme listenery
+    // (Toto je voliteľné, ak sa inicializácia volá až po prihlásení v mainWizarde)
 }
 
 /**
- * Aktualizuje aktívneho používateľa po prihlásení.
+ * Nastaví listenery pre admina (klik na iniciály).
+ * Táto funkcia nahrádza starú updateLogsUser.
  */
-export function updateLogsUser(user) {
-    _activeUser = user;
+export function updateLogsUser() {
     setupLogListeners();
 }
 
 function setupLogListeners() {
-    if (!_activeUser) return;
+    const user = store.getUser();
+    if (!user) return;
 
-    if (Permissions.canManageLogs(_activeUser)) {
+    if (Permissions.canManageLogs(user)) {
         const userInitialsButton = document.querySelector('#sidebar-user-initials');
         if (userInitialsButton) {
             userInitialsButton.classList.add('clickable-logs'); 
@@ -92,7 +90,10 @@ function initDeleteModalListeners() {
  * Univerzálna funkcia na zápis akcie do logov.
  */
 export async function logUserAction(action, details, success = true, error = null) {
-    if (!_db) {
+    const db = store.getDB();
+    const user = store.getUser();
+
+    if (!db) {
         console.warn("LogsModule: DB nie je inicializovaná, log sa nezapíše.");
         return;
     }
@@ -100,19 +101,17 @@ export async function logUserAction(action, details, success = true, error = nul
     try {
         const logData = {
             timestamp: serverTimestamp(),
-            email: _activeUser?.email || 'neznamy@email.sk',
-            meno: _activeUser?.displayName || _activeUser?.meno || 'Neznámy',
-            oec: _activeUser?.oec || 'N/A',
-            funkcia: _activeUser?.funkcia || 'N/A',
+            email: user?.email || 'neznamy@email.sk',
+            meno: user?.displayName || user?.meno || 'Neznámy',
+            oec: user?.oec || 'N/A',
+            funkcia: user?.funkcia || 'N/A',
             action: action,
             details: details,
             success: success,
             error: error
         };
 
-        await addDoc(collection(_db, "access_logs"), logData);
-        // Console log len pre dev účely, v produkcii možno vypnúť
-        // console.log(`[LOG] ${action}: ${details}`);
+        await addDoc(collection(db, "access_logs"), logData);
 
     } catch (err) {
         console.error('[LOG] Chyba pri zápise logu:', err);
@@ -126,7 +125,6 @@ async function downloadAccessLogs() {
     if (!userInitialsButton || userInitialsButton.classList.contains('downloading')) return; 
     
     // === OCHRANA KVÓTY (FREE TIER PROTECTION) ===
-    // Namiesto automatického stiahnutia všetkého sa opýtame používateľa.
     const downloadMode = confirm(
         "Chcete stiahnuť logy len za posledných 30 dní (Odporúčané)?\n\n" +
         "OK = Posledných 30 dní (Šetrí databázu)\n" +
@@ -154,7 +152,8 @@ async function downloadAccessLogs() {
     userInitialsButton.classList.add('downloading'); 
 
     try {
-        const logsRef = collection(_db, "access_logs");
+        const db = store.getDB();
+        const logsRef = collection(db, "access_logs");
         let q;
 
         if (downloadMode) {
@@ -166,12 +165,11 @@ async function downloadAccessLogs() {
                 logsRef, 
                 where("timestamp", ">=", thirtyDaysAgo),
                 orderBy("timestamp", "desc"),
-                limit(2000) // Bezpečnostná brzda: max 2000 záznamov naraz
+                limit(2000) 
             );
             console.log("[Logs] Sťahujem optimalizované logy (30 dní / max 2000).");
         } else {
             // MOŽNOSŤ B: Všetko (Nebezpečné pre Free Tier)
-            // Stále dáme limit 5000, aby sme nezhodili prehliadač a kvótu naraz
             q = query(logsRef, orderBy("timestamp", "desc"), limit(5000));
             console.warn("[Logs] POZOR: Sťahujem hromadné logy (max 5000).");
         }
@@ -232,13 +230,11 @@ async function handleDeleteLogsRequest(event) {
     const deleteModalOverlay = document.querySelector('#delete-logs-overlay');
     const modalMessage = deleteModalOverlay ? deleteModalOverlay.querySelector('p') : null;
 
-    // Zobrazíme modál s textom "Počítam..."
     if (deleteModalOverlay && modalMessage) {
         modalMessage.textContent = 'Analyzujem počet logov...';
         deleteModalOverlay.classList.remove('hidden');
     }
 
-    // Zistíme počet efektívne
     const totalLogs = await getLogsCount();
 
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
@@ -251,7 +247,6 @@ async function handleDeleteLogsRequest(event) {
          if (modalBtnConfirmDelete) modalBtnConfirmDelete.classList.add('hidden');
          if (modalBtnCancel) modalBtnCancel.textContent = 'Zatvoriť';
     } else {
-        // Ponúkneme mazanie po dávkach
         modalMessage.innerHTML = `V databáze je celkom <strong>${totalLogs}</strong> logov.<br><br>
         Naozaj chcete zmazať najstarších 500 záznamov?<br>
         <small>(Pre úplné vymazanie opakujte akciu)</small>`;
@@ -270,6 +265,7 @@ async function handleDeleteLogsRequest(event) {
 
 async function executeBatchDelete() {
     console.log('Spúšťam mazanie logov (Optimalizované)...');
+    const db = store.getDB();
     const modalMessage = document.querySelector('#delete-logs-overlay p');
     const modalBtnConfirmDelete = document.querySelector('#modal-btn-confirm-delete');
     const modalBtnCancel = document.querySelector('#modal-btn-cancel');
@@ -282,10 +278,9 @@ async function executeBatchDelete() {
     if (modalBtnCancel) modalBtnCancel.disabled = true;
 
     try {
-        const logsRef = collection(_db, "access_logs");
+        const logsRef = collection(db, "access_logs");
         
-        // ZMENA: Nenačítame všetko! Len 500 kusov, aby sme nezničili pamäť a kvótu.
-        // Mazanie vo Free pláne je lepšie robiť po menších dávkach.
+        // Len 500 kusov pre bezpečnosť
         const q = query(logsRef, orderBy("timestamp", "asc"), limit(500));
         const snapshot = await getDocs(q);
 
@@ -294,7 +289,7 @@ async function executeBatchDelete() {
             return;
         }
 
-        const batch = writeBatch(_db);
+        const batch = writeBatch(db);
         snapshot.docs.forEach((doc) => {
             batch.delete(doc.ref);
         });
@@ -320,13 +315,13 @@ async function executeBatchDelete() {
 }
 
 /**
- * Zistí celkový počet logov bez sťahovania dokumentov.
- * Cena: 1 Read za každých 1000 indexovaných položiek (veľmi lacné).
+ * Zistí celkový počet logov.
  */
 export async function getLogsCount() {
-    if (!_db) return 0;
+    const db = store.getDB();
+    if (!db) return 0;
     try {
-        const coll = collection(_db, "access_logs");
+        const coll = collection(db, "access_logs");
         const snapshot = await getCountFromServer(coll);
         return snapshot.data().count;
     } catch (error) {

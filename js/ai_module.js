@@ -1,4 +1,5 @@
-/* ai_module.js - Legislative Specialist (Strict RAG Version with Groq Fallback) */
+/* ai_module.js - Legislative Specialist (Store Integrated & Strict RAG) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     doc, 
@@ -11,7 +12,6 @@ import {
 // Predpokladáme, že config.js existuje a obsahuje API kľúče
 import { AI_CONFIG } from './config.js'; 
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/+esm";
-// PRIDANÉ: OpenAI import pre Groq
 import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.0/+esm"; 
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import MiniSearch from 'https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/es/index.js';
@@ -23,9 +23,7 @@ marked.use({ breaks: true, gfm: true });
 // --- Globálne premenné ---
 let chatSession = null;
 let genAIModel = null;
-let groqClient = null; // PRIDANÉ: Premenná pre Groq
-let currentUserContext = null;
-let firestoreDB = null; 
+let groqClient = null; 
 let currentSystemInstruction = ""; 
 let lastUserPrompt = "";
 let allDocumentsMeta = [];
@@ -36,13 +34,17 @@ let isIndexBuilt = false;
 const AI_CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // Cache indexu na 24 hodín
 
 /**
- * Hlavná inicializačná funkcia
+ * Hlavná inicializačná funkcia (Bez parametrov)
  */
-export async function initializeAIModule(db, userProfile = null) {
-    console.log('Inicializujem AI Legislatívneho Experta...');
-    firestoreDB = db; 
-    currentUserContext = userProfile || { funkcia: 'Neznámy', meno: 'Používateľ' };
+export async function initializeAIModule() {
+    console.log('Inicializujem AI Legislatívneho Experta (Store verzia)...');
     
+    const db = store.getDB();
+    if (!db) {
+        console.warn("AI Module: DB nie je dostupná.");
+        return;
+    }
+
     // Nastavenie UI poslucháčov (tlačidlá, inputy)
     setupAIInterface();
 
@@ -58,7 +60,7 @@ export async function initializeAIModule(db, userProfile = null) {
             model: AI_CONFIG.MODEL_NAME 
         });
 
-        // PRIDANÉ: Inicializácia Groq (Fallback)
+        // Inicializácia Groq (Fallback)
         if (AI_CONFIG.GROQ_API_KEY && AI_CONFIG.GROQ_API_KEY.length > 10) {
             groqClient = new OpenAI({
                 apiKey: AI_CONFIG.GROQ_API_KEY,
@@ -78,17 +80,17 @@ export async function initializeAIModule(db, userProfile = null) {
 
 /**
  * RAG: Vytvorí lokálny vyhľadávací index z Firebase dát (s podporou kategórií)
- * a naplní globálny zoznam dokumentov pre funkciu "Zobraziť všetko".
  */
 async function buildLocalSearchIndex() {
-    if (!firestoreDB) return;
+    const db = store.getDB();
+    if (!db) return;
 
     // Konfigurácia MiniSearch
     searchEngine = new MiniSearch({
-        fields: ['title', 'description', 'keywords', 'category'], // Polia na vyhľadávanie
-        storeFields: ['title', 'description', 'category', 'id'],  // Polia, ktoré sa vrátia vo výsledku
+        fields: ['title', 'description', 'keywords', 'category'], 
+        storeFields: ['title', 'description', 'category', 'id'],  
         searchOptions: {
-            boost: { title: 3, keywords: 2, category: 1.5 }, // Váhy relevancie
+            boost: { title: 3, keywords: 2, category: 1.5 }, 
             fuzzy: 0.2,
             prefix: true
         }
@@ -102,15 +104,13 @@ async function buildLocalSearchIndex() {
         if (cachedData && (now - cachedData.timestamp < AI_CACHE_DURATION_MS)) {
             console.log(`[RAG] Načítavam index z cache (vek: ${((now - cachedData.timestamp)/3600000).toFixed(1)}h).`);
             
-            // Načítanie indexu
             searchEngine = MiniSearch.loadJSON(cachedData.index, {
                 fields: ['title', 'description', 'keywords', 'category'],
                 storeFields: ['title', 'description', 'category', 'id'],
                 searchOptions: { boost: { title: 3, keywords: 2, category: 1.5 }, fuzzy: 0.2, prefix: true }
             });
 
-            // NOVÉ: Musíme obnoviť aj allDocumentsMeta z cacheovaného indexu
-            // Použijeme wildcard search (*), aby sme vytiahli všetko, čo je v indexe
+            // Obnovíme aj allDocumentsMeta z cacheovaného indexu
             const allDocs = searchEngine.search(MiniSearch.wildcard);
             allDocumentsMeta = allDocs.map(doc => ({
                 id: doc.id,
@@ -126,7 +126,7 @@ async function buildLocalSearchIndex() {
 
         // 2. Ak nie je cache, stiahneme z Firebase
         console.log('[RAG] Sťahujem knowledge_base z databázy...');
-        const q = query(collection(firestoreDB, 'knowledge_base'), where('isActive', '==', true));
+        const q = query(collection(db, 'knowledge_base'), where('isActive', '==', true));
         const snapshot = await getDocs(q);
         
         const docs = [];
@@ -141,15 +141,12 @@ async function buildLocalSearchIndex() {
             });
         });
 
-        // NOVÉ: Uložíme stiahnuté dokumenty do globálnej premennej
         allDocumentsMeta = docs;
 
-        // Pridanie do vyhľadávača
         searchEngine.addAll(docs);
         isIndexBuilt = true;
         console.log(`RAG: Zaindexovaných ${docs.length} dokumentov.`);
 
-        // 3. Uložíme index do cache
         const serializedIndex = JSON.stringify(searchEngine.toJSON());
         await saveAIIndexToIDB(serializedIndex);
 
@@ -160,13 +157,11 @@ async function buildLocalSearchIndex() {
 
 /**
  * Vyhľadá relevantné dokumenty pre System Prompt
- * Nevracia plný obsah, len "Menu" pre AI.
  */
 function getRelevantContext(userQuery) {
     if (!searchEngine || !isIndexBuilt || !userQuery) return "";
 
-    // 1. DETEKCIA ÚMYSLU: Chce používateľ zoznam všetkých dokumentov?
-    // Kľúčové slová: zoznam, obsah, všetky predpisy, čo vieš, aké zákony...
+    // 1. DETEKCIA ÚMYSLU: Zoznam
     const listKeywords = ['zoznam', 'všetky predpisy', 'všetky zákony', 'obsah databázy', 'aké máš dokumenty'];
     const lowerQuery = userQuery.toLowerCase();
     
@@ -176,7 +171,6 @@ function getRelevantContext(userQuery) {
         let listContext = "\n=== KOMPLETNÝ OBSAH DATABÁZY ===\n";
         listContext += "Používateľ požiadal o prehľad všetkých dostupných dokumentov. Tu je ich zoznam:\n\n";
         
-        // Zoskupíme podľa kategórií pre krajší výpis
         const byCategory = {};
         allDocumentsMeta.forEach(doc => {
             if (!byCategory[doc.category]) byCategory[doc.category] = [];
@@ -192,7 +186,7 @@ function getRelevantContext(userQuery) {
         return listContext;
     }
 
-    // 2. ŠTANDARDNÉ VYHĽADÁVANIE (RAG) - Pôvodný kód
+    // 2. ŠTANDARDNÉ VYHĽADÁVANIE (RAG)
     const results = searchEngine.search(userQuery).slice(0, 5);
 
     if (results.length === 0) {
@@ -217,12 +211,14 @@ function getRelevantContext(userQuery) {
 }
 
 /**
- * Nastavenie System Promptu a štart relácie
+ * Nastavenie System Promptu a štart relácie (Načíta Usera zo Store)
  */
 async function startNewChatSession() {
     if (!genAIModel) return; 
 
-    // Dynamický prompt pre špecialistu
+    // Získame aktuálneho používateľa zo Store
+    const user = store.getUser() || { funkcia: 'Neznámy', meno: 'Používateľ' };
+
     const baseInstruction = `
     Si špecializovaný AI asistent pre krízové riadenie a legislatívu SR.
     
@@ -244,8 +240,8 @@ async function startNewChatSession() {
     ${baseInstruction}
     
     === POUŽÍVATEĽ ===
-    Meno: ${currentUserContext.meno}
-    Pozícia: ${currentUserContext.funkcia || 'Neznáma'}
+    Meno: ${user.displayName || user.meno}
+    Pozícia: ${user.funkcia || 'Neznáma'}
     Dátum: ${new Date().toLocaleDateString('sk-SK')}
     `;
 
@@ -262,7 +258,7 @@ async function startNewChatSession() {
         ],
         generationConfig: {
             maxOutputTokens: 4000, 
-            temperature: 0.3, // Nízka teplota pre presnosť faktov
+            temperature: 0.3, 
         },
     });
 }
@@ -277,7 +273,6 @@ function setupAIInterface() {
     const sendBtn = document.getElementById('send-ai-btn');
     const inputField = document.getElementById('ai-input');
 
-    // Otváranie modalu
     if (fabBtn && modalOverlay) {
         fabBtn.addEventListener('click', () => {
             modalOverlay.classList.remove('hidden');
@@ -286,7 +281,6 @@ function setupAIInterface() {
         });
     }
 
-    // Zatváranie modalu
     const closeModal = () => {
         if (!modalOverlay) return;
         modalOverlay.classList.remove('active');
@@ -295,11 +289,9 @@ function setupAIInterface() {
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     
-    // Odoslanie správy
     if (sendBtn && inputField) {
         const handleSend = () => {
             sendMessage();
-            // Reset výšky inputu
             inputField.style.height = 'auto';
             inputField.focus(); 
         };
@@ -313,7 +305,6 @@ function setupAIInterface() {
         });
     }
 
-    // Reset
     if (resetBtn) resetBtn.addEventListener('click', resetConversation);
 }
 
@@ -341,42 +332,33 @@ async function sendMessage() {
 
     lastUserPrompt = userText;
     
-    // Kontrola relácie
+    // Kontrola relácie (Ak by user refreshol a session zmizla)
     if (!chatSession) {
-        if(genAIModel && firestoreDB) await startNewChatSession();
+        if(genAIModel) await startNewChatSession();
         if(!chatSession) return;
     }
 
-    // Vykreslenie používateľovej správy
     appendMessage(userText, 'ai-user');
     inputEl.value = '';
 
-    // Placeholder pre odpoveď bota
     const botMsgId = 'ai-msg-' + Date.now();
     appendMessage('<span class="typing-cursor"></span>', 'ai-bot', botMsgId);
     const botMsgElement = document.getElementById(botMsgId);
 
     try {
-        // 1. Získanie kontextu (zoznam dokumentov)
         const context = getRelevantContext(userText);
         
-        // 2. Vytvorenie promptu: Kontext + Otázka
         const fullPrompt = context 
             ? `${context}\n\nOTÁZKA POUŽÍVATEĽA:\n${userText}` 
             : userText;
         
-        // 3. Odoslanie do AI
         await processGeminiStream(fullPrompt, botMsgElement);
 
     } catch (error) {
-        // PRIDANÉ: Fallback na Groq pri zlyhaní Gemini
         console.error("Communication Error (Gemini):", error);
         botMsgElement.innerHTML = "<em>Systém Gemini je preťažený. Prepínam na záložný systém (Groq)...</em> <span class=\"typing-cursor\"></span>";
         
         try {
-            // Skúsime záložný systém s rovnakým promptom (vrátane kontextu)
-            // Poznámka: Posielame fullPrompt, aby aj Groq videl zoznam dokumentov,
-            // hoci možno nebude vedieť použiť "CMD_READ_DOC" tak efektívne.
             const fallbackText = await callGroqFallback(lastUserPrompt, getRelevantContext(lastUserPrompt));
             botMsgElement.innerHTML = marked.parse(fallbackText);
             botMsgElement.classList.add('finished');
@@ -402,19 +384,15 @@ async function processGeminiStream(inputText, element, metadata = null) {
             const chunkText = chunk.text();
             fullText += chunkText;
             
-            // Priebežné vykresľovanie (zatiaľ len surový markdown)
             const cursorHtml = '<span class="typing-cursor"></span>';
             element.innerHTML = marked.parse(fullText) + cursorHtml;
             scrollToBottom();
         }
 
         // --- Analýza odpovede ---
-        
-        // 1. Hľadáme príkaz CMD_READ_DOC
         const commandRegex = /CMD_READ_DOC:\s*([a-zA-Z0-9_-]+)/;
         const match = fullText.match(commandRegex);
 
-        // Vyčistíme text od príkazu pre finálne zobrazenie (ak tam nejaký text bol)
         const cleanText = fullText.replace(/CMD_READ_DOC:\s*[a-zA-Z0-9_-]+/g, '').trim();
         if (cleanText) {
             element.innerHTML = marked.parse(cleanText);
@@ -425,29 +403,24 @@ async function processGeminiStream(inputText, element, metadata = null) {
             const docId = match[1];
             console.log(`[AI] Žiada prečítať dokument ID: ${docId}`);
             
-            // Indikácia používateľovi, že AI pracuje
             if (!cleanText) {
                 element.innerHTML = `<em>Vyhľadávam podrobnosti v dokumente...</em> <span class="typing-cursor"></span>`;
             } else {
                 element.innerHTML += `<br><em>Otváram citovaný zákon...</em> <span class="typing-cursor"></span>`;
             }
 
-            // 3. Stiahnutie obsahu dokumentu
             const docResult = await fetchDocumentContent(docId, lastUserPrompt);
             
             if (docResult.metadata) {
-                // Rekurzívne volanie AI s OBSAHOM dokumentu
-                // Toto je kľúčový moment: AI dostane text a preformuluje odpoveď
+                // Rekurzívne volanie s OBSAHOM
                 await processGeminiStream(docResult.prompt, element, docResult.metadata);
-                return; // Ukončíme aktuálnu vetvu
+                return; 
             } else {
                 element.innerHTML += `<br><br><strong>Chyba:</strong> Dokument sa nepodarilo načítať.`;
             }
         }
 
-        // 3. Finálne ukončenie (ak už nežiada ďalší dokument)
         if (metadata) {
-            // Pridáme pätičku so zdrojom
             element.insertAdjacentHTML('beforeend', generateFooterHtml(metadata));
         }
 
@@ -455,13 +428,12 @@ async function processGeminiStream(inputText, element, metadata = null) {
         scrollToBottom();
 
     } catch (e) {
-        // Propagujeme chybu vyššie do sendMessage, kde ju zachytí Groq fallback
         throw e;
     }
 }
 
 /**
- * PRIDANÉ: Záložná funkcia pre volanie Groq API
+ * Záložná funkcia pre volanie Groq API
  */
 async function callGroqFallback(userQuery, contextString) {
     if (!groqClient) throw new Error("Groq client not initialized");
@@ -476,7 +448,7 @@ async function callGroqFallback(userQuery, contextString) {
     try {
         const completion = await groqClient.chat.completions.create({
             messages: messages,
-            model: AI_CONFIG.GROQ_MODEL || "llama-3.3-70b-versatile", // Aktualizovaný model
+            model: AI_CONFIG.GROQ_MODEL || "llama-3.3-70b-versatile", 
             temperature: 0.5,
             max_tokens: 4000
         });
@@ -492,16 +464,16 @@ async function callGroqFallback(userQuery, contextString) {
  * Stiahne plný text dokumentu z Firestore a pripraví "Strict Prompt"
  */
 async function fetchDocumentContent(docId, originalQuestion) {
-    if (!firestoreDB || !docId) return { prompt: "CHYBA: Neplatné ID.", metadata: null };
+    const db = store.getDB();
+    if (!db || !docId) return { prompt: "CHYBA: Neplatné ID.", metadata: null };
     
     try {
-        const docRef = doc(firestoreDB, 'knowledge_base', docId);
+        const docRef = doc(db, 'knowledge_base', docId);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
             const data = docSnap.data();
 
-            // Prísny prompt, ktorý donúti AI použiť len tento text
             const promptText = `
 === OBSAH DOKUMENTU: ${data.title} (${data.category}) ===
 Popis: ${data.description}
@@ -542,7 +514,6 @@ function generateFooterHtml(meta) {
     const downloadUrl = meta.teams_url;
     const slovLexUrl = meta.slov_lex;
     
-    // Badge pre kategóriu (napr. ZÁKON, VYHLÁŠKA)
     const categoryBadge = `<span style="
         background-color: #374151; 
         color: #e5e7eb; 
@@ -555,7 +526,6 @@ function generateFooterHtml(meta) {
         vertical-align: middle;
     ">${meta.category}</span>`;
 
-    // Hlavný odkaz (Title)
     let titleHtml;
     if (downloadUrl) {
         titleHtml = `<a href="${downloadUrl}" target="_blank" download style="color: var(--color-orange-accent, #ff9f43); text-decoration: underline; font-weight: bold;">
@@ -565,7 +535,6 @@ function generateFooterHtml(meta) {
         titleHtml = `<strong style="color: var(--color-orange-accent, #ff9f43);">${meta.title}</strong>`;
     }
 
-    // Odkaz na Slov-Lex (ak existuje)
     let extraLinks = '';
     if (slovLexUrl) {
         extraLinks = `<div style="margin-top: 4px; font-size: 0.85em;">
@@ -594,7 +563,6 @@ function generateFooterHtml(meta) {
     </div>`;
 }
 
-// Pomocné funkcie pre DOM
 function appendMessage(htmlContent, className, id = null) {
     const messagesArea = document.getElementById('ai-messages-area');
     const msgDiv = document.createElement('div');

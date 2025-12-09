@@ -1,4 +1,5 @@
-/* emp_module.js - Modular SDK Ready (No Firebase calls here) */
+/* emp_module.js - Modular SDK Ready (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 
@@ -7,13 +8,10 @@ import { Permissions } from './accesses.js';
 /* (emp_module.js) - EXPORT ONLY       */
 /* =================================== */
 
-let _allEmployeesData = null;
-let localActiveUser = null;
-
 // --- Aktivácia exportu (volané z mainWizard.js) ---
-export function activateGlobalExport(user, employeesData) {
-    localActiveUser = user;
-    _allEmployeesData = employeesData;
+export function activateGlobalExport() {
+    // Získame aktuálne dáta zo Store
+    const user = store.getUser();
 
     const exportBtn = document.querySelector('#export-excel-btn');
     if (exportBtn) {
@@ -22,7 +20,7 @@ export function activateGlobalExport(user, employeesData) {
         exportBtn.parentNode.replaceChild(newBtn, exportBtn);
         
         // Nastavíme viditeľnosť a funkčnosť
-        if (Permissions.canExportEmployees(localActiveUser)) {
+        if (Permissions.canExportEmployees(user)) {
             newBtn.classList.remove('hidden');
             newBtn.disabled = false;
             newBtn.setAttribute('title', 'Stiahnuť zoznam (XLSX)');
@@ -36,8 +34,11 @@ export function activateGlobalExport(user, employeesData) {
 
 // --- Funkcia exportu zamestnancov ---
 function exportEmployeesToExcel() {
+    const user = store.getUser();
+    const employeesMap = store.getEmployees();
+
     // Kontrola oprávnenia
-    if (!Permissions.canExportEmployees(localActiveUser)) {
+    if (!Permissions.canExportEmployees(user)) {
         showToast('Nemáte oprávnenie na exportovanie údajov.', TOAST_TYPE.ERROR);
         return;
     }
@@ -47,15 +48,16 @@ function exportEmployeesToExcel() {
         return;
     }
     
-    if (!_allEmployeesData || _allEmployeesData.size === 0) {
+    if (!employeesMap || employeesMap.size === 0) {
         showToast('Chyba: Dáta zamestnancov nie sú k dispozícii.', TOAST_TYPE.ERROR);
         return;
     }
 
     console.log('Exportujem zamestnancov...');
     
-    const allEmployeesArray = Array.from(_allEmployeesData.values());
-    const employeesToExport = filterEmployeesForExport(allEmployeesArray); 
+    // Konverzia Map na Array pre spracovanie
+    const allEmployeesArray = Array.from(employeesMap.values());
+    const employeesToExport = filterEmployeesForExport(allEmployeesArray, user); 
 
     if (employeesToExport.length === 0) {
         showToast('Nenašli sa žiadni zamestnanci na export.', TOAST_TYPE.ERROR);
@@ -112,8 +114,8 @@ function exportEmployeesToExcel() {
         XLSX.utils.book_append_sheet(wb, ws, "Zoznam zamestnancov");
         
         let filename = "zamestnanci";
-        if (localActiveUser && localActiveUser.funkcia === 'vedúci odboru') filename += "_OKR";
-        else if (localActiveUser && localActiveUser.funkcia === 'vedúci oddelenia') filename += "_" + (localActiveUser.oddelenie || 'X');
+        if (user && user.funkcia === 'vedúci odboru') filename += "_OKR";
+        else if (user && user.funkcia === 'vedúci oddelenia') filename += "_" + (user.oddelenie || 'X');
         filename += ".xlsx";
 
         XLSX.writeFile(wb, filename);
@@ -126,11 +128,11 @@ function exportEmployeesToExcel() {
 }
 
 // --- Pomocná funkcia pre filtrovanie ---
-function filterEmployeesForExport(allEmployeesArray) {
-    if (!localActiveUser) return [];
+function filterEmployeesForExport(allEmployeesArray, user) {
+    if (!user) return [];
 
-    const isVeduciOdboru = localActiveUser.funkcia === 'vedúci odboru';
-    const isVeduciOddelenia = localActiveUser.funkcia === 'vedúci oddelenia';
+    const isVeduciOdboru = user.funkcia === 'vedúci odboru';
+    const isVeduciOddelenia = user.funkcia === 'vedúci oddelenia';
 
     let employeesToExport = [];
 
@@ -154,7 +156,7 @@ function filterEmployeesForExport(allEmployeesArray) {
         });
 
     } else if (isVeduciOddelenia) {
-        employeesToExport = allEmployeesArray.filter(emp => emp.oddelenie === localActiveUser.oddelenie);
+        employeesToExport = allEmployeesArray.filter(emp => emp.oddelenie === user.oddelenie);
         employeesToExport.sort((a, b) => {
             const isLeaderA = (a.funkcia || '').toLowerCase() === 'vedúci oddelenia';
             const isLeaderB = (b.funkcia || '').toLowerCase() === 'vedúci oddelenia';
@@ -163,7 +165,7 @@ function filterEmployeesForExport(allEmployeesArray) {
             return (a.priezvisko || '').localeCompare(b.priezvisko || '', 'sk');
         });
     } else {
-         employeesToExport = allEmployeesArray.filter(emp => emp.mail && emp.mail.toLowerCase() === localActiveUser.email.toLowerCase());
+         employeesToExport = allEmployeesArray.filter(emp => emp.mail && emp.mail.toLowerCase() === user.email.toLowerCase());
     }
     
     return employeesToExport;

@@ -1,4 +1,5 @@
-/* cp_module.js - Modular SDK v9+ (Oprava zaokrúhľovania) */
+/* cp_module.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     doc, 
@@ -16,38 +17,20 @@ import { Permissions } from './accesses.js';
  * ===================================
  */
 
-let _allEmployeesData = null; 
 let selectedEmployeeId = null;
-let _dbReference = null;
-let _localActiveUser = null; 
 
-export function initializeCPModule(db, activeUser, employeesData) { 
+// Inicializácia modulu (už bez parametrov!)
+export function initializeCPModule() { 
     console.log("Inicializujem modul Cestovný príkaz...");
     
-    _allEmployeesData = employeesData;
-    _dbReference = db; 
-    _localActiveUser = activeUser;
-
-    const lookupId = activeUser.id || activeUser.oec; 
+    const activeUser = store.getUser();
+    const lookupId = activeUser ? (activeUser.id || activeUser.oec) : null; 
 
     if (activeUser && lookupId) {
-        console.log(`[CP] Inicializácia: Volám displayCPEmployeeDetails s ID: ${lookupId}`);
         displayCPEmployeeDetails(lookupId);
     }
 
-    try {
-        const dateInputs = ["#datum_zc_datum", "#datum_kc_datum", "#datum_1", "#datum_2"];
-        dateInputs.forEach(selector => {
-            const el = document.querySelector(selector);
-            if (el && typeof flatpickr !== 'undefined') {
-                flatpickr(el, { dateFormat: "d.m.Y", locale: "sk" });
-            }
-        });
-        populateTimeSelects();
-    } catch (e) {
-        console.error("Chyba pri inicializácii Flatpickr:", e);
-    }
-
+    // 1. Tlačidlo Vymazať (Môžeme klonovať, je to len tlačidlo)
     const clearBtn = document.getElementById('btn-clear-cp-form');
     if (clearBtn) {
         const newBtn = clearBtn.cloneNode(true);
@@ -59,49 +42,103 @@ export function initializeCPModule(db, activeUser, employeesData) {
         });
     }
 
+    // 2. Odoslanie formulára - POZOR: NEKLONOVAŤ CELÝ FORMULÁR
+    // Klonovanie by zničilo inputy, na ktoré chceme zavesiť Flatpickr
     const cpForm = document.getElementById('cp-form-embedded');
     if(cpForm) {
-        cpForm.addEventListener('submit', async (e) => {
+        // Odstránime starý listener (ak existuje) tak, že ho nahradíme novým (bez cloneNode)
+        // Alebo sa spoľahneme na to, že mainWizard.js púšťa init iba raz.
+        // Pre istotu len pridáme listener.
+        
+        // Ak by sme chceli byť 100% čistí bez klonovania, použijeme .onclick (prepíše starý) 
+        // alebo len addEventListener s vedomím, že init beží raz.
+        cpForm.onsubmit = async (e) => {
             e.preventDefault();
             await handleCPFormSubmit();
-        });
+        };
     }
 
+    // 3. Inicializácia Flatpickr (Kalendár) - Až po manipulácii s DOM
+    try {
+        const dateInputs = ["#datum_zc_datum", "#datum_kc_datum", "#datum_1", "#datum_2"];
+        dateInputs.forEach(selector => {
+            const el = document.querySelector(selector);
+            // Zrušíme starú inštanciu ak existuje (pre istotu)
+            if (el && el._flatpickr) {
+                el._flatpickr.destroy();
+            }
+            // Vytvoríme novú
+            if (el) {
+                flatpickr(el, { dateFormat: "d.m.Y", locale: "sk" });
+            }
+        });
+        populateTimeSelects();
+    } catch (e) {
+        console.error("Chyba pri inicializácii Flatpickr:", e);
+    }
+
+    // 4. Listenery pre výpočet stravného
     attachMealCalculationListeners();
+
+    // 5. Subscribe na zmeny v store
+    store.subscribe((state) => {
+        if (!state.isLoading && selectedEmployeeId) {
+            // Refresh logiky ak treba
+        }
+    });
 }
 
+// --- Listenery pre IBAN ---
 const editIbanBtn = document.getElementById('btn-edit-iban');
-if (editIbanBtn) editIbanBtn.addEventListener('click', openIbanModal);
+if (editIbanBtn) {
+    // Clone node pre čistý štart
+    const newBtn = editIbanBtn.cloneNode(true);
+    editIbanBtn.parentNode.replaceChild(newBtn, editIbanBtn);
+    newBtn.addEventListener('click', openIbanModal);
+}
 
 const ibanForm = document.getElementById('iban-form');
-if (ibanForm) ibanForm.addEventListener('submit', handleIbanSave);
+if (ibanForm) {
+    const newForm = ibanForm.cloneNode(true);
+    ibanForm.parentNode.replaceChild(newForm, ibanForm);
+    newForm.addEventListener('submit', handleIbanSave);
+}
 
 const closeIbanBtn = document.getElementById('close-iban-modal');
 if (closeIbanBtn) {
+    // Tu stačí pridať listener, clone netreba ak sa nemení logika
     closeIbanBtn.addEventListener('click', () => {
         document.getElementById('iban-modal').classList.add('hidden');
     });
 }
 
+/**
+ * Zobrazí detaily vybraného zamestnanca v ľavom paneli.
+ */
 export function displayCPEmployeeDetails(empId) {
     const detailElement = document.getElementById('cp-employee-details');
     if (!detailElement) return;
     
-    if (!_allEmployeesData || !empId) {
+    // Ťaháme dáta zo Store
+    const employeesData = store.getEmployees();
+    const activeUser = store.getUser();
+
+    if (!employeesData || !empId) {
         detailElement.innerHTML = '<p>Vyberte zamestnanca z globálneho zoznamu vpravo kliknutím.</p>';
         selectedEmployeeId = null;
         return;
     }
 
-    const emp = _allEmployeesData.get(empId);
+    const emp = employeesData.get(empId);
 
     if (!emp) {
-        detailElement.innerHTML = '<p>Chyba: Dáta zamestnanca neboli nájdené.</p>';
-        selectedEmployeeId = null;
+        // Ak sa nenašiel v Store, skúsime počkať (ak sa ešte načítava)
+        // Alebo vypíšeme chybu
+        detailElement.innerHTML = '<p>Načítavam dáta...</p>';
         return;
     }
 
-    if (!Permissions.canViewCP(_localActiveUser, emp)) {
+    if (!Permissions.canViewCP(activeUser, emp)) {
         detailElement.innerHTML = `<p style="color: #E53E3E; font-weight: bold;">
             Nemáte oprávnenie vidieť detaily zamestnanca ${emp.displayName} v tomto module.
         </p>`;
@@ -120,7 +157,11 @@ export function displayCPEmployeeDetails(empId) {
 }
 
 function populateTimeSelects() {
-    const timeSelects = [{ id: '#datum_zc_cas', defaultTime: '07:30' }, { id: '#datum_kc_cas', defaultTime: '15:30' }];
+    const timeSelects = [
+        { id: '#datum_zc_cas', defaultTime: '07:30' }, 
+        { id: '#datum_kc_cas', defaultTime: '15:30' }
+    ];
+    
     const startHour = 6;
     const endHour = 22;
 
@@ -142,9 +183,11 @@ function openIbanModal() {
         showToast("Najprv vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
         return;
     }
-    const emp = _allEmployeesData.get(selectedEmployeeId);
+    const emp = store.getEmployee(selectedEmployeeId);
+    const activeUser = store.getUser();
+
     if (!emp) return;
-    if (!_localActiveUser) {
+    if (!activeUser) {
          showToast("Pre úpravu údajov musíte byť prihlásený.", TOAST_TYPE.ERROR);
          return;
     }
@@ -159,7 +202,8 @@ function openIbanModal() {
 
 async function handleIbanSave(e) {
     e.preventDefault();
-    if (!selectedEmployeeId || !_dbReference) return;
+    const db = store.getDB();
+    if (!selectedEmployeeId || !db) return;
 
     const input = document.getElementById('iban-input');
     const newIban = input.value.trim();
@@ -174,13 +218,16 @@ async function handleIbanSave(e) {
         submitBtn.textContent = 'Ukladám...';
         submitBtn.disabled = true;
 
-        const empRef = doc(_dbReference, 'employees', selectedEmployeeId);
+        const empRef = doc(db, 'employees', selectedEmployeeId);
         await updateDoc(empRef, { iban: newIban });
 
-        const emp = _allEmployeesData.get(selectedEmployeeId);
+        // Aktualizujeme aj lokálny Store (aby sa UI hneď zmenilo bez reloadu)
+        // Toto je dôležité: Store je singleton, zmena v Map sa prejaví všade
+        const emp = store.getEmployee(selectedEmployeeId);
         if (emp) {
             emp.iban = newIban;
-            _allEmployeesData.set(selectedEmployeeId, emp);
+            // netreba volať set(), objekt je referenčný, ale pre istotu notify
+            store.notify(); 
         }
 
         displayCPEmployeeDetails(selectedEmployeeId);
@@ -201,8 +248,11 @@ async function handleCPFormSubmit() {
         showToast("Prosím, vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
         return;
     }
-    const emp = _allEmployeesData.get(selectedEmployeeId);
-    if (!emp || !Permissions.canViewCP(_localActiveUser, emp)) {
+    
+    const emp = store.getEmployee(selectedEmployeeId);
+    const activeUser = store.getUser();
+
+    if (!emp || !Permissions.canViewCP(activeUser, emp)) {
         showToast("Nemáte oprávnenie vygenerovať CP pre tohto zamestnanca.", TOAST_TYPE.ERROR);
         return;
     }
@@ -352,7 +402,6 @@ async function calculateMealAllowance(startDate, startTime, endDate, endTime) {
             currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        // ZMENA: Zaokrúhlenie celkovej sumy na 2 desatinné miesta
         displayMealAllowanceResult({ 
             duration: durationHours.toFixed(2), 
             totalAmount: totalAllowance.toFixed(2), 
@@ -382,8 +431,11 @@ function parseDateTime(dateStr, timeStr) {
 }
 
 async function getMealRateForDate(date) {
+    const db = store.getDB();
+    if (!db) return null;
+
     try {
-        const dietaryRef = collection(_dbReference, 'dietary');
+        const dietaryRef = collection(db, 'dietary');
         const snapshot = await getDocs(dietaryRef);
 
         if (snapshot.empty) return null;
@@ -423,7 +475,6 @@ function displayMealAllowanceResult(result) {
                 </li>`).join('') + '</ul></div>';
     }
 
-    // TU JE ZMENA: Pridané padding-top: 15px do posledného <p> tagu
     container.innerHTML = `
         <div style="padding: 0.5rem;">
             <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
@@ -444,30 +495,69 @@ function displayMealAllowanceError(message) {
 }
 
 function attachMealCalculationListeners() {
-    ['datum_zc_datum', 'datum_zc_cas', 'datum_kc_datum', 'datum_kc_cas'].forEach(id => {
+    // Definujeme presné ID polí, ktoré chceme sledovať
+    const watchIDs = ['datum_zc_datum', 'datum_zc_cas', 'datum_kc_datum', 'datum_kc_cas'];
+
+    watchIDs.forEach(id => {
         const field = document.getElementById(id);
+        
         if (field) {
+            // ODSTRÁNENÉ: field.cloneNode(true) - toto ničilo kalendár!
+            
+            // Keďže mainWizard načítava modul len raz (isCPModuleInitialized),
+            // nehrozí, že sa listenery budú nabaľovať donekonečna.
+            
+            // Pre istotu odstránime starý listener (ak by tam nejaký bol cez anonymnú funkciu, 
+            // je to ťažké, ale 'change' event sa dá prežiť aj viackrát, avšak
+            // správne riešenie v SPA aplikácii bez klonovania je jednoducho pridať listener.)
+            
             field.addEventListener('change', async () => {
                 const sD = document.getElementById('datum_zc_datum')?.value;
                 const sT = document.getElementById('datum_zc_cas')?.value;
                 const eD = document.getElementById('datum_kc_datum')?.value;
                 const eT = document.getElementById('datum_kc_cas')?.value;
-                if (sD && sT && eD && eT) await calculateMealAllowance(sD, sT, eD, eT);
+                
+                // Spustíme výpočet len ak sú vyplnené všetky polia
+                if (sD && sT && eD && eT) {
+                    await calculateMealAllowance(sD, sT, eD, eT);
+                }
             });
         }
     });
 }
 
 export function clearCPForm() {
-    ['ucel', 'miesto', 'spolucestujuci', 'cesta_z1', 'miesto_1', 'cesta_k1', 'cesta_z2', 'miesto_2', 'cesta_k2', 'cesta_z3', 'miesto_3', 'cesta_k3'].forEach(id => {
-        const el = document.getElementById(id); if(el) el.value = '';
+    // 1. Vymazanie textových polí
+    ['ucel', 'miesto', 'spolucestujuci', 'cesta_z1', 'miesto_1', 'cesta_k1', 
+     'cesta_z2', 'miesto_2', 'cesta_k2', 'cesta_z3', 'miesto_3', 'cesta_k3']
+    .forEach(id => {
+        const el = document.getElementById(id); 
+        if(el) el.value = '';
     });
+
+    // 2. Vymazanie dátumov a reset kalendára
     ['datum_zc_datum', 'datum_kc_datum', 'datum_1', 'datum_2'].forEach(id => {
         const el = document.getElementById(id); 
-        if(el) { el.value = ''; if(el._flatpickr) el._flatpickr.clear(); }
+        if(el) { 
+            el.value = ''; 
+            // Toto teraz bude fungovať, lebo sme nezničili inštanciu klonovaním
+            if(el._flatpickr) {
+                el._flatpickr.clear(); 
+            }
+        }
     });
-    const sT = document.getElementById('datum_zc_cas'); if(sT) sT.value = '07:30';
-    const eT = document.getElementById('datum_kc_cas'); if(eT) eT.value = '15:30';
+
+    // 3. Reset časov na predvolené hodnoty
+    const sT = document.getElementById('datum_zc_cas'); 
+    if(sT) sT.value = '07:30';
+    
+    const eT = document.getElementById('datum_kc_cas'); 
+    if(eT) eT.value = '15:30';
+
+    // 4. Skrytie výsledkov výpočtu
     const calc = document.getElementById('meal-calculation-results'); 
-    if(calc) { calc.style.display = 'none'; calc.innerHTML = ''; }
+    if(calc) { 
+        calc.style.display = 'none'; 
+        calc.innerHTML = ''; 
+    }
 }

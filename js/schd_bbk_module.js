@@ -1,4 +1,5 @@
-/* schd_bbkraj_module.js - Modular SDK Ready (No Firebase calls here) */
+/* schd_bbk_module.js - Modular SDK Ready (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { showToast, TOAST_TYPE } from './utils.js';
 
 /* ======================================= */
@@ -7,14 +8,12 @@ import { showToast, TOAST_TYPE } from './utils.js';
 /* ======================================= */
 
 let selectedFiles = []; // Pole pre uchovanie objektov File
-let _db;
-let _activeUser;
 
-export function initializeBBKModule(db, activeUser) {
-    _db = db;
-    _activeUser = activeUser;
-    
+export function initializeBBKModule() {
     console.log('Inicializujem modul BB Kraj (Smart Generator)...');
+    
+    // Získanie usera zo Store (ak by sme chceli v budúcnosti logovať akcie)
+    // const user = store.getUser(); 
     
     // Nastavenie predvoleného dátumu (aktuálny týždeň a rok)
     const today = new Date();
@@ -66,11 +65,17 @@ function setupEventListeners() {
 
     // 3. Tlačidlá
     if (processBtn) {
-        processBtn.addEventListener('click', processFiles);
+        // Odstránenie starého listenera cez cloneNode
+        const newProcessBtn = processBtn.cloneNode(true);
+        processBtn.parentNode.replaceChild(newProcessBtn, processBtn);
+        newProcessBtn.addEventListener('click', processFiles);
     }
 
     if (clearBtn) {
-        clearBtn.addEventListener('click', clearAll);
+        // Odstránenie starého listenera
+        const newClearBtn = clearBtn.cloneNode(true);
+        clearBtn.parentNode.replaceChild(newClearBtn, clearBtn);
+        newClearBtn.addEventListener('click', clearAll);
     }
 }
 
@@ -78,9 +83,8 @@ function setupEventListeners() {
  * Spracuje vybrané súbory a aktualizuje UI zoznam
  */
 function handleFiles(files) {
-    // Pridáme nové súbory k existujúcim (alebo nahradíme, podľa preferencie - tu konvertujeme na Array)
+    // Pridáme nové súbory k existujúcim
     selectedFiles = Array.from(files);
-    
     updateFileListUI();
 }
 
@@ -113,7 +117,7 @@ function updateFileListUI() {
     } else {
         listContainer.classList.add('hidden');
         dropZone.classList.remove('file-selected');
-        if (processBtn) processBtn.disabled = false;
+        if (processBtn) processBtn.disabled = false; // Necháme enabled, ale checkneme v processFiles
     }
 }
 
@@ -133,7 +137,7 @@ function clearAll() {
 }
 
 /**
- * Hlavná logika spracovania (extrahovaná z index.html)
+ * Hlavná logika spracovania
  */
 async function processFiles() {
     const statusMsg = document.getElementById('bbk-status-msg');

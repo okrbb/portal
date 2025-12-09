@@ -1,4 +1,4 @@
-/* accesses.js - Modular SDK Ready (No Firebase calls here) */
+/* accesses.js - RBAC Model (Pure Logic) */
 /* =================================== */
 /* CENTRÁLNE RIADENIE PRÍSTUPOV        */
 /* (accesses.js) - RBAC Model          */
@@ -27,10 +27,6 @@ const hasRole = (user, ...allowedRoles) => {
 const isOwnProfile = (user, targetEmp) => {
     if (!user?.email || !targetEmp?.mail) return false;
     return user.email.toLowerCase() === targetEmp.mail.toLowerCase();
-};
-
-const isDepartment = (targetEmp, deptName) => {
-    return targetEmp?.oddelenie?.toLowerCase() === deptName.toLowerCase(); // Napr. 'ocoakp' alebo 'ks izs'
 };
 
 // --- Verejný objekt s pravidlami (Implementácia matice) ---
@@ -172,7 +168,7 @@ export const Permissions = {
     },
 
     /**
-     * NOVÉ: Práva na zápis/editáciu v module PHM pre konkrétne vozidlo
+     * Práva na zápis/editáciu v module PHM pre konkrétne vozidlo
      * @param {Object} user - Aktívny používateľ
      * @param {string} evidenceNumber - EČV vozidla (napr. BB215GN)
      */

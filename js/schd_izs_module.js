@@ -1,4 +1,5 @@
-/* schd_izs_module.js - Modular SDK v9+ */
+/* schd_izs_module.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     doc, 
@@ -17,18 +18,17 @@ import { showToast, TOAST_TYPE } from './utils.js';
 /* (schd_izs_module.js)                */
 /* =================================== */
 
-let _db;
-let _activeUser;
 let selectedFile = null; 
 let selectedScheduleFile = null;
 let cisloSpisu = ''; 
 let selectedOvertimeFile = null; 
 
-export function initializeIZSModule(db, activeUser) {
-    _db = db;
-    _activeUser = activeUser;
+export function initializeIZSModule() {
+    console.log('Inicializujem modul IZS (Store verzia)...');
     
-    console.log('Inicializujem modul IZS (Modular)...');
+    // Získanie usera zo Store (pre prípadné logovanie alebo práva)
+    // const activeUser = store.getUser(); 
+    
     setupDropZone();         
     setupOvertimeLogic();    
     setupModalListeners();
@@ -331,7 +331,7 @@ async function renderTableFromExcel(file) {
         
         const modalFooter = document.getElementById('izsModalFooter');
         if (modalFooter) {
-            modalFooter.innerHTML = ''; // Vyčistiť staré tlačidlá ak tam sú
+            modalFooter.innerHTML = ''; 
             
             const exportBtn = document.createElement('button');
             exportBtn.className = 'ua-btn default';
@@ -344,7 +344,6 @@ async function renderTableFromExcel(file) {
         showToast(`Načítaný hárok: ${sheet.name()}`, TOAST_TYPE.SUCCESS);
 
     } catch (err) {
-        // ... (error handling ostáva rovnaký) ...
         console.error("Chyba pri spracovaní XLSX:", err);
         modalBody.innerHTML = `<p style="color:red; text-align:center;">Chyba pri spracovaní súboru: ${err.message}</p>`;
         showToast("Chyba pri spracovaní súboru.", TOAST_TYPE.ERROR);
@@ -534,17 +533,19 @@ async function generateRozdelovnik() {
 }
 
 async function saveScheduleToFirestore(year, monthIndex, monthName, data) {
-    if (!_db) return;
+    const db = store.getDB();
+    const activeUser = store.getUser();
+    if (!db) return;
+    
     const docId = `${year}-${monthIndex}`;
     try {
-        // ZMENA: Modular Set Doc
-        await setDoc(doc(_db, 'publishedSchedulesIZS', docId), {
+        await setDoc(doc(db, 'publishedSchedulesIZS', docId), {
             year: year,
             monthIndex: monthIndex,
             monthName: monthName,
             days: data, 
             updatedAt: serverTimestamp(),
-            updatedBy: _activeUser ? _activeUser.email : 'unknown'
+            updatedBy: activeUser ? activeUser.email : 'unknown'
         });
         console.log(`Dáta pre IZS (${docId}) boli úspešne uložené.`);
     } catch (error) {
@@ -766,10 +767,10 @@ function mergeScheduleAndOvertime(scheduleData, overtimeData) {
 }
 
 async function enrichWithEmployeeData(parsedData) {
-    if (!_db) return parsedData;
+    const db = store.getDB();
+    if (!db) return parsedData;
     try {
-        // ZMENA: Modular Get Docs
-        const employeesRef = collection(_db, 'employees');
+        const employeesRef = collection(db, 'employees');
         const snapshot = await getDocs(employeesRef);
         const dbEmployees = [];
         snapshot.forEach(doc => {
@@ -796,12 +797,12 @@ async function enrichWithEmployeeData(parsedData) {
 }
 
 async function fetchManagers() {
-    if (!_db) return { ksIzs: '', okr: '' };
+    const db = store.getDB();
+    if (!db) return { ksIzs: '', okr: '' };
     try {
         const managers = { ksIzs: '', okr: '' };
         
-        // ZMENA: Modular Queries
-        const employeesRef = collection(_db, 'employees');
+        const employeesRef = collection(db, 'employees');
         const q1 = query(employeesRef, where('funkcia', '==', 'vedúci oddelenia'), where('oddelenie', '==', 'KS IZS'), limit(1));
         const q2 = query(employeesRef, where('funkcia', '==', 'vedúci odboru'), where('oddelenie', '==', 'odbor krízového riadenia'), limit(1));
 
@@ -831,7 +832,6 @@ function parseScheduleForBilling(sheet, dateInfo) {
         const fullName = nameCell.value();
         if (!fullName || typeof fullName !== 'string' || fullName.trim() === '' || fullName.includes('Meno')) continue;
         
-        // PRIDANÉ: Ak meno obsahuje "náhrad", preskočíme tento riadok
         if (fullName.toLowerCase().includes('náhrad')) continue;
 
         const employeeRecord = { rawName: fullName.trim(), dayShifts: [], nightShifts: [], saturdayShifts: [], sundayShifts: [], holidayShifts: [] };
@@ -845,11 +845,8 @@ function parseScheduleForBilling(sheet, dateInfo) {
             if (bgRaw && bgRaw.toString().includes('rgb')) isBlue = isBlueColor(bgRaw); 
             else isBlue = (bgHex === '00B0F0' || bgHex === '0070C0');
 
-            // --- PRIDANÝ RIADOK: Musíme definovať, čo je polovičný úväzok ---
             const isHalfDay = ['1/2D', '1/2 D', '1/2L', '1/2 L'].includes(text);
-            // ---------------------------------------------------------------
 
-            // Teraz už premenná existuje a kód zbehne bez chyby
             if (isBlue && !isHalfDay) continue;
 
             const isHoliday = isYellowColor(bgHex);
@@ -859,7 +856,6 @@ function parseScheduleForBilling(sheet, dateInfo) {
 
             let hours = 0; let nightSurchargeHours = 0; let isDay = false; let isNight = false;
 
-            // Úprava: Pridaná logika pre 1/2 úväzky (6 hodín)
             if (text === 'SD') { 
                 isDay = true; 
                 hours = 12; 
@@ -870,7 +866,6 @@ function parseScheduleForBilling(sheet, dateInfo) {
                 nightSurchargeHours = 8; 
             }
             else if (['1/2D', '1/2 D', '1/2L', '1/2 L'].includes(text)) {
-                // Ak je to polovičná dovolenka alebo lekár, rátame 6 hodín
                 isDay = true;
                 hours = 6;
             }
@@ -899,7 +894,6 @@ function parseScheduleForAbsences(sheet, dateInfo) {
         const fullName = nameCell.value();
         if (!fullName || typeof fullName !== 'string' || fullName.trim() === '' || fullName.includes('Meno')) continue;
         
-        // PRIDANÉ: Ignorovanie náhradníkov
         if (fullName.toLowerCase().includes('náhrad')) continue;
 
         const absences = {}; 
@@ -908,7 +902,6 @@ function parseScheduleForAbsences(sheet, dateInfo) {
             const cell = range.cell(r, colIndex);
             const cellValue = cell.value(); 
             
-            // 1. Definujeme text a upperText HNEĎ NA ZAČIATKU
             const text = cellValue ? String(cellValue).trim() : ""; 
             const upperText = text.toUpperCase();
 
@@ -916,18 +909,15 @@ function parseScheduleForAbsences(sheet, dateInfo) {
             const bgRaw = extractColorFromFill(fill); 
             const bgHex = rgbToHex(bgRaw);
             
-            // Detekcia farieb
             const isRed = (bgHex === 'FF0000') || isRedColor(bgRaw);
             let isBlue = false; 
             if (bgRaw && bgRaw.toString().includes('rgb')) isBlue = isBlueColor(bgRaw); 
             else isBlue = (bgHex === '00B0F0' || bgHex === '0070C0');
 
-            // Definujeme, čo je polovičný úväzok
             const isHalfDay = ['1/2D', '1/2 D', '1/2L', '1/2 L'].includes(text);
 
             let reason = null;
             
-            // 2. LOGIKA PRE ČERVENÚ FARBU (S VÝNIMKAMI)
             if (isRed) {
                 if (upperText === 'L') {
                     reason = 'lekár';
@@ -936,11 +926,9 @@ function parseScheduleForAbsences(sheet, dateInfo) {
                 } else if (upperText === '1/2L' || upperText === '1/2 L') {
                     reason = '1/2 lekár';
                 } else {
-                    // Ak je červená a nie je tam L/Ld, tak je to PN
                     reason = "PN"; 
                 }
             } 
-            // 3. LOGIKA PRE MODRÚ FARBU
             else if (isBlue) {
                 if (upperText === 'D') {
                     reason = "dovolenka";
@@ -949,7 +937,6 @@ function parseScheduleForAbsences(sheet, dateInfo) {
                     reason = "1/2 dovolenka";
                 }
             } 
-            // 4. LOGIKA LEN PODĽA TEXTU (ak nie je farba)
             else if (text) {
                 if (upperText === 'PN') reason = 'PN'; 
                 else if (upperText === 'L') reason = 'lekár'; 
@@ -974,18 +961,13 @@ async function generateBillingExcel(data, dateInfo, managers) {
     const sheet = workbook.addWorksheet('Vyúčtovanie');
 
     sheet.pageSetup = { 
-        orientation: 'landscape', // Orientácia na šírku
-        paperSize: 9,             // Formát A4 (kód 9)
-        fitToPage: true,          // Povoliť prispôsobenie
-        fitToWidth: 1,            // Vtesnať všetky stĺpce na 1 stranu šírky
-        fitToHeight: 0,            // Výšku nechať automatickú (0 = auto), aby sa riadky nedeformovali, ak je ich veľa
+        orientation: 'landscape', 
+        paperSize: 9,             
+        fitToPage: true,          
+        fitToWidth: 1,            
+        fitToHeight: 0,            
         margins: {
-            top: 1,      // Horný okraj: 1
-            bottom: 1,   // Spodný okraj: 1
-            left: 1.5,   // Ľavý (štandardný)
-            right: 1.5,  // Pravý (štandardný)
-            header: 0.3, // Hlavička
-            footer: 0.3  // Päta
+            top: 1, bottom: 1, left: 1.5, right: 1.5, header: 0.3, footer: 0.3
         }
     };
 
@@ -1009,7 +991,7 @@ async function generateBillingExcel(data, dateInfo, managers) {
         let oecValue = emp.oec; if (oecValue && !isNaN(oecValue) && String(oecValue).trim() !== '') oecValue = Number(oecValue);
 
         const dataRow = sheet.addRow({ oec: oecValue, name: emp.dbName, night_s: formatShifts(emp.nightShifts), sat_s: formatShifts(emp.saturdayShifts), sun_s: formatShifts(emp.sundayShifts), holiday_s: formatShifts(emp.holidayShifts), ovt60_s: formatShifts(emp.overtime60), ovt30_s: formatShifts(emp.overtime30) });
-        dataRow.height = 90; // Nastavenie pevnej výšky riadka
+        dataRow.height = 90; 
         dataRow.font = { name: 'Calibri', size: 14 }; dataRow.alignment = { vertical: 'top', horizontal: 'left', wrapText: true }; dataRow.getCell('oec').alignment = { vertical: 'top', horizontal: 'center' };
         dataRow.eachCell({ includeEmpty: true }, (cell, colNumber) => { if (colNumber <= 8) { cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }; } });
 
@@ -1047,19 +1029,19 @@ async function generateBillingExcel(data, dateInfo, managers) {
     const signatureRowIndex = currentRowIdx + 8;
 
     const rowSignNames = sheet.getRow(signatureRowIndex);
-    const cellC_Name = rowSignNames.getCell(3); // Stĺpec C
+    const cellC_Name = rowSignNames.getCell(3); 
     cellC_Name.value = managers?.ksIzs || ''; 
     cellC_Name.font = { name: 'Calibri', size: 11, bold: false }; 
     cellC_Name.alignment = { horizontal: 'center' }; 
     cellC_Name.border = { top: { style: 'thin' } }; 
 
-    const cellF_Name = rowSignNames.getCell(6); // Stĺpec F
+    const cellF_Name = rowSignNames.getCell(6); 
     cellF_Name.value = managers?.okr || ''; 
     cellF_Name.font = { name: 'Calibri', size: 11, bold: false }; 
     cellF_Name.alignment = { horizontal: 'center' }; 
     cellF_Name.border = { top: { style: 'thin' } }; 
 
-    const rowSignTitles = sheet.getRow(signatureRowIndex + 1); // Riadok pod menami
+    const rowSignTitles = sheet.getRow(signatureRowIndex + 1); 
     const cellC_Title = rowSignTitles.getCell(3); 
     cellC_Title.value = "vedúci Koordinačného strediska IZS"; 
     cellC_Title.font = { name: 'Calibri', size: 10 }; 

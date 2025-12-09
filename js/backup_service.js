@@ -1,4 +1,5 @@
-/* js/backup_service.js - Modular SDK v9+ (Samostatné súbory) */
+/* js/backup_service.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { collection, getDocs } from 'firebase/firestore';
 import { showToast, TOAST_TYPE } from './utils.js';
 
@@ -11,14 +12,16 @@ const COLLECTIONS_TO_BACKUP = [
     'dietary',              // Stravné jednotky
     'payments',             // Platové triedy
     'towns_em',             // E-maily obcí
-    'user_roles'            // Role používateľov
+    'user_roles',           // Role používateľov
+    'knowledge_base'        // AI Dokumenty
 ];
 
 /**
  * Spustí proces zálohovania (každá kolekcia = 1 súbor).
- * @param {Object} db - Inštancia Firestore
  */
-export async function performFullBackup(db) {
+export async function performFullBackup() {
+    const db = store.getDB();
+
     if (!db) {
         showToast("Chyba: Databáza nie je pripojená.", TOAST_TYPE.ERROR);
         return;

@@ -1,4 +1,5 @@
-/* announcements.js - Modular SDK v9+ */
+/* announcements.js - Modular SDK v9+ (Store Integrated) */
+import { store } from './store.js'; // CENTRÁLNY STORE
 import { 
     collection, 
     query, 
@@ -16,10 +17,11 @@ import { logUserAction } from './logs_module.js';
 
 /**
  * Hlavná funkcia pre vykreslenie Widgetu Oznámenia.
- * @param {Object} db - Firestore inštancia (z config.js)
- * @param {Object} user - Aktívny používateľ
  */
-export function renderAnnouncementWidget(db, user) {
+export function renderAnnouncementWidget() {
+    const db = store.getDB();
+    const user = store.getUser();
+
     // 1. Nájdeme existujúci kontajner z HTML
     let card = document.getElementById('announcement-widget-container');
     
@@ -37,11 +39,13 @@ export function renderAnnouncementWidget(db, user) {
     }
 
     // 2. Načítanie dát z Firestore
-    loadAnnouncementData(db, user, card);
+    if (db && user) {
+        loadAnnouncementData(db, user, card);
 
-    // 3. Inicializácia modálneho okna (ak je užívateľ admin/vedúci)
-    if (Permissions.canManageAnnouncements(user)) {
-        setupAnnouncementModal(db, user);
+        // 3. Inicializácia modálneho okna (ak je užívateľ admin/vedúci)
+        if (Permissions.canManageAnnouncements(user)) {
+            setupAnnouncementModal(db, user);
+        }
     }
 }
 
@@ -50,7 +54,6 @@ export function renderAnnouncementWidget(db, user) {
  */
 async function loadAnnouncementData(db, user, cardElement) {
     try {
-        // ZMENA: Modular Query
         const announcementsRef = collection(db, 'announcements');
         const q = query(announcementsRef, orderBy('timestamp', 'desc'), limit(1));
         const snapshot = await getDocs(q);
@@ -148,7 +151,10 @@ function setupAnnouncementModal(db, user) {
     if (!modal || !form) return;
 
     if (closeBtn) {
-        closeBtn.onclick = () => modal.classList.add('hidden');
+        // Clone node pre čistý listener
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        newCloseBtn.onclick = () => modal.classList.add('hidden');
     }
     
     modal.onclick = (e) => {
@@ -156,7 +162,11 @@ function setupAnnouncementModal(db, user) {
     };
     
     // Odoslanie (Uloženie)
-    form.onsubmit = async (e) => {
+    // Clone node pre form, aby sa nehromadili listenery
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+
+    newForm.onsubmit = async (e) => {
         e.preventDefault();
         const text = document.getElementById(textareaId).value.trim();
 
@@ -166,11 +176,10 @@ function setupAnnouncementModal(db, user) {
         }
 
         try {
-            // ZMENA: Modular AddDoc
             await addDoc(collection(db, 'announcements'), {
                 text: text,
                 author: user.email,
-                timestamp: serverTimestamp() // ZMENA: Modular timestamp
+                timestamp: serverTimestamp()
             });
 
             showToast("Oznam bol zverejnený.", TOAST_TYPE.SUCCESS);
@@ -178,7 +187,7 @@ function setupAnnouncementModal(db, user) {
             modal.classList.add('hidden');
             
             // Prekreslíme widget
-            renderAnnouncementWidget(db, user);
+            renderAnnouncementWidget();
 
         } catch (error) {
             console.error("Chyba pri ukladaní oznamu:", error);
@@ -188,22 +197,24 @@ function setupAnnouncementModal(db, user) {
 
     // Mazanie
     if (deleteBtn) {
-        deleteBtn.onclick = async () => {
+        const newDeleteBtn = deleteBtn.cloneNode(true);
+        deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+
+        newDeleteBtn.onclick = async () => {
             if(confirm("Naozaj chcete odstrániť aktuálny oznam?")) {
                 try {
-                    // ZMENA: Modular Delete
                     const announcementsRef = collection(db, 'announcements');
                     const q = query(announcementsRef, orderBy('timestamp', 'desc'), limit(1));
                     const snapshot = await getDocs(q);
                     
                     if (!snapshot.empty) {
-                        await deleteDoc(snapshot.docs[0].ref); // ref je stále dostupný na objekte
+                        await deleteDoc(snapshot.docs[0].ref);
                     }
 
                     showToast("Oznam bol odstránený.", TOAST_TYPE.INFO);
                     logUserAction("OZNAM", "Odstránil globálny oznam.");
                     modal.classList.add('hidden');
-                    renderAnnouncementWidget(db, user);
+                    renderAnnouncementWidget();
 
                 } catch (error) {
                     console.error("Chyba mazania:", error);
