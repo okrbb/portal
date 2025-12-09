@@ -247,15 +247,46 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 /* === VIEW TRANSITION RULES === */
-::view-transition-old(root) {
-  animation: fade-out 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
+/* 1. Vypnutie globálnej animácie */
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: slide-in 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  mix-blend-mode: normal;
+  animation: none;
 }
 
+/* 2. Nastavenie Crossfade pre agendu */
+::view-transition-old(agenda-content),
+::view-transition-new(agenda-content) {
+  animation-duration: 0.5s; /* Rýchlosť prechodu */
+  animation-timing-function: ease-in-out;
+  mix-blend-mode: plus-lighter; /* Zabezpečí plynulé prelnutie bez stmavnutia */
+}
+
+/* Starý obsah mizne */
+::view-transition-old(agenda-content) {
+  animation-name: fade-out;
+}
+
+/* Nový obsah sa objavuje */
+::view-transition-new(agenda-content) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 /* 2️⃣ LAYOUT */
 /* ============================================
    TOP NAVIGATION BAR
@@ -701,6 +732,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-top: var(--spacing-xs);
   padding-left: 0;
   padding-right: 0;
+  view-transition-name: agenda-content;
 }
 
 /* ============================================
