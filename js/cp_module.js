@@ -4,7 +4,10 @@ import {
     collection, 
     doc, 
     updateDoc, 
-    getDocs 
+    getDoc,
+    getDocs,
+    query,
+    where
 } from 'firebase/firestore';
 
 import { showToast, TOAST_TYPE } from './utils.js';
@@ -30,7 +33,7 @@ export function initializeCPModule() {
         displayCPEmployeeDetails(lookupId);
     }
 
-    // 1. Tlačidlo Vymazať (Môžeme klonovať, je to len tlačidlo)
+    // 1. Tlačidlo Vymazať
     const clearBtn = document.getElementById('btn-clear-cp-form');
     if (clearBtn) {
         const newBtn = clearBtn.cloneNode(true);
@@ -42,32 +45,23 @@ export function initializeCPModule() {
         });
     }
 
-    // 2. Odoslanie formulára - POZOR: NEKLONOVAŤ CELÝ FORMULÁR
-    // Klonovanie by zničilo inputy, na ktoré chceme zavesiť Flatpickr
+    // 2. Odoslanie formulára
     const cpForm = document.getElementById('cp-form-embedded');
     if(cpForm) {
-        // Odstránime starý listener (ak existuje) tak, že ho nahradíme novým (bez cloneNode)
-        // Alebo sa spoľahneme na to, že mainWizard.js púšťa init iba raz.
-        // Pre istotu len pridáme listener.
-        
-        // Ak by sme chceli byť 100% čistí bez klonovania, použijeme .onclick (prepíše starý) 
-        // alebo len addEventListener s vedomím, že init beží raz.
         cpForm.onsubmit = async (e) => {
             e.preventDefault();
             await handleCPFormSubmit();
         };
     }
 
-    // 3. Inicializácia Flatpickr (Kalendár) - Až po manipulácii s DOM
+    // 3. Inicializácia Flatpickr (Kalendár)
     try {
         const dateInputs = ["#datum_zc_datum", "#datum_kc_datum", "#datum_1", "#datum_2"];
         dateInputs.forEach(selector => {
             const el = document.querySelector(selector);
-            // Zrušíme starú inštanciu ak existuje (pre istotu)
             if (el && el._flatpickr) {
                 el._flatpickr.destroy();
             }
-            // Vytvoríme novú
             if (el) {
                 flatpickr(el, { dateFormat: "d.m.Y", locale: "sk" });
             }
@@ -91,7 +85,6 @@ export function initializeCPModule() {
 // --- Listenery pre IBAN ---
 const editIbanBtn = document.getElementById('btn-edit-iban');
 if (editIbanBtn) {
-    // Clone node pre čistý štart
     const newBtn = editIbanBtn.cloneNode(true);
     editIbanBtn.parentNode.replaceChild(newBtn, editIbanBtn);
     newBtn.addEventListener('click', openIbanModal);
@@ -106,7 +99,6 @@ if (ibanForm) {
 
 const closeIbanBtn = document.getElementById('close-iban-modal');
 if (closeIbanBtn) {
-    // Tu stačí pridať listener, clone netreba ak sa nemení logika
     closeIbanBtn.addEventListener('click', () => {
         document.getElementById('iban-modal').classList.add('hidden');
     });
@@ -119,7 +111,6 @@ export function displayCPEmployeeDetails(empId) {
     const detailElement = document.getElementById('cp-employee-details');
     if (!detailElement) return;
     
-    // Ťaháme dáta zo Store
     const employeesData = store.getEmployees();
     const activeUser = store.getUser();
 
@@ -132,8 +123,6 @@ export function displayCPEmployeeDetails(empId) {
     const emp = employeesData.get(empId);
 
     if (!emp) {
-        // Ak sa nenašiel v Store, skúsime počkať (ak sa ešte načítava)
-        // Alebo vypíšeme chybu
         detailElement.innerHTML = '<p>Načítavam dáta...</p>';
         return;
     }
@@ -221,12 +210,9 @@ async function handleIbanSave(e) {
         const empRef = doc(db, 'employees', selectedEmployeeId);
         await updateDoc(empRef, { iban: newIban });
 
-        // Aktualizujeme aj lokálny Store (aby sa UI hneď zmenilo bez reloadu)
-        // Toto je dôležité: Store je singleton, zmena v Map sa prejaví všade
         const emp = store.getEmployee(selectedEmployeeId);
         if (emp) {
             emp.iban = newIban;
-            // netreba volať set(), objekt je referenčný, ale pre istotu notify
             store.notify(); 
         }
 
@@ -243,6 +229,10 @@ async function handleIbanSave(e) {
     }
 }
 
+// ========================================
+// LOGIKA GENEROVANIA A PODPISOV
+// ========================================
+
 async function handleCPFormSubmit() {
     if (!selectedEmployeeId) {
         showToast("Prosím, vyberte zamestnanca zo zoznamu.", TOAST_TYPE.ERROR);
@@ -256,9 +246,170 @@ async function handleCPFormSubmit() {
         showToast("Nemáte oprávnenie vygenerovať CP pre tohto zamestnanca.", TOAST_TYPE.ERROR);
         return;
     }
-    const formData = collectFormData(emp);
-    const filename = generateFilename(formData);
-    await generateCPDocx(formData, filename);
+
+    const submitBtn = document.querySelector('#cp-form-embedded button[type="submit"]');
+    if(submitBtn) {
+        submitBtn.textContent = 'Spracovávam...';
+        submitBtn.disabled = true;
+    }
+
+    try {
+        // 1. Zber základných dát z formulára
+        let formData = collectFormData(emp);
+
+        // 2. Získanie a doplnenie podpisov (Async operácia)
+        const signatures = await resolveSignatures(selectedEmployeeId);
+        formData = { ...formData, ...signatures };
+
+        // 3. Generovanie súboru
+        const filename = generateFilename(formData);
+        await generateCPDocx(formData, filename);
+
+    } catch (error) {
+        console.error("Chyba v procese generovania:", error);
+        showToast("Nastala chyba pri spracovaní dát.", TOAST_TYPE.ERROR);
+    } finally {
+        if(submitBtn) {
+            submitBtn.textContent = 'Generovať CP';
+            submitBtn.disabled = false;
+        }
+    }
+}
+
+/**
+ * Logika pre priradenie podpisov na základe roly a konfigurácie.
+ */
+async function resolveSignatures(employeeId) {
+    const signatures = {
+        podpis_1: '',
+        podpis_1a: '',
+        podpis_1b: '',
+        podpis_2: '',
+        podpis_3: ''
+    };
+
+    try {
+        // A. Získame rolu zamestnanca
+        const role = await getRoleForEmployee(employeeId);
+        
+        // B. Získame globálnu konfiguráciu CP (prednosta, vedúci OR)
+        const cpConfig = await getCPConfig(); // { prednosta: "...", veduci_or: "..." }
+
+        // Pomocné pre mená (cache v store)
+        const getName = (idOrOec) => findEmployeeNameByIdOrOec(idOrOec);
+
+        // C. Aplikácia pravidiel podľa zadania
+        if (role === 'admin') {
+            signatures.podpis_1 = cpConfig.prednosta || '';
+            signatures.podpis_1b = cpConfig.prednosta || '';
+            signatures.podpis_3 = cpConfig.veduci_or || '';
+        } 
+        else if (role === 'manager_1' || role === 'manager_2') {
+            const name28831 = getName('28831');
+            signatures.podpis_1 = name28831;
+            signatures.podpis_1a = name28831;
+            signatures.podpis_2 = cpConfig.prednosta || '';
+        } 
+        else if (['super_user_1', 'super_user_2', 'user'].includes(role)) {
+            const name28832 = getName('28832');
+            const name28831 = getName('28831');
+            signatures.podpis_1 = name28832;
+            signatures.podpis_1a = name28832;
+            signatures.podpis_2 = name28831;
+        }
+        else if (['super_user_IZS_1', 'super_user_IZS_2', 'user_IZS'].includes(role)) {
+            const name28845 = getName('28845');
+            const name28831 = getName('28831');
+            signatures.podpis_1 = name28845;
+            signatures.podpis_1a = name28845;
+            signatures.podpis_2 = name28831;
+        }
+        else {
+            // Fallback pre neznáme roly - môžeme nechať prázdne alebo nastaviť default
+            console.warn(`Neznáma rola pre CP podpisy: ${role}`);
+        }
+
+    } catch (e) {
+        console.error("Chyba pri získavaní podpisov:", e);
+        // V prípade chyby vrátime prázdne podpisy, aby nezlyhal celý export
+    }
+
+    return signatures;
+}
+
+// Pomocná funkcia: Získa rolu z kolekcie user_roles
+async function getRoleForEmployee(empId) {
+    const db = store.getDB();
+    if (!db) return 'user'; 
+
+    try {
+        // ZMENA: Nehľadáme podľa ID dokumentu, ale dopytujeme pole 'employeeID'
+        const rolesRef = collection(db, 'user_roles');
+        // Používame query a where, ktoré sú importované na začiatku súboru
+        const q = query(rolesRef, where('employeeID', '==', String(empId))); 
+        
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            return querySnapshot.docs[0].data().role || 'user';
+        } else {
+            console.warn(`Rola pre zamestnanca ${empId} sa nenašla, používam 'user'.`);
+        }
+    } catch (e) {
+        console.error("Chyba pri získavaní role:", e);
+    }
+    
+    return 'user'; 
+}
+
+// Pomocná funkcia: Získa config z kolekcie cp
+async function getCPConfig() {
+    const db = store.getDB();
+    const config = { prednosta: '', veduci_or: '' };
+    if (!db) return config;
+
+    try {
+        // ZMENA: Hľadáme v kolekcii 'employees' konkrétny dokument s ID 'cp'
+        const cpDocRef = doc(db, 'employees', 'cp'); 
+        const cpDocSnap = await getDoc(cpDocRef);
+
+        if (cpDocSnap.exists()) {
+            const data = cpDocSnap.data();
+            config.prednosta = data.prednosta || '';
+            config.veduci_or = data.veduci_or || '';
+        } else {
+            console.warn("Dokument 'employees/cp' neexistuje.");
+        }
+    } catch (e) {
+        console.error("Fetch CP config error:", e);
+    }
+    return config;
+}
+
+// Pomocná funkcia: Nájde meno zamestnanca (Tituly Meno Priezvisko) podľa ID alebo OEC
+function findEmployeeNameByIdOrOec(searchKey) {
+    const employeesMap = store.getEmployees();
+    if (!employeesMap) return '';
+
+    // 1. Skúsime priame ID
+    if (employeesMap.has(searchKey)) {
+        return formatEmpName(employeesMap.get(searchKey));
+    }
+
+    // 2. Skúsime hľadať podľa OEC
+    for (let [id, emp] of employeesMap) {
+        if (String(emp.oec) === String(searchKey)) {
+            return formatEmpName(emp);
+        }
+    }
+
+    return ''; // Nenájdené
+}
+
+function formatEmpName(emp) {
+    if (!emp) return '';
+    const titul = emp.titul ? `${emp.titul} ` : '';
+    return `${titul}${emp.meno} ${emp.priezvisko}`;
 }
 
 function collectFormData(emp) {
@@ -319,30 +470,43 @@ function generateFilename(formData) {
 
 async function generateCPDocx(data, filename) {
     const templatePath = 'data/cp.docx';
-    const submitBtn = document.querySelector('#cp-form-embedded button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Generujem...';
+    
+    try {
+        const response = await fetch(templatePath);
+        if (!response.ok) throw new Error(`Chyba pri načítaní šablóny: ${response.statusText}`);
+        
+        const content = await response.arrayBuffer();
+        const zip = new PizZip(content);
+        
+        // Inicializácia
+        const doc = new window.docxtemplater(zip, { 
+            paragraphLoop: true, 
+            linebreaks: true, 
+            delimiters: { start: "{{", end: "}}" } 
+        });
 
-        try {
-            const response = await fetch(templatePath);
-            if (!response.ok) throw new Error(`Chyba pri načítaní šablóny: ${response.statusText}`);
-            const content = await response.arrayBuffer();
-            const zip = new PizZip(content);
-            const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: "{{", end: "}}" } });
-            doc.setData(data);
-            doc.render();
-            const out = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            saveAs(out, filename);
-            showToast("Cestovný príkaz bol úspešne vygenerovaný.", TOAST_TYPE.SUCCESS);
-        } catch (error) {
-            console.error('Generovanie dokumentu:', error);
-            showToast(`Nastala chyba: ${error.message}`, TOAST_TYPE.ERROR);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+        doc.render(data);
+
+        // Generovanie blobu
+        const out = doc.getZip().generate({ 
+            type: 'blob', 
+            mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+        });
+
+        saveAs(out, filename);
+        showToast("Cestovný príkaz bol úspešne vygenerovaný.", TOAST_TYPE.SUCCESS);
+
+    } catch (error) {
+        console.error('Generovanie dokumentu:', error);
+
+        // Ak je to chyba templatingu, vypíšeme detaily do konzoly pre ľahšie ladenie
+        if (error.properties && error.properties.errors) {
+            error.properties.errors.forEach(function(err) {
+                console.error("Template Error:", err);
+            });
         }
+
+        showToast(`Nastala chyba: ${error.message}`, TOAST_TYPE.ERROR);
     }
 }
 
@@ -495,29 +659,15 @@ function displayMealAllowanceError(message) {
 }
 
 function attachMealCalculationListeners() {
-    // Definujeme presné ID polí, ktoré chceme sledovať
     const watchIDs = ['datum_zc_datum', 'datum_zc_cas', 'datum_kc_datum', 'datum_kc_cas'];
-
     watchIDs.forEach(id => {
         const field = document.getElementById(id);
-        
         if (field) {
-            // ODSTRÁNENÉ: field.cloneNode(true) - toto ničilo kalendár!
-            
-            // Keďže mainWizard načítava modul len raz (isCPModuleInitialized),
-            // nehrozí, že sa listenery budú nabaľovať donekonečna.
-            
-            // Pre istotu odstránime starý listener (ak by tam nejaký bol cez anonymnú funkciu, 
-            // je to ťažké, ale 'change' event sa dá prežiť aj viackrát, avšak
-            // správne riešenie v SPA aplikácii bez klonovania je jednoducho pridať listener.)
-            
             field.addEventListener('change', async () => {
                 const sD = document.getElementById('datum_zc_datum')?.value;
                 const sT = document.getElementById('datum_zc_cas')?.value;
                 const eD = document.getElementById('datum_kc_datum')?.value;
                 const eT = document.getElementById('datum_kc_cas')?.value;
-                
-                // Spustíme výpočet len ak sú vyplnené všetky polia
                 if (sD && sT && eD && eT) {
                     await calculateMealAllowance(sD, sT, eD, eT);
                 }
@@ -527,7 +677,6 @@ function attachMealCalculationListeners() {
 }
 
 export function clearCPForm() {
-    // 1. Vymazanie textových polí
     ['ucel', 'miesto', 'spolucestujuci', 'cesta_z1', 'miesto_1', 'cesta_k1', 
      'cesta_z2', 'miesto_2', 'cesta_k2', 'cesta_z3', 'miesto_3', 'cesta_k3']
     .forEach(id => {
@@ -535,26 +684,22 @@ export function clearCPForm() {
         if(el) el.value = '';
     });
 
-    // 2. Vymazanie dátumov a reset kalendára
     ['datum_zc_datum', 'datum_kc_datum', 'datum_1', 'datum_2'].forEach(id => {
         const el = document.getElementById(id); 
         if(el) { 
             el.value = ''; 
-            // Toto teraz bude fungovať, lebo sme nezničili inštanciu klonovaním
             if(el._flatpickr) {
                 el._flatpickr.clear(); 
             }
         }
     });
 
-    // 3. Reset časov na predvolené hodnoty
     const sT = document.getElementById('datum_zc_cas'); 
     if(sT) sT.value = '07:30';
     
     const eT = document.getElementById('datum_kc_cas'); 
     if(eT) eT.value = '15:30';
 
-    // 4. Skrytie výsledkov výpočtu
     const calc = document.getElementById('meal-calculation-results'); 
     if(calc) { 
         calc.style.display = 'none'; 
