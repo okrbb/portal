@@ -990,6 +990,29 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================
+   Vypnutie animácie pohybu (nadskočenia)
+   pre špecifické moduly a karty
+   ============================================ */
+/* 1. Cestovný príkaz */
+#cp-form-embedded .dashboard-card:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-md) !important; /* Ponechá pôvodný tieň */
+}
+
+/* Alebo ak je karta priamo rodičom formulára */
+.dashboard-card:has(#cp-form-embedded):hover {
+  transform: none;
+}
+
+/* 2. Rozpis pohotovosti BB kraj */
+#bbk-module .ua-card:hover,
+#izs-module .ua-card:hover,
+#ua-contributions-module .ua-card:hover,
+.fuel-car-card:hover {
+  transform: none !important;
+}
+
+/* ============================================
    MODÁLNE OKNÁ
    ============================================ */
 /* === DELETE MODAL === */
