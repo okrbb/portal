@@ -254,6 +254,7 @@ if (logoElement) {
 }
 
 // Klik na položky menu (S DYNAMICKÝMI IMPORTMI)
+// Toto ostáva pre spätnú kompatibilitu a proxy kliky z Dashboard kariet
 menuLinks.forEach(link => {
     link.addEventListener('click', async (event) => {
         event.preventDefault();
@@ -274,9 +275,10 @@ menuLinks.forEach(link => {
             const dropdownBtn = document.querySelector('.nav-dropdown-btn');
             const dropdownMenu = document.querySelector('.nav-dropdown-menu');
 
+            // Ak používame nové tlačidlo Domov, toto sa prepíše, ale nevadí to
             if (dropdownBtn) {
                 const iconClass = link.querySelector('i') ? link.querySelector('i').className : 'fa-solid fa-grid-2';
-                dropdownBtn.innerHTML = `<i class="${iconClass}"></i> ${moduleName} <i class="fas fa-chevron-down ml-2"></i>`;
+                // Necháme pôvodnú logiku, ale vizuálne bude tlačidlo "Domov" riešené nižšie
             }
             if (dropdownMenu) dropdownMenu.classList.remove('show');
 
@@ -372,6 +374,52 @@ menuLinks.forEach(link => {
         }
     });
 });
+
+// ===================================
+// NOVÁ LOGIKA PRE BENTO DASHBOARD NAVIGÁCIU
+// ===================================
+function initializeDashboardNavigation() {
+    const dashboardCards = document.querySelectorAll('.nav-link-card');
+    
+    // Mouse move effect pre "Glow"
+    const cardsContainer = document.querySelector('.bento-grid-container');
+    if(cardsContainer) {
+        cardsContainer.onmousemove = e => {
+            for(const card of document.getElementsByClassName("bento-card")) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            }
+        };
+    }
+
+    // Click logika
+    dashboardCards.forEach(card => {
+        card.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const targetId = card.getAttribute('data-target');
+            if (!targetId) return;
+
+            // 1. Vizuálna zmena aktívnej karty
+            dashboardCards.forEach(c => c.classList.remove('active')); // Zrušiť active všetkým
+            card.classList.add('active'); // Pridať kliknutej
+
+            // 2. Navigácia (Proxy na menu)
+            const originalLink = document.querySelector(`.main-menu a[data-target="${targetId}"]`);
+            if (originalLink) {
+                originalLink.click();
+            } else {
+                console.warn("Original menu link not found for target: " + targetId);
+            }
+        });
+    });
+    
+    // Automatické nastavenie aktívnej karty pri štarte (Dashboard)
+    const dashboardCard = document.querySelector('.nav-link-card[data-target="dashboard-module"]');
+    if(dashboardCard) dashboardCard.classList.add('active');
+}
 
 /**
  * Filtruje globálny zoznam zamestnancov.
@@ -1141,7 +1189,7 @@ async function initializeApp() {
         updateWelcomeWidget(activeUser);
         renderAnnouncementWidget(store.getDB(), activeUser);
         
-        // AI Modul je ľahký, inicializujeme hneď (alebo by sme mohli tiež lazy loadnuť až po kliknutí na FAB)
+        // AI Modul je ľahký, inicializujeme hneď
         initializeAIModule(store.getDB(), activeUser);
         
         if (titleElement) {
@@ -1154,6 +1202,9 @@ async function initializeApp() {
         activateGlobalExport(activeUser, employeesMap);
         renderGlobalEmployeeList();
         
+        // === NOVÁ NAVIGÁCIA (BENTO GRID) ===
+        initializeDashboardNavigation();
+
         await initializeDashboardCalendar(); 
         await loadDashboardDutyToday(store.getDB());
         
