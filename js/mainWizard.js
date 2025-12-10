@@ -36,6 +36,7 @@ import { renderAnnouncementWidget } from './announcements.js';
 import { initializeAIModule } from './ai_module.js';
 import { clearEmployeesIDB, clearAIIndexIDB } from './db_service.js';
 import { Permissions } from './accesses.js';
+import { DEMO_CONFIG, isDemoUser, activateDemoMode } from './demo_mode.js';
 
 // Poznámka: emp_module nechávame statický, pretože export tlačidlo je viditeľné hneď
 import { activateGlobalExport } from './emp_module.js';
@@ -52,8 +53,10 @@ const loginErrorMsg = document.querySelector('#login-error-msg');
 
 /**
  * Zobrazí modál a čaká na prihlásenie e-mailom a heslom.
+ * Obsahuje logiku pre Demo režim.
  */
 async function handleLogin() {
+    // 1. Kontrola existencie elementov
     if (!loginOverlay || !loginForm || !emailInput || !passwordInput || !loginErrorMsg) {
         console.error("[MW] Kritická chyba: Chýbajú HTML elementy pre prihlásenie.");
         return Promise.reject(new Error("Chýbajú prihlasovacie elementy."));
@@ -62,22 +65,47 @@ async function handleLogin() {
     loginOverlay.classList.remove('hidden');
 
     return new Promise((resolve) => {
+        // 2. Auth State Listener (spustí sa po úspešnom logine cez Firebase Auth)
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             if (authUser) {
-                unsubscribe();
+                unsubscribe(); // Odhlásime listener, aby sa nespúšťal opakovane
                 
                 try {
-                    // 1. Načítanie základných dát zamestnanca
-                    const employeesRef = collection(store.getDB(), "employees");
-                    const q = query(employeesRef, where("mail", "==", authUser.email), limit(1));
-                    const snapshot = await getDocs(q);
+                    let employeeData = null;
+                    let employeeId = null;
 
-                    if (snapshot.empty) {
-                        throw new Error(`Nenašiel sa profil pre ${authUser.email} v 'employees'.`);
+                    // === DEMO REŽIM LOGIKA ===
+                    if (isDemoUser(authUser.email)) {
+                        console.log("[Login] Demo užívateľ. Načítavam profil 'test'.");
+                        
+                        // 1. Natvrdo načítame dokument 'test' z employees
+                        const docRef = doc(store.getDB(), "employees", "test");
+                        const docSnap = await getDoc(docRef);
+                        
+                        if (docSnap.exists()) {
+                            employeeData = docSnap.data();
+                            employeeId = "test"; // Dôležité: ID musí byť 'test'
+                            
+                            // 2. Spustíme vizuálne obmedzenia (banner, blokovanie klikov)
+                            activateDemoMode();
+                        } else {
+                            throw new Error("Demo profil (ID: test) neexistuje v databáze.");
+                        }
+                    } 
+                    // === ŠTANDARDNÝ UŽÍVATEĽ ===
+                    else {
+                        const employeesRef = collection(store.getDB(), "employees");
+                        const q = query(employeesRef, where("mail", "==", authUser.email), limit(1));
+                        const snapshot = await getDocs(q);
+
+                        if (snapshot.empty) {
+                            throw new Error(`Nenašiel sa profil pre ${authUser.email} v 'employees'.`);
+                        }
+                        employeeData = snapshot.docs[0].data();
+                        employeeId = snapshot.docs[0].id;
                     }
-                    const employeeData = snapshot.docs[0].data();
 
-                    // 2. Načítanie ROLE
+                    // 3. Načítanie ROLE (spoločné pre oboch)
                     let userRole = 'user'; 
                     try {
                         const roleRef = doc(store.getDB(), "user_roles", authUser.uid);
@@ -90,9 +118,10 @@ async function handleLogin() {
                         console.error("[Login] Chyba pri sťahovaní role:", roleError);
                     }
 
-                    // 3. Vytvorenie profilu a uloženie do STORE
+                    // 4. Vytvorenie profilu a uloženie do STORE
                     const currentUserProfile = { 
                         uid: authUser.uid,
+                        id: employeeId, // Tu bude buď 'test' alebo reálne ID
                         email: authUser.email,
                         ...employeeData,
                         role: userRole, 
@@ -102,8 +131,10 @@ async function handleLogin() {
                     store.setUser(currentUserProfile);
                     updateLogsUser(currentUserProfile); 
 
+                    // Logovanie úspešného prihlásenia
                     await logUserAction("LOGIN", "Úspešné prihlásenie", true, null);
 
+                    // 5. UI Prechody (Odomknutie aplikácie)
                     const portalContainer = document.querySelector('.portal-container');
                     if (portalContainer) {
                         requestAnimationFrame(() => {
@@ -124,14 +155,18 @@ async function handleLogin() {
                     let msg = error.message;
                     loginErrorMsg.textContent = msg;
                     loginErrorMsg.style.display = 'block';
+                    
+                    // Ak nastala chyba (napr. nenájdený profil), odhlásime ho z Auth
                     await signOut(auth);
                     resolve(null);
                 }
             } else if (auth.currentUser === null) {
+                // Reset chybovej hlášky ak nie je nikto prihlásený
                 loginErrorMsg.style.display = 'none';
             }
         });
 
+        // 6. Listener pre odoslanie formulára (Login tlačidlo)
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             loginErrorMsg.style.display = 'none'; 
@@ -146,9 +181,10 @@ async function handleLogin() {
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged sa spustí automaticky po úspechu
             } catch (error) {
                 console.error("[MW] Chyba pri prihlásení v Auth:", error);
-                let msg = 'prístup zamietnutý';
+                let msg = 'Prístup zamietnutý.';
                 if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                     msg = 'Nesprávny e-mail alebo heslo.';
                 } else if (error.message) {

@@ -6,6 +6,8 @@ import {
 
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
+// PRIDANÉ: Import pre detekciu demo režimu
+import { isDemoUser } from './demo_mode.js'; 
 
 // Tento súbor obsahuje VŠETKU logiku z vášho samostatného projektu,
 // zabalenú do jednej funkcie, aby sa nespustila skôr, ako ju zavoláme.
@@ -31,34 +33,60 @@ export function initializeUAModule(db, activeUser) {
     let globalRok = '';    
 
     // ===================================
-    // KROK 1: Načítanie databázy e-mailov z Firestore
+    // KROK 1: Načítanie databázy e-mailov
     // ===================================
     
     if (!db) {
         console.error('Kritická chyba: Firestore databáza (db) nebola poskytnutá modulu UA.');
-        alert('CHYBA: Nepodarilo sa inicializovať prepojenie na databázu. Modul Príspevky UA sa nemôže spustiť.');
-        return; 
+        // V demo režime nemusíme blokovať ak chýba DB, ale tu DB zrejme je, len práva chýbajú.
+        if (!isDemoUser(activeUser.email)) {
+             alert('CHYBA: Nepodarilo sa inicializovať prepojenie na databázu. Modul Príspevky UA sa nemôže spustiť.');
+             return; 
+        }
     }
 
-    console.log('Načítavam e-maily obcí z Firestore (kolekcia towns_em)...');
+    console.log('Pripravujem načítanie e-mailov obcí...');
+
+    // --- NOVÁ LOGIKA: Rozhodovanie medzi Demo a Real dátami ---
+    const loadEmailsPromise = () => {
+        if (isDemoUser(activeUser.email)) {
+            console.log("🔥 DEMO REŽIM: Používam simulované dáta pre obce (obchádzam Firestore).");
+            // Vrátime simulovaný zoznam, ktorý sa tvári ako Firestore Snapshot
+            const mockSnapshot = [
+                { id: 'Obec Testov', data: () => ({ email: 'starosta@testov.sk' }) },
+                { id: 'Mesto Ukážkovo', data: () => ({ email: 'primator@ukazkovo.sk' }) },
+                { id: 'Horná Dolná', data: () => ({ email: 'obec@hornadolna.sk' }) },
+                { id: 'Banská Bystrica', data: () => ({ email: 'podatelna@banskabystrica.sk' }) }
+            ];
+            return Promise.resolve(mockSnapshot);
+        } else {
+            console.log("REÁLNY REŽIM: Sťahujem dáta z Firestore (towns_em)...");
+            const townsRef = collection(db, "towns_em");
+            return getDocs(townsRef);
+        }
+    };
     
-    // ZMENA: Modular Get Docs
-    const townsRef = collection(db, "towns_em");
-    getDocs(townsRef)
+    // Spustenie načítania
+    loadEmailsPromise()
         .then(querySnapshot => {
             
             const tempEmailData = {};
+            
+            // Spracovanie snapshotu (funguje pre real aj demo dáta)
             querySnapshot.forEach(doc => {
-                const data = doc.data();
+                // Ošetrenie: v Demo mocku je .data funkcia, vo Firestore SDK tiež, ale pre istotu
+                const data = typeof doc.data === 'function' ? doc.data() : doc.data;
+                const id = doc.id; // Názov obce
+                
                 if (data.email) {
-                    tempEmailData[doc.id] = data.email;
+                    tempEmailData[id] = data.email;
                 } else {
-                    console.warn(`Obec ${doc.id} v databáze towns_em nemá vyplnený e-mail.`);
+                    console.warn(`Obec ${id} nemá vyplnený e-mail.`);
                 }
             });
 
             emailData = tempEmailData; 
-            console.log(`Úspešne načítaných ${Object.keys(emailData).length} e-mailov z Firestore.`);
+            console.log(`Úspešne načítaných ${Object.keys(emailData).length} e-mailov.`);
 
             // 2. Selektory na elementy
             const dropZone = document.getElementById('dropZone');
@@ -314,6 +342,8 @@ S pozdravom
 
                 const subject = emailSubject.value;
                 const body = emailBody.value;
+                
+                // Získanie e-mailu z načítaných dát (Demo alebo Real)
                 const email = emailData[selectedObec] || '';
                 
                 generateExcelForObec(selectedObec); 
@@ -374,7 +404,13 @@ S pozdravom
 
         })
         .catch(e => {
-            console.error('Kritická chyba: Nepodarilo sa načítať dáta z Firestore (kolekcia towns_em).', e);
-            alert('CHYBA: Nepodarilo sa načítať databázu e-mailov z Firestore. Modul Príspevky UA sa nemôže spustiť. Skontrolujte konzolu (F12) a pripojenie k internetu.');
+            console.error('Kritická chyba pri inicializácii UA modulu:', e);
+            
+            // Špecifická hláška pre Permission chybu v Demo režime (ak by bypass zlyhal)
+            if (isDemoUser(activeUser.email) && e.code === 'permission-denied') {
+                 showToast('Chyba oprávnení v Demo režime. Skontrolujte nastavenie mock dát.', TOAST_TYPE.WARNING);
+            } else {
+                 alert('CHYBA: Nepodarilo sa načítať dáta pre modul UA. Skontrolujte pripojenie k internetu.');
+            }
         });
 }

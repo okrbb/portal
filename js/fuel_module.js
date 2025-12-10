@@ -19,6 +19,7 @@ import {
 import { showToast, TOAST_TYPE } from './utils.js';
 import { Permissions } from './accesses.js';
 import { logUserAction } from './logs_module.js';
+import { isDemoUser } from './demo_mode.js';
 
 let _carsUnsubscribe = null;
 let _historyChart = null;
@@ -774,6 +775,62 @@ async function openHistoryModal(carId, carBrand) {
     footer.style.justifyContent = 'flex-end';
     modal.classList.remove('hidden');
 
+    // --- DEMO REŽIM LOGIKA ---
+    if (isDemoUser(activeUser.email)) {
+        console.log("Demo režim: Generujem simulovanú históriu pre vozidlo.");
+        
+        // 1. Fiktívne dáta
+        const normCity = 8.5;
+        const normOutside = 6.0;
+        const mockEvents = [
+            { id: 'demo1', type: 'tankovanie', date: new Date('2024-03-01'), km_total: 150000, distance: 800, liters: 55.5, price: 90.5, consumption: 6.94, km_c: 200, km_a: 600 },
+            { id: 'demo2', type: 'jazda', date: new Date('2024-03-10'), km_total: 150300, distance: 300, km_c: 50, km_a: 250 },
+            { id: 'demo3', type: 'tankovanie', date: new Date('2024-04-01'), km_total: 151000, distance: 700, liters: 50.0, price: 82.0, consumption: 7.14, km_c: 300, km_a: 400 },
+            { id: 'demo4', type: 'jazda', date: new Date('2024-04-15'), km_total: 151200, distance: 200, km_c: 20, km_a: 180 }
+        ];
+
+        // 2. Zoradenie
+        mockEvents.sort((a, b) => b.date - a.date);
+        const eventsForChart = [...mockEvents].sort((a, b) => a.date - b.date);
+
+        // 3. Vykreslenie grafu
+        renderHistoryChart(eventsForChart, normCity, normOutside);
+
+        // 4. Výpočet štatistík
+        const monthlyStats = {};
+        let grandTotalLiters = 0;
+        let grandTotalDistance = 0;
+
+        mockEvents.forEach(e => {
+            grandTotalDistance += (e.distance || 0);
+            if (e.type === 'tankovanie') grandTotalLiters += (e.liters || 0);
+
+            const monthKey = `${e.date.getFullYear()}-${e.date.getMonth()}`;
+            if (!monthlyStats[monthKey]) monthlyStats[monthKey] = { km: 0, liters: 0, km_c: 0, km_a: 0 };
+            monthlyStats[monthKey].km += (e.distance || 0);
+            monthlyStats[monthKey].km_c += (e.km_c || 0);
+            monthlyStats[monthKey].km_a += (e.km_a || 0);
+            if (e.type === 'tankovanie') monthlyStats[monthKey].liters += (e.liters || 0);
+        });
+
+        let globalAverage = 0;
+        if (grandTotalDistance > 0) globalAverage = (grandTotalLiters / grandTotalDistance) * 100;
+
+        // 5. Vykreslenie tabuľky (použijeme rovnakú logiku ako v Real móde)
+        renderHistoryTableRows(tbody, mockEvents, monthlyStats, normCity, normOutside, globalAverage, false); // false = cannot edit in demo
+
+        // 6. Tlačidlá pätičky (bez funkčnosti v demo)
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'ua-btn default delete-hover';
+        closeBtn.innerHTML = 'Zavrieť';
+        closeBtn.onclick = () => modal.classList.add('hidden');
+        footer.appendChild(closeBtn);
+
+        return; // UKONČIŤ FUNKCIU (Aby sa nespustil Firestore request)
+    }
+    // --- KONIEC DEMO LOGIKY ---
+
+    // === PÔVODNÁ LOGIKA (Firestore) ===
     try {
         const carRef = doc(db, 'cars', carId);
         const refuelingsRef = collection(db, 'cars', carId, 'refuelings');
@@ -845,110 +902,8 @@ async function openHistoryModal(carId, carBrand) {
             if (e.type === 'tankovanie') monthlyStats[monthKey].liters += (e.liters || 0);
         });
 
-        tbody.innerHTML = '';
-        if (events.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Zatiaľ žiadne záznamy.</td></tr>';
-            return;
-        }
-
-        let currentMonthKey = null;
-        const monthNames = ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December'];
-
-        events.forEach(item => {
-            const itemMonthKey = `${item.date.getFullYear()}-${item.date.getMonth()}`;
-
-            if (itemMonthKey !== currentMonthKey) {
-                const stats = monthlyStats[itemMonthKey];
-                const monthName = monthNames[item.date.getMonth()];
-                const year = item.date.getFullYear();
-                
-                let monthlyConsumptionStr = '<span style="color:#aaa; font-weight:normal;">--</span>';
-                if (stats.km > 0) {
-                    if (stats.liters > 0) {
-                        const realCons = (stats.liters / stats.km) * 100;
-                        const color = (globalAverage > 0 && realCons > globalAverage * 1.3) ? '#E53E3E' : '#48BB78';
-                        monthlyConsumptionStr = `<strong style="color:${color}; font-size: 1rem;">${realCons.toFixed(2)} L/100km</strong>`;
-                    } else {
-                        let virtualCons = 0;
-                        if (normCity > 0 || normOutside > 0) {
-                            const theoreticalLiters = ((stats.km_c * normCity) + (stats.km_a * normOutside)) / 100;
-                            virtualCons = (theoreticalLiters / stats.km) * 100;
-                        } else if (globalAverage > 0) {
-                            virtualCons = globalAverage;
-                        }
-                        monthlyConsumptionStr = `
-                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                                <span style="font-size: 0.85rem;">(bez tankovania)</span>
-                                ${virtualCons > 0 ? `<span style="color:#DD6B20; font-size: 0.8rem; opacity: 0.8;"><i class="fas fa-calculator"></i> ~${virtualCons.toFixed(2)} L/100km</span>` : ''}
-                            </div>
-                        `;
-                    }
-                }
-
-                const summaryRow = document.createElement('tr');
-                summaryRow.style.cssText = `font-size: 0.9rem; border-bottom: 2px solid var(--color-border); font-weight: 700; color: var(--color-text-primary);`;
-                summaryRow.innerHTML = `
-                    <td colspan="2" style="padding: 15px 10px;">${monthName} ${year}</td>
-                    <td colspan="2" class="text-right" style="padding: 15px 10px;">Spolu: ${stats.km.toLocaleString()} km</td>
-                    <td class="text-right" style="padding: 15px 10px;">${monthlyConsumptionStr}</td>
-                    <td></td>
-                    <td></td>
-                `;
-                tbody.appendChild(summaryRow);
-                currentMonthKey = itemMonthKey;
-            }
-
-            const tr = document.createElement('tr');
-            const dateStr = item.date.toLocaleDateString('sk-SK');
-            const isoDate = item.date.toISOString().split('T')[0];
-            let typeHtml = '', consumptionHtml = '', editBtnHtml = '';
-
-            if (item.type === 'tankovanie') {
-                typeHtml = `<span class="badge-event badge-refuel"><i class="fas fa-gas-pump"></i> Tankovanie</span>`;
-                let displayVal = item.consumption;
-                let isSmoothed = false;
-                if (globalAverage > 0 && displayVal > (globalAverage * 2.0)) {
-                    displayVal = globalAverage;
-                    isSmoothed = true;
-                }
-                const litersPart = `<div style="font-weight:bold;">${item.liters.toFixed(2)} L</div>`;
-                let consPart = isSmoothed 
-                    ? `<div style="color: #DD6B20; font-size: 0.85rem;" title="Vyhladená hodnota"><i class="fas fa-calculator" style="font-size: 0.8em;"></i> ~${displayVal.toFixed(2)} L/100km</div>`
-                    : `<div style="font-size:0.8rem; color:#aaa;">${displayVal ? displayVal.toFixed(2) + ' L/100km' : ''}</div>`;
-                consumptionHtml = litersPart + consPart;
-                if (canEdit) {
-                    editBtnHtml = `
-                        <button class="action-btn-edit" 
-                            onclick="editHistoryRecord('tankovanie', '${item.id}', '${carId}', '${isoDate}', ${item.km_total}, ${item.liters}, ${item.price || 0}, ${item.km_c || 0})"
-                            title="Upraviť záznam">
-                            <i class="fas fa-edit"></i>
-                        </button>`;
-                }
-            } else {
-                typeHtml = `<span class="badge-event badge-drive"><i class="fas fa-route"></i> Jazda</span>`;
-                if (globalAverage > 0) consumptionHtml = `<div style="color: #aaa; font-size: 0.8rem;">~${globalAverage.toFixed(2)} L</div>`;
-                else consumptionHtml = `<span style="color:#aaa;">-</span>`;
-                if (canEdit) {
-                    editBtnHtml = `
-                        <button class="action-btn-edit" 
-                            onclick="editHistoryRecord('jazda', '${item.id}', '${carId}', '${isoDate}', ${item.km_total}, ${item.km_c || 0}, null, null)"
-                            title="Upraviť záznam">
-                            <i class="fas fa-edit"></i>
-                        </button>`;
-                }
-            }
-
-            tr.innerHTML = `
-                <td style="padding-left: 20px; font-size: 0.9em; opacity: 0.8;">${dateStr}</td>
-                <td style="opacity: 0.9;">${typeHtml}</td>
-                <td class="text-right" style="opacity: 0.9;">${item.km_total.toLocaleString()} km</td>
-                <td class="text-right">+${item.distance.toLocaleString()} km</td>
-                <td class="text-right">${consumptionHtml}</td>
-                <td class="text-right"><div style="font-size:1em; opacity: 0.7;">C: ${item.km_c} ↔ A: ${item.km_a}</div></td>
-                <td class="text-center">${editBtnHtml}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // Volanie renderovacej funkcie
+        renderHistoryTableRows(tbody, events, monthlyStats, normCity, normOutside, globalAverage, canEdit, carId);
 
         const excelBtn = document.createElement('button');
         excelBtn.className = 'ua-btn default';
@@ -973,6 +928,116 @@ async function openHistoryModal(carId, carBrand) {
         console.error("Chyba histórie:", error);
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: #E53E3E;">Chyba: ${error.message}</td></tr>`;
     }
+}
+
+// POMOCNÁ FUNKCIA PRE VYKRESLENIE RIADKOV (Aby sme nekopírovali kód)
+function renderHistoryTableRows(tbody, events, monthlyStats, normCity, normOutside, globalAverage, canEdit, carId = null) {
+    tbody.innerHTML = '';
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Zatiaľ žiadne záznamy.</td></tr>';
+        return;
+    }
+
+    let currentMonthKey = null;
+    const monthNames = ['Január', 'Február', 'Marec', 'Apríl', 'Máj', 'Jún', 'Júl', 'August', 'September', 'Október', 'November', 'December'];
+
+    events.forEach(item => {
+        const itemMonthKey = `${item.date.getFullYear()}-${item.date.getMonth()}`;
+
+        if (itemMonthKey !== currentMonthKey) {
+            const stats = monthlyStats[itemMonthKey];
+            const monthName = monthNames[item.date.getMonth()];
+            const year = item.date.getFullYear();
+            
+            let monthlyConsumptionStr = '<span style="color:#aaa; font-weight:normal;">--</span>';
+            if (stats.km > 0) {
+                if (stats.liters > 0) {
+                    const realCons = (stats.liters / stats.km) * 100;
+                    const color = (globalAverage > 0 && realCons > globalAverage * 1.3) ? '#E53E3E' : '#48BB78';
+                    monthlyConsumptionStr = `<strong style="color:${color}; font-size: 1rem;">${realCons.toFixed(2)} L/100km</strong>`;
+                } else {
+                    let virtualCons = 0;
+                    if (normCity > 0 || normOutside > 0) {
+                        const theoreticalLiters = ((stats.km_c * normCity) + (stats.km_a * normOutside)) / 100;
+                        virtualCons = (theoreticalLiters / stats.km) * 100;
+                    } else if (globalAverage > 0) {
+                        virtualCons = globalAverage;
+                    }
+                    monthlyConsumptionStr = `
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <span style="font-size: 0.85rem;">(bez tankovania)</span>
+                            ${virtualCons > 0 ? `<span style="color:#DD6B20; font-size: 0.8rem; opacity: 0.8;"><i class="fas fa-calculator"></i> ~${virtualCons.toFixed(2)} L/100km</span>` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            const summaryRow = document.createElement('tr');
+            summaryRow.style.cssText = `font-size: 0.9rem; border-bottom: 2px solid var(--color-border); font-weight: 700; color: var(--color-text-primary);`;
+            summaryRow.innerHTML = `
+                <td colspan="2" style="padding: 15px 10px;">${monthName} ${year}</td>
+                <td colspan="2" class="text-right" style="padding: 15px 10px;">Spolu: ${stats.km.toLocaleString()} km</td>
+                <td class="text-right" style="padding: 15px 10px;">${monthlyConsumptionStr}</td>
+                <td></td>
+                <td></td>
+            `;
+            tbody.appendChild(summaryRow);
+            currentMonthKey = itemMonthKey;
+        }
+
+        const tr = document.createElement('tr');
+        const dateStr = item.date.toLocaleDateString('sk-SK');
+        const isoDate = item.date.toISOString().split('T')[0];
+        let typeHtml = '', consumptionHtml = '', editBtnHtml = '';
+
+        if (item.type === 'tankovanie') {
+            typeHtml = `<span class="badge-event badge-refuel"><i class="fas fa-gas-pump"></i> Tankovanie</span>`;
+            let displayVal = item.consumption;
+            let isSmoothed = false;
+            if (globalAverage > 0 && displayVal > (globalAverage * 2.0)) {
+                displayVal = globalAverage;
+                isSmoothed = true;
+            }
+            const litersPart = `<div style="font-weight:bold;">${item.liters.toFixed(2)} L</div>`;
+            let consPart = isSmoothed 
+                ? `<div style="color: #DD6B20; font-size: 0.85rem;" title="Vyhladená hodnota"><i class="fas fa-calculator" style="font-size: 0.8em;"></i> ~${displayVal.toFixed(2)} L/100km</div>`
+                : `<div style="font-size:0.8rem; color:#aaa;">${displayVal ? displayVal.toFixed(2) + ' L/100km' : ''}</div>`;
+            consumptionHtml = litersPart + consPart;
+            
+            if (canEdit && carId) {
+                editBtnHtml = `
+                    <button class="action-btn-edit" 
+                        onclick="editHistoryRecord('tankovanie', '${item.id}', '${carId}', '${isoDate}', ${item.km_total}, ${item.liters}, ${item.price || 0}, ${item.km_c || 0})"
+                        title="Upraviť záznam">
+                        <i class="fas fa-edit"></i>
+                    </button>`;
+            }
+        } else {
+            typeHtml = `<span class="badge-event badge-drive"><i class="fas fa-route"></i> Jazda</span>`;
+            if (globalAverage > 0) consumptionHtml = `<div style="color: #aaa; font-size: 0.8rem;">~${globalAverage.toFixed(2)} L</div>`;
+            else consumptionHtml = `<span style="color:#aaa;">-</span>`;
+            
+            if (canEdit && carId) {
+                editBtnHtml = `
+                    <button class="action-btn-edit" 
+                        onclick="editHistoryRecord('jazda', '${item.id}', '${carId}', '${isoDate}', ${item.km_total}, ${item.km_c || 0}, null, null)"
+                        title="Upraviť záznam">
+                        <i class="fas fa-edit"></i>
+                    </button>`;
+            }
+        }
+
+        tr.innerHTML = `
+            <td style="padding-left: 20px; font-size: 0.9em; opacity: 0.8;">${dateStr}</td>
+            <td style="opacity: 0.9;">${typeHtml}</td>
+            <td class="text-right" style="opacity: 0.9;">${item.km_total.toLocaleString()} km</td>
+            <td class="text-right">+${item.distance.toLocaleString()} km</td>
+            <td class="text-right">${consumptionHtml}</td>
+            <td class="text-right"><div style="font-size:1em; opacity: 0.7;">C: ${item.km_c} ↔ A: ${item.km_a}</div></td>
+            <td class="text-center">${editBtnHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 function editHistoryRecord(type, id, carId, dateStr, kmTotal, val1, val2, val3) {

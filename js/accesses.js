@@ -29,6 +29,8 @@ const isOwnProfile = (user, targetEmp) => {
     return user.email.toLowerCase() === targetEmp.mail.toLowerCase();
 };
 
+import { isDemoUser } from './demo_mode.js';
+
 // --- Verejný objekt s pravidlami (Implementácia matice) ---
 
 export const Permissions = {
@@ -37,6 +39,9 @@ export const Permissions = {
      * Matica prístupov k modulom (Menu vľavo)
      */
     canViewModule: (user, moduleId) => {
+        if (user && isDemoUser(user.email)) {
+            return true;
+        }
         if (!user || !user.role) return false;
 
         // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
@@ -102,6 +107,11 @@ export const Permissions = {
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
         if (!user || !targetEmp) return false;
+
+        // --- DEMO LOGIKA: Vidí iba seba (profil s ID 'test') ---
+        if (isDemoUser(user.email)) {
+            return targetEmp.id === 'test';
+        }
 
         // 1. Admin vidí všetkých
         if (hasRole(user, ROLES.ADMIN)) return true;
