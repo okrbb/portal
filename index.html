@@ -597,11 +597,61 @@
 
     <div id="fuel-help-modal" class="modal-overlay hidden">
         <div class="modal-content" style="max-width: 750px;">
-            <div class="modal-header"><h2><i class="fas fa-info-circle"></i> Metodika</h2><button class="modal-close" id="close-fuel-help">&times;</button></div>
-            <div class="modal-body" style="font-size: 0.95rem; line-height: 1.6;">
-                <h3 style="color: var(--color-orange-accent);">1. Karty vozidiel</h3><p>Vysvetlenie metodiky...</p>
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle" style="color: var(--color-orange-accent); margin-right: 10px;"></i>Metodika výpočtu a Editácia</h2>
+                <button class="modal-close" id="close-fuel-help">&times;</button>
             </div>
-            <div class="modal-footer"><button class="ua-btn default" id="btn-close-help-footer">Zavrieť</button></div>
+            <div class="modal-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-primary);">
+                
+                <h3 style="color: var(--color-orange-accent); margin-top: 0;">1. Karty vozidiel</h3>
+                <p>Na karte vozidla sa zobrazuje <strong style="color: #DD6B20;">priemerná spotreba</strong> za vybrané obdobie. Rozlišujú sa dva stavy pre zobrazenie spotreby v konkrétnom mesiaci.</p>
+                <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 20px; list-style-type: disc;">
+                    <li><strong>Jazdy s tankovaním</strong> <p>V tomto prípade aplikácia počíta <strong style="color: #DD6B20;">reálnu spotrebu</strong> pre daný mesiac.</p></li>
+                    <li style="margin-top: 5px;"><strong>Jazdy bez tankovania - <i class="fas fa-calculator" style="color: #DD6B20;"></i></strong><p>Tu aplikácia nemôže vypočítať reálnu spotrebu (lebo nevie, koľko paliva reálne ubudlo, keďže ste netankovali).
+                        Používa preto <strong style="color: #DD6B20;">virtuálnu (odhadovanú) spotrebu.</strong></li>
+                        <ol style="margin-left: 2rem;">
+                        <li style="margin-top: 5px;"><strong>Existuje história:</strong> Ak má auto už nejakú históriu tankovaní z iných mesiacov, aplikácia použije dlhodobý reálny priemer vozidla (vypočítaný zo všetkých tankovaní v histórii).</li>
+                        <li><strong>História neexistuje:</strong> Ak auto ešte nemá žiadne tankovania, aplikácia použije technickú normu (kombináciu normy v meste a mimo mesta podľa toho, koľko km sa jazdilo v meste).</li>
+                        </ol>
+                </ul>
+
+                <div style="border-top: 1px solid var(--color-border); margin: 15px 0;"></div>
+
+                <h3 style="color: var(--color-orange-accent);">2. História a Mesačný výkaz</h3>
+                <p style="margin-top: 5px;">V histórii rozlišujeme dva typy výpočtov, ktoré sú farebne odlíšené:</p>
+                
+                <div style="margin-top: 10px; margin-bottom: 20px;">
+                    <strong>A. Reálna spotreba</strong><strong style="color: #48BB78;"> ( Zelená /</strong><strong style="color: #E53E3E;"> Červená )</strong>
+                    <p style="margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        Zobrazuje sa, ak ste v danom mesiaci tankovali.
+                    </p>
+                    <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">(Natankované litre ÷ Prejdené km) × 100</code>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>B. Virtuálna spotreba - ikona </strong><strong style="color: #DD6B20;"><i class="fas fa-calculator"></i></strong><strong> ( ~), alebo ich kombinácia</strong>
+                    <p style="margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        Zobrazujú sa, ak ste jazdili, ale <strong style="color: #DD6B20;">netankovali</strong> (palivo z minulého mesiaca).
+                        Systém vypočíta teoretickú spotrebu na základe vašich noriem pre mesto a mimo mesta, ak existuje história vozidla vypočíta dlhodobý priemer.
+                    </p>
+                </div>
+
+                <div style="border-top: 1px solid var(--color-border); margin: 15px 0;"></div>
+
+                <h3 style="color: var(--color-orange-accent);">3. Editácia a Prepočty</h3>
+                <p style="margin-top: 5px;">
+                    Aplikácia obsahuje <strong style="color: #DD6B20;">inteligentný reťazový prepočet</strong>.
+                    Ak spätne upravíte starý záznam (napr. zmeníte stav tachometra pri jazde v januári), systém automaticky:
+                </p>
+                <ol style="margin-left: 2rem; margin-top: 5px;">
+                    <li>Opraví daný záznam.</li>
+                    <li>Prepočíta vzdialenosti a spotrebu pre <strong style="color: #DD6B20;">všetky nasledujúce tankovania</strong> až do súčasnosti.</li>
+                </ol>
+
+            </div>
+            <div class="modal-footer">
+                <button class="ua-btn default" id="btn-close-help-footer">Zavrieť</button>
+            </div>
         </div>
     </div>
 
