@@ -114,9 +114,99 @@ function loadCars() {
     const grid = document.getElementById('fuel-cars-grid');
     if (!grid) return;
     
+    // Získame užívateľa na kontrolu Demo režimu
+    const activeUser = store.getUser();
+
     if (_carsUnsubscribe) {
         _carsUnsubscribe();
     }
+
+    // === DEMO REŽIM LOGIKA ===
+    if (isDemoUser(activeUser.email)) {
+        console.log("Demo režim: Generujem simulované vozidlá.");
+        grid.innerHTML = '';
+
+        // Definícia fiktívnych áut
+        const demoCars = [
+            {
+                id: 'demo_1',
+                data: {
+                    brand: 'Škoda Octavia Combi III',
+                    evidence_number: 'OKR-DEMO-01',
+                    norm_city: 6.5,
+                    norm: 5.1,
+                    tank_capacity: 50,
+                    current_fuel_level: 32.5, // cca 65%
+                    current_km: 158420,
+                    start_km_norm_c: 5000,
+                    start_km_norm_a: 12000
+                },
+                display: {
+                    current_km: 158420,
+                    average_consumption: 5.85,
+                    km_norm_c: 5200,
+                    km_norm_a: 12500,
+                    isVirtual: false,
+                    monthly_fuel_level: null
+                }
+            },
+            {
+                id: 'demo_2',
+                data: {
+                    brand: 'Kia Sportage',
+                    evidence_number: 'OKR-DEMO-02',
+                    norm_city: 8.2,
+                    norm: 6.8,
+                    tank_capacity: 60,
+                    current_fuel_level: 12.0, // cca 20% (low)
+                    current_km: 45200,
+                    start_km_norm_c: 2000,
+                    start_km_norm_a: 8000
+                },
+                display: {
+                    current_km: 45200,
+                    average_consumption: 7.9,
+                    km_norm_c: 2200,
+                    km_norm_a: 8500,
+                    isVirtual: false,
+                    monthly_fuel_level: null
+                }
+            },
+            {
+                id: 'demo_3',
+                data: {
+                    brand: 'Hyundai Tucson',
+                    evidence_number: 'OKR-DEMO-03',
+                    norm_city: 9.0,
+                    norm: 7.2,
+                    tank_capacity: 55,
+                    current_fuel_level: 50.0, // Plná (high)
+                    current_km: 12500,
+                    start_km_norm_c: 500,
+                    start_km_norm_a: 3000
+                },
+                display: {
+                    current_km: 12500,
+                    average_consumption: 8.5,
+                    km_norm_c: 600,
+                    km_norm_a: 3200,
+                    isVirtual: true, // Ukážka virtuálneho výpočtu
+                    monthly_fuel_level: null
+                }
+            }
+        ];
+
+        // Vykreslenie kariet
+        demoCars.forEach(car => {
+            // Pre demo režim ignorujeme filterState.month pre zjednodušenie, 
+            // alebo ho môžeme simulovať, ale 'false' (celkový pohľad) stačí pre ukážku.
+            const card = createCarCard(car.id, car.data, car.display, false);
+            grid.appendChild(card);
+        });
+
+        return; // UKONČIŤ, aby sa nespúšťal Firestore snapshot
+    }
+    // === KONIEC DEMO LOGIKY ===
 
     const db = store.getDB();
     if (!db) return;
