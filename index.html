@@ -76,8 +76,8 @@
                 <ul class="nav-dropdown-menu main-menu" style="display: none;">
                     <li><a href="#" data-target="dashboard-module">Prehľad</a></li>
                     <li><a href="#" data-target="cestovny-prikaz-module">Cestovný príkaz</a></li>
-                    <li><a href="#" data-target="pohotovost-module">Pohotovosť OKR</a></li>
-                    <li><a href="#" data-target="bbk-module">Pohotovosť BB Kraj</a></li>
+                    <li><a href="#" data-target="pohotovost-module">Rozpis pohotovosti OKR</a></li>
+                    <li><a href="#" data-target="bbk-module">Rozpis pohotovosti BBK</a></li>
                     <li><a href="#" data-target="izs-module">Služby IZS</a></li>
                     <li><a href="#" data-target="ua-contributions-module">Príspevky UA</a></li>
                     <li><a href="#" data-target="fuel-module">Evidencia PHM</a></li>
@@ -161,14 +161,14 @@
                     <a href="#" class="bento-card nav-link-card" data-target="pohotovost-module">
                         <div class="bento-icon-wrapper"><i class="fas fa-phone-volume"></i></div>
                         <div class="bento-content">
-                            <div class="bento-title">Pohotovosť OKR</div>
+                            <div class="bento-title">Rozpis pohotovosti OKR</div>
                         </div>
                     </a>
 
                     <a href="#" class="bento-card nav-link-card" data-target="bbk-module">
                         <div class="bento-icon-wrapper"><i class="fas fa-map-marked-alt"></i></div>
                         <div class="bento-content">
-                            <div class="bento-title">Pohotovosť BB Kraj</div>
+                            <div class="bento-title">Rozpis pohotovosti BBK</div>
                         </div>
                     </a>
 
@@ -789,11 +789,33 @@
                     if (navDropdownMenu) navDropdownMenu.classList.remove('show');
                 });
             }
-            document.addEventListener('click', () => {
-                if (navDropdownMenu) navDropdownMenu.classList.remove('show');
-                if (userDropdown) userDropdown.classList.remove('show');
-                if (settingsMenu) settingsMenu.classList.remove('show');
-            });
+            
+                document.addEventListener('click', () => {
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                    if (userDropdown) userDropdown.classList.remove('show');
+                    if (settingsMenu) settingsMenu.classList.remove('show');
+                });
+            
+            const scrollContainer = document.querySelector('.modules-scroll-container');
+            const navLinks = document.querySelectorAll('[data-target]'); // Vyberie všetky odkazy na moduly
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (scrollContainer) {
+                            // Dočasne vypneme plynulé rolovanie pre okamžitý skok
+                            scrollContainer.style.scrollBehavior = 'auto'; 
+                            
+                            // Nastavíme pozíciu na úplný vrch
+                            scrollContainer.scrollTop = 0;
+                            
+                            // Vrátime plynulé rolovanie (ak ho chcete mať pre myš)
+                            // setTimeout zabezpečí, že sa to vráti až po skoku
+                            setTimeout(() => {
+                                scrollContainer.style.scrollBehavior = 'smooth';
+                            }, 50);
+                        }
+                    });
+                });
         });
     </script>
 </body>
