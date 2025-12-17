@@ -461,7 +461,7 @@ async function callGroqFallback(userQuery, contextString) {
 }
 
 /**
- * Stiahne plný text dokumentu z Firestore a pripraví "Strict Prompt"
+ * Vylepšená funkcia: Stiahne dokument, ale pošle len RELEVANTNÉ časti, aby šetrila tokeny.
  */
 async function fetchDocumentContent(docId, originalQuestion) {
     const db = store.getDB();
@@ -473,20 +473,35 @@ async function fetchDocumentContent(docId, originalQuestion) {
         
         if (docSnap.exists()) {
             const data = docSnap.data();
+            const fullText = data.content || "";
 
+            // --- MAGIA ZAČÍNA TU: Inteligentné orezanie ---
+            
+            // 1. Rozdelenie textu na logické bloky (napr. podľa paragrafov § alebo odsekov)
+            // Ak nemáte §, rozdelí to aspoň podľa prázdnych riadkov
+            const chunks = splitTextIntoChunks(fullText, 1500); // Max 1500 znakov na blok
+
+            // 2. Nájdenie najlepšieho bloku pre otázku
+            const bestChunk = findMostRelevantChunk(chunks, originalQuestion);
+                console.log(`[RAG Smart Chunking]`);
+                console.log(`- Otázka: ${originalQuestion}`);
+                console.log(`- Počet chunkov: ${chunks.length}`);
+                console.log(`- Vybraný text (začiatok): ${bestChunk.substring(0, 100)}...`);
+
+            // 3. Vytvorenie promptu len z vybranej časti
             const promptText = `
-=== OBSAH DOKUMENTU: ${data.title} (${data.category}) ===
+=== VÝŇATOK Z DOKUMENTU: ${data.title} ===
 Popis: ${data.description}
+Poznámka: Toto je len relevantná časť dokumentu, nie celý text.
 
 POKYNY PRE AI:
 1. Používateľ sa pýtal: "${originalQuestion}"
-2. Odpovedz na túto otázku VÝHRADNE použitím nižšie uvedeného textu.
-3. Cituj konkrétne časti (napr. §, odsek).
-4. Ak text neobsahuje odpoveď, napíš to jasne.
+2. Odpovedz na základe nižšie uvedeného výňatku.
+3. Ak výňatok neobsahuje odpoveď, povedz to.
 
---- ZAČIATOK TEXTU ---
-${data.content}
---- KONIEC TEXTU ---
+--- VÝŇATOK (TEXT) ---
+${bestChunk}
+--- KONIEC VÝŇATKU ---
 `;
 
             const metadata = {
@@ -505,6 +520,56 @@ ${data.content}
         console.error("Firestore Fetch Error:", e);
         return { prompt: "SYSTÉMOVÁ CHYBA: Zlyhalo pripojenie k databáze.", metadata: null };
     }
+}
+
+// --- Pomocné funkcie pre "In-memory RAG" ---
+
+function splitTextIntoChunks(text, maxChunkSize) {
+    // Rozdelenie podľa dvojitého odriadkovania (bežné odseky)
+    const rawParagraphs = text.split(/\n\s*\n/);
+    const chunks = [];
+    let currentChunk = "";
+
+    for (const para of rawParagraphs) {
+        if ((currentChunk.length + para.length) > maxChunkSize && currentChunk.length > 0) {
+            chunks.push(currentChunk);
+            currentChunk = "";
+        }
+        currentChunk += para + "\n\n";
+    }
+    if (currentChunk.trim().length > 0) chunks.push(currentChunk);
+    
+    // Fallback: Ak sa text nerozdelil (napr. zlý formát), vrátime aspoň začiatok
+    if (chunks.length === 0) return [text.substring(0, maxChunkSize)];
+    
+    return chunks;
+}
+
+function findMostRelevantChunk(chunks, question) {
+    if (!chunks || chunks.length === 0) return "";
+
+    // Zmena z 3 na 2, aby sme zachytili aj 3-písmenové skratky (DPH, HZZ...)
+    const questionWords = question.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    
+    // Jednoduché skórovanie: Koľko slov z otázky sa nachádza v chunku?
+    let bestScore = -1;
+    let bestChunk = chunks[0];
+
+    chunks.forEach(chunk => {
+        const chunkLower = chunk.toLowerCase();
+        let score = 0;
+        questionWords.forEach(word => {
+            if (chunkLower.includes(word)) score++;
+        });
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestChunk = chunk;
+        }
+    });
+
+    // Vrátime najlepší chunk + kúsok pred a po (pre kontext), ak je to možné
+    return bestChunk;
 }
 
 /**
