@@ -5540,53 +5540,54 @@ span.flatpickr-weekday {
 }
 
 /* ============================================
-   BENTO GRID - FIXNÁ NAVIGÁCIA (7 KARIET)
+   BENTO GRID - FIXNÁ NAVIGÁCIA (7 KARIET) - OPRAVA
    ============================================ */
 
 .bento-grid-container {
-    /* 7 kariet vedľa seba */
-    grid-template-columns: repeat(7, 1fr) !important; 
-    gap: 12px !important;
+    /* ZMENA: minmax(0, 1fr) je kľúčové - donúti karty sa zmenšiť aj pod šírku textu, aby nepretekali */
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important; 
+    gap: 10px !important; /* Zmenšená medzera z 12px na 10px pre viac miesta */
     margin-bottom: 40px !important;
-    /* Sticky pozícia - voliteľné, ak chcete aby menu ostalo hore pri scrollovaní */
-    /* position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Zmenšenie kariet aby sa zmestilo 7 kusov */
 .bento-card {
-    height: 140px !important; /* Kompaktnejšia výška */
-    padding: 15px !important;
+    height: 135px !important; 
+    padding: 12px 8px !important; /* Zmenšený bočný padding (z 15px na 8px) */
+    min-width: 0; /* Dôležité pre Flexbox/Grid kontajnery */
+    overflow: hidden; /* Orezanie obsahu ak by stále pretekal */
 }
 
 .bento-icon-wrapper {
     width: 38px !important;
     height: 38px !important;
     font-size: 1.2rem !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 8px !important;
     border-radius: 12px !important;
 }
 
 .bento-title {
-    font-size: 0.95rem !important;
-    margin-bottom: 4px !important;
+    font-size: 0.85rem !important; /* Jemné zmenšenie písma (z 0.95rem) */
+    margin-bottom: 0 !important;
+    line-height: 1.25 !important;
+    
+    /* Zabezpečenie, aby dlhý text nerozbil kartu */
+    word-wrap: break-word;
+    word-break: break-word; 
+    hyphens: auto;
 }
 
 .bento-desc {
-    display: none !important; /* Skryjeme popisy pre kompaktnejší vzhľad */
+    display: none !important; 
 }
 
-/* === AKTÍVNA KARTA (VYBRANÁ AGENDA) === */
+/* === AKTÍVNA KARTA === */
 .bento-card.active {
-    /* 1. Pozadie vrátime na pôvodnú tmavú (žiadna oranžová výplň) */
     background: rgba(30, 41, 59, 0.4) !important; 
-
-    /* 2. Pridáme výrazné orámovanie (hrúbka 2px) */
     border: 2px solid var(--color-orange-accent) !important;
-
-    /* 3. Jemný vonkajší tieň vo farbe orámovania (glow efekt) */
     box-shadow: 0 0 15px rgba(188, 135, 0, 0.25) !important;
-
-    /* 4. Jemný zdvih pre efekt "výberu" */
     transform: translateY(-2px) !important;
 }
 
@@ -5599,10 +5600,18 @@ span.flatpickr-weekday {
     color: var(--color-orange-accent) !important;
 }
 
-/* Responsivita pre 7 kariet */
-@media (max-width: 1400px) {
+/* === RESPONZIVITA - OPRAVA ZALOMENIA === */
+/* Ak je obrazovka užšia ako 1500px, 7 kariet je príliš veľa -> zalomíme na 4 */
+@media (max-width: 1500px) {
     .bento-grid-container {
-        grid-template-columns: repeat(4, 1fr) !important; /* 2 riadky */
+        grid-template-columns: repeat(4, 1fr) !important; /* Zalomí do 2 riadkov */
+    }
+    .bento-card {
+        height: 150px !important; /* Karty môžu byť vyššie */
+        padding: 15px !important;
+    }
+    .bento-title {
+        font-size: 0.95rem !important;
     }
 }
 
@@ -5611,7 +5620,7 @@ span.flatpickr-weekday {
         grid-template-columns: repeat(2, 1fr) !important;
     }
     .bento-desc {
-        display: block !important; /* Na mobile popisy vrátime */
+        display: block !important; 
     }
     .bento-card {
         height: auto !important;
