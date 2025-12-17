@@ -40,7 +40,7 @@ enableIndexedDbPersistence(db, { forceOwnership: true })
 
 export const AI_CONFIG = {
     API_KEY: "GEMINI_API_KEY_PLACEHOLDER", 
-    MODEL_NAME: "gemini-2.0-flash",
+    MODEL_NAME: "gemini-2.5-flash",
     GROQ_API_KEY: "GROQ_API_KEY_PLACEHOLDER",
     GROQ_MODEL: "llama-3.1-8b-instant"
 };
@@ -50,4 +50,5 @@ export const APP_CONSTANTS = {
     TOAST_DURATION: 3000,
     SEARCH_DEBOUNCE_MS: 300,
     DEFAULT_AVATAR: '--'
+
 };
