@@ -247,46 +247,55 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 /* === VIEW TRANSITION RULES === */
-/* 1. Vypnutie globálnej animácie */
+/* Vypnutie globálnej animácie */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
-/* 2. Nastavenie Crossfade pre agendu */
-::view-transition-old(agenda-content),
-::view-transition-new(agenda-content) {
-  animation-duration: 0.5s; /* Rýchlosť prechodu */
-  animation-timing-function: ease-in-out;
-  mix-blend-mode: plus-lighter; /* Zabezpečí plynulé prelnutie bez stmavnutia */
+/* ============================================
+   NOVÝ PRECHOD: SOFT ZOOM & BLUR
+   ============================================ */
+
+/* Definícia animácie pre starý obsah (odchádza) */
+@keyframes fade-out-scale {
+  to { 
+    opacity: 0; 
+    transform: scale(0.96); /* Jemne sa zmenší */
+    filter: blur(4px);      /* Rozostrí sa pri odchode */
+  }
 }
 
-/* Starý obsah mizne */
+/* Definícia animácie pre nový obsah (prichádza) */
+@keyframes fade-in-scale {
+  from { 
+    opacity: 0; 
+    transform: scale(1.02); /* Začína jemne zväčšený */
+    filter: blur(8px);      /* Začína rozostrený */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Aplikácia na View Transitions */
+::view-transition-group(agenda-content) {
+  animation-duration: 0.9s; /* Rýchlosť prechodu */
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); /* "Apple-like" plynulosť */
+}
+
 ::view-transition-old(agenda-content) {
-  animation-name: fade-out;
+  animation-name: fade-out-scale;
+  mix-blend-mode: normal; /* Dôležité pre čistý obraz */
 }
 
-/* Nový obsah sa objavuje */
 ::view-transition-new(agenda-content) {
-  animation-name: fade-in;
+  animation-name: fade-in-scale;
+  mix-blend-mode: normal;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
 /* 2️⃣ LAYOUT */
 /* ============================================
    TOP NAVIGATION BAR
@@ -715,24 +724,26 @@ h1, h2, h3, h4, h5, h6 {
   padding-top: 20px !important;
   padding-left: var(--spacing-lg) !important;
   padding-right: var(--spacing-lg) !important;
-  padding-bottom: 40px !important;
+  padding-bottom: 0 !important;
   width: 100%;
   max-width: 1600px;
   height: calc(100vh - 90px); /* Výška viewportu mínus výška Top Nav */
   margin: 0 auto;
-  overflow-y: auto; /* Obsah sa roluje tu, nie na body */
+  overflow-y: hidden; /* Obsah sa roluje tu, nie na body */
   display: flex;
   flex-direction: column;
 }
 
 /* Helper pre scroll content */
 .content-scroll-area {
-  flex: 1;
-  padding-bottom: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 0;
   padding-top: var(--spacing-sm);
   padding-left: 0;
   padding-right: 0;
-  view-transition-name: agenda-content;
 }
 
 /* ============================================
@@ -862,9 +873,15 @@ h1, h2, h3, h4, h5, h6 {
 /* ZMENA: Plný oranžový rámik pri hoveri (zjednotenie s ostatnými modulmi) */
 .dashboard-card:hover,
 .ua-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-  border-color: var(--color-orange-accent); /* Plná farba namiesto rgba */
+  transform: translateY(-4px); /* Zvýšený zdvih na 4px (ako pri autách) */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Výraznejší tieň */
+  border-color: var(--color-orange-accent); /* Sýta oranžová pre všetky hrany */
+  z-index: 10; /* Zabezpečí, že karta bude nad ostatnými prvkami */
+}
+
+/* Špecifická úprava pre veľkú kartu kalendára, aby bol efekt plynulý */
+.dashboard-calendar-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .dashboard-card h2,
@@ -2616,6 +2633,7 @@ select option:checked {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-lg);
+  margin-top: 25px !important;
 }
 
 .dashboard-main {
@@ -2657,6 +2675,8 @@ select option:checked {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-lg);
+  margin-top: 25px;
+  padding-top: 5px;
 }
 
 /* === KARTY (CARDS) === */
@@ -2980,6 +3000,8 @@ select option:checked {
   flex-direction: row;
   gap: var(--spacing-lg);
   height: 100%;
+  margin-top: 25px;
+  padding-top: 5px;
 }
 
 /* === ĽAVÝ SIDEBAR (Skupiny) === */
@@ -3318,6 +3340,8 @@ select option:checked {
   display: grid;
   grid-template-columns: minmax(350px, 1.2fr) 2fr;
   gap: var(--spacing-lg);
+  margin-top: 25px; 
+  padding-top: 5px;
 }
 
 .cp-employee-info-col {
@@ -3707,6 +3731,8 @@ span.flatpickr-weekday {
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
+  margin-top: 25px;
+  padding-top: 5px;
 }
 
 #izs-module .ua-card {
@@ -3846,6 +3872,8 @@ span.flatpickr-weekday {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  margin-top: 25px;
+  padding-top: 5px;
 }
 
 #bbk-module .ua-card {
@@ -5239,647 +5267,28 @@ span.flatpickr-weekday {
 }
 
 /* ============================================
-   NEW DASHBOARD NAVIGATION (BENTO GRID)
-   Style: Apple/Microsoft Glassmorphism
+   BENTO NAVIGATION GRID (Zjednotené)
    ============================================ */
 
-/* 1. Skrytie starého dropdown menu (podľa zadania) */
-.nav-dropdown-menu {
-    display: none !important;
-}
-
-/* 2. Zmena tlačidla "Výber agendy" na "Domov" vizuál */
-.nav-dropdown-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.nav-dropdown-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(188, 135, 0, 0.2);
-}
-
-/* 3. BENTO GRID CONTAINER */
+/* --- 1. KONT AJNER (GRID LAYOUT) --- */
 .bento-grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    margin-bottom: 40px;
+    /* 7 stĺpcov, minmax(0, 1fr) zabraňuje pretečeniu obsahu */
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 0; 
+    padding: 5px 10px 40px 10px;
+    padding-bottom: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 50;
+    flex-shrink: 0; /* Zabraňuje zmenšeniu v flex kontajneri */
     animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* 4. BENTO CARD DESIGN */
-.bento-card {
-    position: relative;
-    background: rgba(30, 41, 59, 0.4); /* Polopriehľadná tmavá */
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px; /* Apple-style zaoblenie */
-    padding: 32px;
-    height: 220px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-}
-
-/* Gradient Overlay (Futuristic Glow) */
-.bento-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-        800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(255, 255, 255, 0.06),
-        transparent 40%
-    );
-    opacity: 0;
-    transition: opacity 0.5s;
-    z-index: 1;
-    pointer-events: none;
-}
-
-/* Hover Effects */
-.bento-card:hover::before {
-    opacity: 1;
-}
-
-.bento-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(188, 135, 0, 0.5); /* Accent Orange Border */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
-                0 0 0 1px rgba(188, 135, 0, 0.2); /* Inner glow */
-    background: rgba(30, 41, 59, 0.6);
-}
-
-/* Icon Styling */
-.bento-icon-wrapper {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: var(--color-text-primary);
-    transition: all 0.3s ease;
-    z-index: 2;
-}
-
-.bento-card:hover .bento-icon-wrapper {
-    background: var(--color-orange-accent);
-    color: var(--color-text-dark);
-    box-shadow: 0 0 20px rgba(188, 135, 0, 0.4);
-    transform: rotate(-10deg) scale(1.1);
-}
-
-/* Text Styling */
-.bento-content {
-    z-index: 2;
-}
-
-.bento-title {
-    font-family: var(--font-primary);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-}
-
-.bento-desc {
-    font-family: var(--font-secondary);
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
-    line-height: 1.4;
-    opacity: 0.8;
-}
-
-/* Špecifické farby pre karty (ak chcete farebné rozlíšenie) */
-.bento-card[data-target="cp"] .bento-icon-wrapper { color: #63b3ed; }
-.bento-card[data-target="pohotovost"] .bento-icon-wrapper { color: #48bb78; }
-.bento-card[data-target="fuel"] .bento-icon-wrapper { color: #f6ad55; }
-
-/* Skrytie Gridu na iných moduloch ako Dashboard */
-.module-content:not(#dashboard-module) .bento-grid-container {
-    display: none;
-}
-
-/* Úprava Dashboardu aby sa zmestil Grid */
-#dashboard-module .dashboard-container {
-    flex-direction: column; /* Aby bol Grid nad kalendárom */
-}
-
-/* Responsivita */
-@media (max-width: 768px) {
-    .bento-grid-container {
-        grid-template-columns: 1fr;
-    }
-    .bento-card {
-        height: auto;
-        flex-direction: row;
-        align-items: center;
-        gap: 20px;
-        padding: 20px;
-    }
-    .bento-icon-wrapper {
-        margin-bottom: 0;
-        width: 50px;
-        height: 50px;
-        font-size: 1.4rem;
-    }
-}
-
-/* ============================================
-   ZJEDNOTENIE DIZAJNU AGENDA KONTAJNEROV
-   (Bento / Glassmorphism Style)
-   ============================================ */
-
-/* Aplikovanie Bento štýlu na všetky hlavné kontajnery v moduloch */
-.dashboard-card,
-.ua-card,
-.fuel-car-card,
-.duty-groups-sidebar,
-.duty-controls,
-.duty-week-card,
-.cp-employee-card,
-.cp-time-block,
-.cp-vyuctovanie-riadok,
-.announcement-card {
-    /* Pozadie zhodné s Bento kartami */
-    background: rgba(30, 41, 59, 0.4) !important;
-    
-    /* Efekt rozmazania (Glassmorphism) */
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    
-    /* Jemné orámovanie */
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    
-    /* Zaoblenie rohov ako na dashboarde (Apple style) */
-    border-radius: 24px !important;
-    
-    /* Tieň */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-    
-    /* Reset starých hrubých borderov */
-    border-top-width: 1px !important; 
-    border-top-color: rgba(255, 255, 255, 0.08) !important;
-    
-    /* Plynulý prechod */
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-/* Hover efekt pre interaktívne prvky (autá, týždne, zamestnanci) */
-.fuel-car-card:hover,
-.duty-week-card:hover,
-.cp-employee-card:hover,
-.duty-group-card:hover {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-color: rgba(188, 135, 0, 0.5) !important; /* Akcentná oranžová */
-    transform: translateY(-4px) !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Špeciálna úprava pre Duty Week (Rozpis), aby sa zmestil */
-.duty-week-card {
-    border-radius: 18px !important; /* Trochu menšie zaoblenie pre týždne */
-}
-
-/* Odstránenie starých akcentných čiar na vrchu kariet (ak tam ostali) */
-.dashboard-card::before,
-.ua-card::before {
-    display: none !important;
-}
-
-/* ============================================
-   UPDATE: BENTO GRID NA JEDEN RIADOK
-   ============================================ */
-
-/* 1. Vynútenie jedného riadku (6 stĺpcov) */
-.bento-grid-container {
-    /* 6 kariet vedľa seba, každá zaberie 1 zlomok šírky */
-    grid-template-columns: repeat(6, 1fr) !important; 
-    gap: 16px !important; /* Menšie medzery medzi kartami */
-    margin-bottom: 30px !important;
-}
-
-/* 2. Úprava veľkosti kariet aby sa zmestili */
-.bento-card {
-    height: 190px !important; /* Mierne zníženie výšky */
-    padding: 20px !important; /* Menší vnútorný okraj */
-}
-
-/* 3. Zmenšenie ikony */
-.bento-icon-wrapper {
-    width: 45px !important;
-    height: 45px !important;
-    font-size: 1.4rem !important;
-    margin-bottom: 15px !important;
-    border-radius: 14px !important;
-}
-
-/* 4. Úprava veľkosti textu */
-.bento-title {
-    font-size: 1.1rem !important;
-    margin-bottom: 6px !important;
-}
-
-.bento-desc {
-    font-size: 0.8rem !important;
-    line-height: 1.3 !important;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical; 
-    overflow: hidden;
-    
-    white-space: normal;
-}
-
-/* 5. Responzivita pre menšie obrazovky (tablety/mobily)
-   Tu musíme povoliť zalomenie, inak by boli karty nepoužiteľne úzke */
-@media (max-width: 1200px) {
-    .bento-grid-container {
-        grid-template-columns: repeat(3, 1fr) !important; /* 2 riadky po 3 */
-    }
-}
-
-@media (max-width: 768px) {
-    .bento-grid-container {
-        grid-template-columns: repeat(2, 1fr) !important; /* 3 riadky po 2 */
-    }
-}
-
-@media (max-width: 480px) {
-    .bento-grid-container {
-        grid-template-columns: 1fr !important; /* Pod sebou */
-    }
-    .bento-card {
-        height: auto !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 15px !important;
-    }
-    .bento-icon-wrapper {
-        margin-bottom: 0 !important;
-    }
-}
-
-/* ============================================
-   BENTO GRID - FIXNÁ NAVIGÁCIA (7 KARIET) - OPRAVA
-   ============================================ */
-
-.bento-grid-container {
-    /* ZMENA: minmax(0, 1fr) je kľúčové - donúti karty sa zmenšiť aj pod šírku textu, aby nepretekali */
-    grid-template-columns: repeat(7, minmax(0, 1fr)) !important; 
-    gap: 10px !important; /* Zmenšená medzera z 12px na 10px pre viac miesta */
-    margin-bottom: 40px !important;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Zmenšenie kariet aby sa zmestilo 7 kusov */
-.bento-card {
-    height: 135px !important; 
-    padding: 12px 8px !important; /* Zmenšený bočný padding (z 15px na 8px) */
-    min-width: 0; /* Dôležité pre Flexbox/Grid kontajnery */
-    overflow: hidden; /* Orezanie obsahu ak by stále pretekal */
-}
-
-.bento-icon-wrapper {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 1.2rem !important;
-    margin-bottom: 8px !important;
-    border-radius: 12px !important;
-}
-
-.bento-title {
-    font-size: 0.85rem !important; /* Jemné zmenšenie písma (z 0.95rem) */
-    margin-bottom: 0 !important;
-    line-height: 1.25 !important;
-    
-    /* Zabezpečenie, aby dlhý text nerozbil kartu */
-    word-wrap: break-word;
-    word-break: break-word; 
-    hyphens: auto;
-}
-
-.bento-desc {
-    display: none !important; 
-}
-
-/* === AKTÍVNA KARTA === */
-.bento-card.active {
-    background: rgba(30, 41, 59, 0.4) !important; 
-    border: 2px solid var(--color-orange-accent) !important;
-    box-shadow: 0 0 15px rgba(188, 135, 0, 0.25) !important;
-    transform: translateY(-2px) !important;
-}
-
-.bento-card.active .bento-icon-wrapper {
-    background: var(--color-orange-accent) !important;
-    color: var(--color-text-dark) !important;
-}
-
-.bento-card.active .bento-title {
-    color: var(--color-orange-accent) !important;
-}
-
-/* === RESPONZIVITA - OPRAVA ZALOMENIA === */
-/* Ak je obrazovka užšia ako 1500px, 7 kariet je príliš veľa -> zalomíme na 4 */
-@media (max-width: 1500px) {
-    .bento-grid-container {
-        grid-template-columns: repeat(4, 1fr) !important; /* Zalomí do 2 riadkov */
-    }
-    .bento-card {
-        height: 150px !important; /* Karty môžu byť vyššie */
-        padding: 15px !important;
-    }
-    .bento-title {
-        font-size: 0.95rem !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .bento-grid-container {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-    .bento-desc {
-        display: block !important; 
-    }
-    .bento-card {
-        height: auto !important;
-    }
-}
-
-/* ============================================
-   MODERNÝ SIDEBAR - ZOZNAM ZAMESTNANCOV
-   (Bento / Glassmorphism Style)
-   ============================================ */
-
-/* 1. Kontajner Sidebaru (Pozadie a efekt skla) */
-.sidebar-right {
-    background: rgba(15, 23, 42, 0.85); /* Tmavšia modrá (Slate 900) */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
-    width: 380px; /* Mierne širší pre lepší komfort */
-    z-index: 2000; /* Musí byť nad všetkým */
-}
-
-/* 2. Hlavička Sidebaru */
-.sidebar-right-header {
-    background: transparent; /* Priehľadná, aby splývala */
-    padding: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.sidebar-right-header h2 {
-    font-family: var(--font-primary);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0;
-    letter-spacing: -0.5px;
-}
-
-/* Tlačidlo zatvoriť (X) */
-.close-sidebar-btn {
-    color: var(--color-text-secondary);
-    transition: all 0.3s ease;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.close-sidebar-btn:hover {
-    background: rgba(229, 62, 62, 0.2); /* Červenkasté pozadie */
-    color: #fc8181;
-    transform: rotate(90deg);
-}
-
-/* 3. Kontajner pre zoznam (Scrollovanie) */
-.employee-list-container {
-    padding: 20px;
-    overflow-y: auto;
-    height: calc(100vh - 85px); /* Výška mínus hlavička */
-}
-
-/* Scrollbar styling pre sidebar */
-.employee-list-container::-webkit-scrollbar {
-    width: 6px;
-}
-.employee-list-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-/* 4. Položky zoznamu - KARTY (Dizajn podľa screenshotu) */
-#global-employees-list-items {
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* Medzera medzi kartami */
-}
-
-#global-employees-list-items li {
-    /* Vzhľad karty */
-    background: rgba(30, 41, 59, 0.4); /* Slate 800 s priehľadnosťou */
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px; /* Zaoblené rohy */
-    padding: 16px 20px;
-    
-    /* Layout obsahu */
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    position: relative;
-    overflow: hidden;
-    
-    /* Interaktivita */
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-/* Hover efekt na kartu */
-#global-employees-list-items li:hover {
-    background: rgba(30, 41, 59, 0.7);
-    border-color: rgba(188, 135, 0, 0.4); /* Oranžový rámik */
-    transform: translateX(-4px) scale(1.02); /* Jemný posun doľava a zväčšenie */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Efekt "Selected" alebo "Active" (ak je zamestnanec vybraný) */
-#global-employees-list-items li.active, 
-#global-employees-list-items li:active {
-    border-color: var(--color-orange-accent);
-    background: rgba(188, 135, 0, 0.05); /* Veľmi jemné oranžové pozadie */
-}
-
-/* Prúžok na ľavej strane pri hover/active (voliteľné) */
-#global-employees-list-items li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--color-orange-accent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#global-employees-list-items li:hover::before {
-    opacity: 1;
-}
-
-/* 5. Typografia vnútri karty */
-
-/* Meno zamestnanca (Predpokladáme, že je v <span> alebo <div>, alebo len prvý riadok textu) */
-#global-employees-list-items li .dashboard-emp-name,
-#global-employees-list-items li strong {
-    font-family: var(--font-secondary);
-    font-size: 1rem;
-    font-weight: 600;
-    color: #e2e8f0; /* Svetlá sivá/biela */
-    display: block;
-    margin-bottom: 2px;
-}
-
-/* Pozícia / Funkcia */
-#global-employees-list-items li .dashboard-emp-position,
-#global-employees-list-items li small,
-#global-employees-list-items li em {
-    font-family: var(--font-secondary);
-    font-size: 0.85rem;
-    color: #94a3b8; /* Tlmenejšia sivá */
-    font-style: italic; /* Kurzíva podľa obrázku */
-    font-weight: 400;
-}
-
-/* 6. Stavová bodka (Online/Offline) - Ak ju JS generuje */
-.status-dot {
-    position: absolute;
-    top: 18px;
-    right: 18px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-.status-dot.online {
-    background-color: #48bb78; /* Zelená */
-    box-shadow: 0 0 8px rgba(72, 187, 120, 0.6);
-}
-
-.status-dot.offline {
-    background-color: #718096; /* Sivá */
-}
-
-/* ============================================
-   DEMO MODE STYLES
-   ============================================ */
-
-/* 1. Banner */
-.demo-banner {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 32px;
-    background: #e53e3e; color: white;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-weight: 600; font-size: 0.85rem; z-index: 10000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    font-family: var(--font-secondary);
-}
-
-body.demo-active .top-nav { margin-top: 32px; }
-body.demo-active .sidebar-right { top: 32px; height: calc(100vh - 32px); }
-body.demo-active .portal-container { height: calc(100vh - 32px); }
-body.demo-active .ai-fab-btn { bottom: 120px; }
-
-/* 2. ROZOSTRENIE TELEFÓNNYCH ČÍSEL (Dashboard Widget) */
-body.demo-active #duty-list-items .dashboard-emp-position {
-    color: transparent !important;
-    text-shadow: 0 0 8px rgba(199, 200, 202, 0.8) !important;
-    user-select: none;
-    pointer-events: none;
-}
-
-/* 3. Vizuálna indikácia zablokovaných prvkov */
-body.demo-active .module-content button:not(#duty-delete-btn):not(.history-btn),
-body.demo-active .module-content input,
-body.demo-active .module-content select:not(#emailSelect):not(#fuel-filter-month):not(#fuel-filter-year),
-body.demo-active .drop-zone {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* 4. Výnimky - aby vyzerali aktívne */
-body.demo-active #duty-delete-btn,
-body.demo-active .history-btn,
-body.demo-active #emailSelect,
-body.demo-active #fuel-filter-month,
-body.demo-active #reload-btn,
-body.demo-active #change-password-btn,
-body.demo-active #export-excel-btn,
-body.demo-active #fuel-filter-year {
-    opacity: 1 !important;
-    cursor: pointer !important;
-    border-color: var(--color-orange-accent) !important;
-}
-
-/* ============================================
-   FIXNÁ NAVIGÁCIA (KARTY) & ROLOVANIE OBSAHU
-   ============================================ */
-
-/* 1. Zastavenie scrollovania celej stránky */
-.main-content {
-    overflow: hidden !important; /* Vypne scrollovanie hlavného kontajneru */
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 0 !important; /* Padding presunieme do vnútra */
-}
-
-/* 2. Príprava oblasti pre flex layout */
-.content-scroll-area {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden; /* Zabezpečí, že nič nepretečie von */
-}
-
-/* 3. Fixácia Bento Gridu (Karty) */
-.bento-grid-container {
-    flex-shrink: 0; /* Zakáže zmenšovanie kariet */
-    margin-bottom: 0 !important; /* Odstránime margin, použijeme padding v scrollery */
-    padding-bottom: 40px;
-    z-index: 50;
-    position: relative;
-}
-
-/* Pridanie tieňa pod karty, aby to vyzeralo, že obsah zachádza pod ne */
+/* Tieň pod kartami (pre efekt scrollovania popod ne) */
 .bento-grid-container::after {
     content: '';
     position: absolute;
@@ -5892,62 +5301,216 @@ body.demo-active #fuel-filter-year {
     z-index: 40;
 }
 
-/* 4. Nový kontajner pre scrollovanie obsahu */
-.modules-scroll-container {
-    flex: 1; /* Zaberie zvyšok miesta */
-    overflow-y: auto; /* Povolenie scrollovania */
-    padding-right: 10px; /* Priestor pre scrollbar */
-    padding-bottom: 40px; /* Spodný odstup obsahu */
-    padding-top: 10px;
+/* --- 2. KARTA (ZÁKLADNÝ VZHĽAD) --- */
+.bento-card {
+    position: relative;
+    height: 135px; /* Fixná výška pre 7 kariet */
+    padding: 12px 24px;
     
-    /* Hladké scrollovanie */
-    scroll-behavior: smooth;
+    /* Farby a Glassmorphism */
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    
+    /* Layout obsahu */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    /* Správanie */
+    cursor: pointer;
+    overflow: hidden;
+    text-decoration: none;
+    min-width: 0; /* Dôležité pre grid */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Vlastný scrollbar pre modulový kontajner */
-.modules-scroll-container::-webkit-scrollbar {
-    width: 8px;
+/* --- 3. OBSAH KARTY (IKONY A TEXT) --- */
+.bento-icon-wrapper {
+    width: 38px;
+    height: 38px;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-primary);
+    transition: all 0.3s ease;
+    z-index: 2;
 }
 
-.modules-scroll-container::-webkit-scrollbar-track {
-    background: transparent;
+.bento-content {
+    z-index: 2;
 }
 
-.modules-scroll-container::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 4px;
+.bento-title {
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    
+    /* Ošetrenie dlhého textu */
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
 }
 
-.modules-scroll-container::-webkit-scrollbar-thumb:hover {
+.bento-desc {
+    font-family: var(--font-secondary);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    line-height: 1.3;
+    opacity: 0.8;
+    display: none; /* Pri 7 kartách je popis skrytý */
+}
+
+/* --- 4. INTERAKTIVITA (HOVER & ACTIVE) --- */
+
+/* Glow efekt pozadia */
+.bento-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(
+        800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 255, 255, 0.06),
+        transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.bento-card:hover::before {
+    opacity: 1;
+}
+
+/* Hover na celú kartu */
+.bento-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(188, 135, 0, 0.5); /* Oranžová */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                0 0 0 1px rgba(188, 135, 0, 0.2);
+    background: rgba(30, 41, 59, 0.6);
+}
+
+.bento-card:hover .bento-icon-wrapper {
     background: var(--color-orange-accent);
+    color: var(--color-text-dark);
+    box-shadow: 0 0 20px rgba(188, 135, 0, 0.4);
+    transform: rotate(-10deg) scale(1.1);
 }
 
-/* 5. Responzivita - NA MOBILOCH VRÁTIŤ KLASICKÉ SCROLLOVANIE */
-/* Na malých displejoch by fixné karty zabrali celú obrazovku, preto to vypneme */
-@media (max-width: 1024px) {
-    .main-content {
-        overflow-y: auto !important; /* Vráti scrollovanie celej stránke */
-        display: block;
-        padding-bottom: 40px !important;
-    }
+/* Aktívna karta (Active State) */
+.bento-card.active {
+    background: rgba(30, 41, 59, 0.4);
+    border: 2px solid var(--color-orange-accent);
+    box-shadow: 0 0 15px rgba(188, 135, 0, 0.25);
+    transform: translateY(-2px);
+}
 
-    .content-scroll-area {
-        height: auto;
-        display: block;
-        overflow: visible;
-    }
+.bento-card.active .bento-icon-wrapper {
+    background: var(--color-orange-accent);
+    color: var(--color-text-dark);
+}
 
+.bento-card.active .bento-title {
+    color: var(--color-orange-accent);
+}
+
+/* --- 5. LOGIKA PRE ZOBRAZENIE MODULOV --- */
+/* Bento grid vidno len na Dashboarde */
+.module-content:not(#dashboard-module) .bento-grid-container {
+    display: none;
+}
+
+/* Úprava Dashboard kontajnera pre grid */
+#dashboard-module .dashboard-container {
+    flex-direction: column;
+}
+
+/* --- 6. RESPONZIVITA --- */
+
+/* Veľké laptopy (menej ako 1500px) -> Zalom na 4 karty */
+@media (max-width: 1500px) {
     .bento-grid-container {
-        margin-bottom: 30px !important;
+        grid-template-columns: repeat(4, 1fr);
     }
+    .bento-card {
+        height: 150px; /* Karty môžu byť vyššie */
+        padding: 15px;
+    }
+    .bento-title {
+        font-size: 0.95rem;
+    }
+}
 
+/* Tablety -> Zalom na 3 karty */
+@media (max-width: 1200px) {
+    .bento-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    /* Vypnutie fixného scrollovania na menších screens */
     .bento-grid-container::after {
         display: none;
     }
+}
 
-    .modules-scroll-container {
-        overflow-y: visible;
-        height: auto;
-        padding-right: 0;
+/* Menšie tablety / Mobily -> Zalom na 2 karty */
+@media (max-width: 768px) {
+    .bento-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        margin-bottom: 30px;
     }
+    .bento-card {
+        height: auto;
+        /* Na mobile zobrazíme aj popis, je tam dosť miesta na výšku */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .bento-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 0;
+    }
+    .bento-desc {
+        display: block; 
+    }
+}
+
+/* Veľmi malé mobily -> 1 karta pod sebou */
+@media (max-width: 480px) {
+    .bento-grid-container {
+        grid-template-columns: 1fr;
+    }
+    .bento-card {
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+    }
+}
+
+/* --- NOVÉ: Rolovanie iba pre obsah modulov --- */
+.modules-scroll-container {
+    flex: 1;             /* Zoberie všetok zvyšný priestor pod Bento */
+    overflow-y: auto;    /* Zapne rolovanie len pre túto časť */
+    min-height: 0;       /* Dôležité pre správne fungovanie scrollu vo flexboxe */
+    padding-right: 10px; /* Aby sa scrollbar nelepil na karty */
+    padding-bottom: 40px; 
+    padding-left: 5px;   /* Jemná rezerva pre tieň kariet vľavo */
+    scroll-behavior: smooth;
+    view-transition-name: agenda-content;
 }
