@@ -729,7 +729,7 @@ h1, h2, h3, h4, h5, h6 {
 .content-scroll-area {
   flex: 1;
   padding-bottom: var(--spacing-xl);
-  padding-top: var(--spacing-xs);
+  padding-top: var(--spacing-sm);
   padding-left: 0;
   padding-right: 0;
   view-transition-name: agenda-content;
@@ -5839,4 +5839,106 @@ body.demo-active #fuel-filter-year {
     opacity: 1 !important;
     cursor: pointer !important;
     border-color: var(--color-orange-accent) !important;
+}
+
+/* ============================================
+   FIXNÁ NAVIGÁCIA (KARTY) & ROLOVANIE OBSAHU
+   ============================================ */
+
+/* 1. Zastavenie scrollovania celej stránky */
+.main-content {
+    overflow: hidden !important; /* Vypne scrollovanie hlavného kontajneru */
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0 !important; /* Padding presunieme do vnútra */
+}
+
+/* 2. Príprava oblasti pre flex layout */
+.content-scroll-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden; /* Zabezpečí, že nič nepretečie von */
+}
+
+/* 3. Fixácia Bento Gridu (Karty) */
+.bento-grid-container {
+    flex-shrink: 0; /* Zakáže zmenšovanie kariet */
+    margin-bottom: 0 !important; /* Odstránime margin, použijeme padding v scrollery */
+    padding-bottom: 40px;
+    z-index: 50;
+    position: relative;
+}
+
+/* Pridanie tieňa pod karty, aby to vyzeralo, že obsah zachádza pod ne */
+.bento-grid-container::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: linear-gradient(to bottom, rgba(17, 24, 39, 1) 0%, rgba(17, 24, 39, 0) 100%);
+    pointer-events: none;
+    z-index: 40;
+}
+
+/* 4. Nový kontajner pre scrollovanie obsahu */
+.modules-scroll-container {
+    flex: 1; /* Zaberie zvyšok miesta */
+    overflow-y: auto; /* Povolenie scrollovania */
+    padding-right: 10px; /* Priestor pre scrollbar */
+    padding-bottom: 40px; /* Spodný odstup obsahu */
+    padding-top: 10px;
+    
+    /* Hladké scrollovanie */
+    scroll-behavior: smooth;
+}
+
+/* Vlastný scrollbar pre modulový kontajner */
+.modules-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modules-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modules-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.modules-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-orange-accent);
+}
+
+/* 5. Responzivita - NA MOBILOCH VRÁTIŤ KLASICKÉ SCROLLOVANIE */
+/* Na malých displejoch by fixné karty zabrali celú obrazovku, preto to vypneme */
+@media (max-width: 1024px) {
+    .main-content {
+        overflow-y: auto !important; /* Vráti scrollovanie celej stránke */
+        display: block;
+        padding-bottom: 40px !important;
+    }
+
+    .content-scroll-area {
+        height: auto;
+        display: block;
+        overflow: visible;
+    }
+
+    .bento-grid-container {
+        margin-bottom: 30px !important;
+    }
+
+    .bento-grid-container::after {
+        display: none;
+    }
+
+    .modules-scroll-container {
+        overflow-y: visible;
+        height: auto;
+        padding-right: 0;
+    }
 }
