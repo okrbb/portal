@@ -47,6 +47,7 @@ export const Permissions = {
         // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
         if (moduleId === 'dashboard-module' || 
             moduleId === 'cestovny-prikaz-module' || 
+            moduleId === 'dov-module' ||
             moduleId === 'ai-module') { 
             return true;
         }
@@ -61,20 +62,13 @@ export const Permissions = {
                     ROLES.SUPER_USER_1
                 );
 
-            case 'bbk-module': // Rozpis pohotovosti BB kraj
-                return hasRole(user, 
-                    ROLES.ADMIN, 
-                    ROLES.MANAGER_1, 
-                    ROLES.MANAGER_2, 
-                    ROLES.SUPER_USER_IZS_1,
-                    ROLES.USER_IZS 
-                );
-
             case 'izs-module': // Rozpis služieb IZS
                 return hasRole(user, 
                     ROLES.ADMIN, 
+                    ROLES.MANAGER_1,
                     ROLES.MANAGER_2, 
                     ROLES.SUPER_USER_IZS_1,
+                    ROLES.USER_IZS
                 );
 
             case 'ua-contributions-module': // Príspevky UA
@@ -107,6 +101,8 @@ export const Permissions = {
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
         if (!user || !targetEmp) return false;
+        // NOVÉ: Ak sme v module dovoleniek, dočasne povoľujeme vidieť každého
+        if (activeModuleId === 'dov-module') return true;
 
         // --- DEMO LOGIKA: Vidí iba seba (profil s ID 'test') ---
         if (isDemoUser(user.email)) {

@@ -252,9 +252,9 @@ if (reloadBtn) {
 const moduleTitles = {
     'dashboard-module': 'Prehľad udalostí', 
     'cestovny-prikaz-module': 'Cestovný príkaz',
+    'dov-module': 'Evidencia dovoleniek',
     'pohotovost-module': 'Rozpis pohotovosti',
-    'bbk-module': 'Rozpis pohotovosti BB kraj', 
-    'izs-module': 'Agenda služieb IZS',
+    'izs-module': 'Agenda KS IZS',
     'ua-contributions-module': 'Príspevky UA', 
     'fuel-module': 'Evidencia spotreby PHM', 
 };
@@ -267,6 +267,7 @@ const searchInput = document.getElementById('global-employee-search');
 
 // Flagy inicializácie pre Lazy Loading
 let isCPModuleInitialized = false;
+let isDovModuleInitialized = false;
 let isSCHDModuleInitialized = false; 
 let isBBKModuleInitialized = false;
 let isIZSModuleInitialized = false;
@@ -357,6 +358,27 @@ menuLinks.forEach(link => {
                         autoDisplayEmployeeDetails(lookupId, store.getEmployee(lookupId));
                     }
                     break;
+                
+                case 'dov-module':
+                    if (!isDovModuleInitialized) {
+                        showToast("Načítavam modul dovoleniek...", TOAST_TYPE.INFO);
+                        const module = await import('./dov_module.js');
+                        await module.initializeDovModule(); // Voliteľne zavolajte init
+                        isDovModuleInitialized = true;
+                    }
+                    // Ak je vybratý zamestnanec, vykreslíme jeho dáta
+                    const activeDovId = activeUser.id || activeUser.oec;
+                    if (activeDovId) {
+                        const module = await import('./dov_module.js');
+                        module.renderVacationModule(activeDovId);
+                    }
+                    break;
+
+                    // Taktiež v autoDisplayEmployeeDetails pridajte:
+                    if (activeModule.id === 'dov-module') {
+                        const module = await import('./dov_module.js');
+                        module.renderVacationModule(empId);
+                }
 
                 case 'pohotovost-module':
                     if (!isSCHDModuleInitialized) {
@@ -367,21 +389,21 @@ menuLinks.forEach(link => {
                     }
                     break;
 
-                case 'bbk-module':
-                    if (!isBBKModuleInitialized) {
-                        showToast("Načítavam modul BB Kraj...", TOAST_TYPE.INFO);
-                        const module = await import('./schd_bbk_module.js');
-                        module.initializeBBKModule();
-                        isBBKModuleInitialized = true;
-                    }
-                    break;
-
                 case 'izs-module':
                     if (!isIZSModuleInitialized) {
-                        showToast("Načítavam modul IZS...", TOAST_TYPE.INFO);
-                        const module = await import('./schd_izs_module.js');
-                        module.initializeIZSModule();
+                        showToast("Načítavam agendu IZS a BB Kraj...", TOAST_TYPE.INFO);
+                        
+                        // Načítame oba moduly paralelne
+                        const [izsMod, bbkMod] = await Promise.all([
+                            import('./schd_izs_module.js'),
+                            import('./schd_bbk_module.js')
+                        ]);
+
+                        izsMod.initializeIZSModule();
+                        bbkMod.initializeBBKModule();
+                        
                         isIZSModuleInitialized = true;
+                        isBBKModuleInitialized = true; // Nastavíme oba flagy na true
                     }
                     break;
 
