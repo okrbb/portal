@@ -47,13 +47,15 @@ export const Permissions = {
         // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
         if (moduleId === 'dashboard-module' || 
             moduleId === 'cestovny-prikaz-module' || 
-            moduleId === 'dov-module' ||
             moduleId === 'ai-module') { 
             return true;
         }
 
         // 2. Ostatné moduly podľa matice
         switch (moduleId) {
+	    case 'dov-module': // Pridané: Evidencia dovoleniek iba pre Admina
+	        return hasRole(user, ROLES.ADMIN);
+
             case 'pohotovost-module': // Rozpis pohotovosti
                 return hasRole(user, 
                     ROLES.ADMIN, 
