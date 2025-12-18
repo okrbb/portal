@@ -353,11 +353,18 @@ async function renderTableFromExcel(file) {
 async function generateRozdelovnik() {
     const modalBody = document.getElementById('izsModalBody');
     const table = modalBody ? modalBody.querySelector('table') : null;
+    const exportBtn = event.currentTarget;
 
     if (!table) {
         showToast('Chýba tabuľka s dátami.', TOAST_TYPE.ERROR);
         return;
     }
+
+    // --- START ANIMÁCIE ---
+    const originalContent = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner"></i> Generujem...';
+    exportBtn.classList.add('btn-loading');
+    exportBtn.disabled = true;
 
     showToast('Generujem rozdeľovník a ukladám dáta...', TOAST_TYPE.INFO);
 
@@ -529,6 +536,11 @@ async function generateRozdelovnik() {
     } catch (err) {
         console.error('Chyba pri generovaní:', err);
         showToast('Chyba pri generovaní: ' + err.message, TOAST_TYPE.ERROR);
+    } finally {
+        // --- KONIEC ANIMÁCIE ---
+        exportBtn.innerHTML = originalContent;
+        exportBtn.classList.remove('btn-loading');
+        exportBtn.disabled = false;
     }
 }
 
@@ -688,6 +700,14 @@ function isKzColor(colorInput) {
 }
 
 async function processOvertimeCalculation(scheduleFile, overtimeFile) {
+    const processBtn = document.getElementById('izs-overtime-process-btn');
+    
+    // --- START ANIMÁCIE ---
+    const originalContent = processBtn.innerHTML;
+    processBtn.innerHTML = '<i class="fas fa-spinner"></i> Analyzujem...';
+    processBtn.classList.add('btn-loading');
+    processBtn.disabled = true;
+
     try {
         const schedWorkbook = await XlsxPopulate.fromDataAsync(await scheduleFile.arrayBuffer());
         let schedSheet = schedWorkbook.activeSheet() || schedWorkbook.sheet(0);
@@ -715,6 +735,11 @@ async function processOvertimeCalculation(scheduleFile, overtimeFile) {
     } catch (error) {
         console.error("Chyba pri spracovaní vyúčtovania:", error);
         showToast("Chyba: " + error.message, TOAST_TYPE.ERROR);
+    } finally {
+        // --- KONIEC ANIMÁCIE ---
+        processBtn.innerHTML = originalContent;
+        processBtn.classList.remove('btn-loading');
+        processBtn.disabled = false;
     }
 }
 

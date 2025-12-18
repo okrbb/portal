@@ -156,26 +156,49 @@ export function initializeUAModule(db, activeUser) {
                     return;
                 }
 
+                // --- START ANIMÁCIE ---
+                const originalContent = processBtn.innerHTML;
+                processBtn.innerHTML = '<i class="fas fa-spinner"></i> Spracovávam...';
+                processBtn.classList.add('btn-loading');
+                processBtn.disabled = true;
+
                 showToast('Spracovávam súbor...', TOAST_TYPE.INFO);
 
                 const reader = new FileReader();
 
                 reader.onload = (event) => {
-                    const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    excelData = excelData.filter(row => row.length > 0 && row[0] !== null); 
-                    
-                    if (excelData.length <= 1) {
-                        showToast('Súbor je prázdny alebo neobsahuje hlavičku.', TOAST_TYPE.ERROR);
-                        clearModuleState(); 
-                        return;
-                    }
+                    try {
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        excelData = excelData.filter(row => row.length > 0 && row[0] !== null); 
+                        
+                        if (excelData.length <= 1) {
+                            showToast('Súbor je prázdny alebo neobsahuje hlavičku.', TOAST_TYPE.ERROR);
+                            clearModuleState(); 
+                            return;
+                        }
 
-                    processData(excelData);
+                        processData(excelData);
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Chyba pri spracovaní dát.', TOAST_TYPE.ERROR);
+                    } finally {
+                        // --- KONIEC ANIMÁCIE ---
+                        processBtn.innerHTML = originalContent;
+                        processBtn.classList.remove('btn-loading');
+                        processBtn.disabled = false;
+                    }
+                };
+
+                reader.onerror = () => {
+                    processBtn.innerHTML = originalContent;
+                    processBtn.classList.remove('btn-loading');
+                    processBtn.disabled = false;
+                    showToast('Nepodarilo sa načítať súbor.', TOAST_TYPE.ERROR);
                 };
 
                 reader.readAsArrayBuffer(currentFile);
@@ -340,23 +363,39 @@ S pozdravom
                     return;
                 }
 
-                const subject = emailSubject.value;
-                const body = emailBody.value;
-                
-                // Získanie e-mailu z načítaných dát (Demo alebo Real)
-                const email = emailData[selectedObec] || '';
-                
-                generateExcelForObec(selectedObec); 
+                // --- START ANIMÁCIE ---
+                const originalContent = generateEmailBtn.innerHTML;
+                generateEmailBtn.innerHTML = '<i class="fas fa-spinner"></i> Generujem...';
+                generateEmailBtn.classList.add('btn-loading');
+                generateEmailBtn.disabled = true;
 
-                navigator.clipboard.writeText(body).then(() => {
-                    showToast('Telo e-mailu skopírované. Otváram e-mailového klienta...', TOAST_TYPE.SUCCESS);
-                }).catch(err => {
-                    console.error('Chyba: Nepodarilo sa skopírovať text do schránky: ', err);
-                    showToast('Chyba: Telo e-mailu sa nepodarilo skopírovať.', TOAST_TYPE.ERROR);
-                });
+                try {
+                    const subject = emailSubject.value;
+                    const body = emailBody.value;
+                    
+                    const email = emailData[selectedObec] || '';
+                    
+                    generateExcelForObec(selectedObec); 
 
-                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailtoLink;
+                    navigator.clipboard.writeText(body).then(() => {
+                        showToast('Telo e-mailu skopírované. Otváram e-mailového klienta...', TOAST_TYPE.SUCCESS);
+                    }).catch(err => {
+                        console.error('Chyba: ', err);
+                    });
+
+                    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.location.href = mailtoLink;
+                } catch (err) {
+                    showToast('Chyba pri generovaní výstupu.', TOAST_TYPE.ERROR);
+                } finally {
+                    // --- KONIEC ANIMÁCIE (Ukončí sa po otvorení mailto a vygenerovaní súboru) ---
+                    // Malé oneskorenie, aby používateľ stihol zaregistrovať animáciu pred stiahnutím
+                    setTimeout(() => {
+                        generateEmailBtn.innerHTML = originalContent;
+                        generateEmailBtn.classList.remove('btn-loading');
+                        generateEmailBtn.disabled = false;
+                    }, 500);
+                }
             });
 
             // 8. Funkcia na generovanie XLSX

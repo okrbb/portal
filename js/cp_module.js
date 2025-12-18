@@ -249,28 +249,29 @@ async function handleCPFormSubmit() {
 
     const submitBtn = document.querySelector('#cp-form-embedded button[type="submit"]');
     if(submitBtn) {
-        submitBtn.textContent = 'Spracovávam...';
+        // Uložíme pôvodný obsah, aby sme ho vedeli vrátiť
+        submitBtn.dataset.originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Spracovávam...';
+        submitBtn.classList.add('btn-loading');
         submitBtn.disabled = true;
     }
 
     try {
-        // 1. Zber základných dát z formulára
-        let formData = collectFormData(emp);
-
-        // 2. Získanie a doplnenie podpisov (Async operácia)
-        const signatures = await resolveSignatures(selectedEmployeeId);
+        let formData = collectFormData(emp); //
+        const signatures = await resolveSignatures(selectedEmployeeId); //
         formData = { ...formData, ...signatures };
 
-        // 3. Generovanie súboru
-        const filename = generateFilename(formData);
-        await generateCPDocx(formData, filename);
+        const filename = generateFilename(formData); //
+        await generateCPDocx(formData, filename); //
 
     } catch (error) {
         console.error("Chyba v procese generovania:", error);
         showToast("Nastala chyba pri spracovaní dát.", TOAST_TYPE.ERROR);
     } finally {
         if(submitBtn) {
-            submitBtn.textContent = 'Generovať CP';
+            // Návrat do pôvodného stavu
+            submitBtn.innerHTML = submitBtn.dataset.originalText;
+            submitBtn.classList.remove('btn-loading');
             submitBtn.disabled = false;
         }
     }

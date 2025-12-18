@@ -598,6 +598,12 @@ export function initializeSCHDModule() {
             return;
         }
         
+        // --- START ANIMÁCIE ---
+        const originalContent = elSaveButton.innerHTML;
+        elSaveButton.innerHTML = '<i class="fas fa-spinner"></i> Pripravujem...';
+        elSaveButton.classList.add('btn-loading');
+        elSaveButton.disabled = true;
+
         try {
             showToast('Sťahujem výkaz (DOCX)...', TOAST_TYPE.INFO);
             const response = await fetch(DOCX_TEMPLATE_URL);
@@ -685,8 +691,13 @@ export function initializeSCHDModule() {
         } catch (error) {
             console.error('Chyba pri spracovaní DOCX:', error);
             showToast('Nastala chyba pri generovaní dokumentu.', TOAST_TYPE.ERROR);
-        }
+        } finally {
+        // --- KONIEC ANIMÁCIE ---
+        elSaveButton.innerHTML = originalContent;
+        elSaveButton.classList.remove('btn-loading');
+        elSaveButton.disabled = false;
     }
+}
 
     async function loadFontData() {
         if (customFontBase64) return; 

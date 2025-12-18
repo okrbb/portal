@@ -158,7 +158,12 @@ async function processFiles() {
         return;
     }
 
-    if (processBtn) processBtn.disabled = true;
+    // --- START ANIMÁCIE ---
+    const originalContent = processBtn.innerHTML;
+    processBtn.innerHTML = '<i class="fas fa-spinner"></i> Spracovávam...';
+    processBtn.classList.add('btn-loading');
+    processBtn.disabled = true;
+
     if (statusMsg) statusMsg.textContent = ""; 
 
     let rawData = [];
@@ -366,7 +371,11 @@ async function processFiles() {
         showToast("Kritická chyba: " + e.message, TOAST_TYPE.ERROR);
         if (statusMsg) statusMsg.textContent = "";
     } finally {
-        if (processBtn) processBtn.disabled = false;
+        // --- KONIEC ANIMÁCIE (Bezpečný návrat do pôvodného stavu) ---
+        processBtn.innerHTML = originalContent;
+        processBtn.classList.remove('btn-loading');
+        processBtn.disabled = false;
+        if (statusMsg) statusMsg.textContent = "";
     }
 }
 
