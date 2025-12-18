@@ -139,17 +139,46 @@ export function initializeSCHDModule() {
 
             allEmployees = allEmpsArray.filter(emp => emp.skupina);
             
+            // 1. Vytvorenie mapy skupín
             const groupsMap = new Map();
             allEmployees.forEach(emp => {
                 if (!groupsMap.has(emp.skupina)) groupsMap.set(emp.skupina, []);
                 groupsMap.get(emp.skupina).push(emp);
             });
 
+            // 2. Spracovanie a zoradenie zamestnancov vnútri skupín
             employeeGroups = [];
             groupsMap.forEach((moznosti, skupina) => {
-                employeeGroups.push({ skupina: skupina, moznosti: moznosti.sort((a, b) => a.meno.localeCompare(b.meno)) });
+                employeeGroups.push({ 
+                    skupina: skupina, 
+                    moznosti: moznosti.sort((a, b) => {
+                        // 1. Definícia priority (vedúci majú prednosť)
+                        const getPriority = (f) => {
+                            if (f === 'vedúci odboru') return 1;
+                            if (f === 'vedúci oddelenia') return 2;
+                            return 3; // Všetci ostatní (referenti, technici a pod.)
+                        };
+
+                        const pA = getPriority(a.funkcia);
+                        const pB = getPriority(b.funkcia);
+
+                        // 2. Ak sú priority rôzne (napr. vedúci vs. referent), zoraď podľa priority
+                        if (pA !== pB) return pA - pB;
+                        
+                        // 3. Ak sú v rovnakej kategórii (napr. obaja sú priorita 3), 
+                        // zoraď ich abecedne priamo podľa mena
+                        return a.meno.localeCompare(b.meno);
+                    }) 
+                });
             });
-            employeeGroups.sort((a, b) => a.skupina.localeCompare(b.skupina));
+
+            // 3. Presné numerické zoradenie skupín (1, 2, 3)
+            employeeGroups.sort((a, b) => {
+                // Extrahujeme čísla z názvov (napr. "Skupina 2" -> 2)
+                const numA = parseInt(a.skupina.replace(/\D/g, '')) || 0;
+                const numB = parseInt(b.skupina.replace(/\D/g, '')) || 0;
+                return numA - numB;
+            });
 
         } catch (error) {
             console.error('Chyba loadConfig:', error);
