@@ -4171,27 +4171,6 @@ span.flatpickr-weekday {
   margin: 0;
 }
 
-/* === RESPONZÍVNOSŤ === */
-@media (max-width: 768px) {
-  #bbk-file-list-ul {
-    max-height: 400px;
-  }
-  .bbk-file-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-  .bbk-file-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-  .bbk-controls {
-    flex-direction: column;
-  }
-  #bbk-search-input {
-    width: 100%;
-  }
-}
 /* ============================================
    PHM MODUL (Palivá & Autá)
    Správa áut, tankovania a kilometrov
@@ -4592,33 +4571,6 @@ span.flatpickr-weekday {
   border: 1px solid rgba(66, 153, 225, 0.3);
 }
 
-/* === RESPONZÍVNOSŤ === */
-@media (max-width: 768px) {
-  #fuel-cars-grid {
-    grid-template-columns: 1fr;
-  }
-  .fuel-car-stats {
-    grid-template-columns: 1fr;
-  }
-  .fuel-car-actions {
-    flex-direction: column;
-  }
-  .fuel-action-btn {
-    width: 100%;
-  }
-  .fuel-summary-cards {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 480px) {
-  .fuel-car-header {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-  .fuel-car-icon {
-    align-self: flex-start;
-  }
-}
 /* 5️⃣ UTILITIES & THEMES*/
 /* ============================================
    HELPER TRIEDY
@@ -4712,101 +4664,6 @@ span.flatpickr-weekday {
 /* ============================================
    RESPONZÍVNE ÚPRAVY
    ============================================ */
-/* === MOBILNÉ ZARIADENIA (< 768px) === */
-@media (max-width: 768px) {
-  /* Dashboard layout */
-  .dashboard-row {
-    flex-direction: column;
-  }
-  .dashboard-right-col {
-    max-width: 100%;
-    min-width: 100%;
-  }
-  /* Sidebar */
-  .sidebar-right {
-    width: 100%;
-  }
-  /* Top Navigation */
-  .top-nav {
-    padding: 0 var(--spacing-sm);
-    height: auto;
-    flex-wrap: wrap;
-  }
-  .nav-left,
-  .nav-right {
-    margin-left: 0;
-    margin-right: 0;
-  }
-  .nav-center {
-    position: relative;
-    transform: none;
-    left: 0;
-    width: 100%;
-    padding: var(--spacing-sm) 0;
-  }
-  .global-search-wrapper {
-    width: 100%;
-  }
-  /* Login */
-  .login-container-modern {
-    flex-direction: column;
-    width: 95vw;
-    height: auto;
-  }
-  .login-brand-side {
-    padding: var(--spacing-lg);
-  }
-  .login-form-side {
-    padding: var(--spacing-lg);
-  }
-  /* AI Modal */
-  .ai-modal-window {
-    width: 95%;
-    height: 95vh;
-  }
-  /* Modály */
-  .modal-content {
-    width: 95%;
-  }
-}
-/* === TABLETY (768px - 1024px) === */
-@media (max-width: 1024px) {
-  /* Dashboard */
-  .dashboard-container {
-    flex-direction: column;
-  }
-  .dashboard-main {
-    width: 100%;
-  }
-  .dashboard-right-col {
-    max-width: 100%;
-  }
-  /* CP Modul */
-  .cp-module-layout {
-    grid-template-columns: 1fr;
-  }
-  .cp-time-grid {
-    grid-template-columns: 1fr;
-  }
-  .cp-columns-2 {
-    grid-template-columns: 1fr;
-  }
-  /* Duty modul */
-  .duty-schedule-container {
-    flex-direction: column;
-  }
-  .duty-groups-sidebar {
-    flex: 1;
-    max-width: 100%;
-  }
-  .duty-weeks-container {
-    overflow-x: auto;
-  }
-  /* UA Modul */
-  .ua-container {
-    flex-direction: column;
-  }
-}
 /* === VEĽKÉ OBRAZOVKY (> 1920px) === */
 @media (min-width: 1920px) {
   .main-content {
@@ -5165,35 +5022,6 @@ span.flatpickr-weekday {
   text-decoration: underline;
 }
 
-/* === RESPONZÍVNY DIZAJN === */
-@media (max-width: 768px) {
-  .login-container-modern {
-    flex-direction: column;
-    height: auto;
-    max-height: 95vh;
-  }
-  .login-brand-side {
-    flex: none;
-    padding: 30px;
-    min-height: 200px;
-  }
-  .logo-modern-wrapper img.logo-img {
-    height: 80px;
-    margin-bottom: 1.5rem;
-  }
-  .brand-content h1 {
-    font-size: 1.8rem;
-  }
-  .brand-content p {
-    font-size: 0.9rem;
-  }
-  .login-form-side {
-    padding: 30px;
-  }
-  .form-header h2 {
-    font-size: 1.5rem;
-  }
-}
 /* ============================================
    SKELETON LOADING STATES
    ============================================ */
@@ -5468,41 +5296,6 @@ span.flatpickr-weekday {
     }
 }
 
-/* Menšie tablety / Mobily -> Zalom na 2 karty */
-@media (max-width: 768px) {
-    .bento-grid-container {
-        grid-template-columns: repeat(2, 1fr);
-        margin-bottom: 30px;
-    }
-    .bento-card {
-        height: auto;
-        /* Na mobile zobrazíme aj popis, je tam dosť miesta na výšku */
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    .bento-icon-wrapper {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 0;
-    }
-    .bento-desc {
-        display: block; 
-    }
-}
-
-/* Veľmi malé mobily -> 1 karta pod sebou */
-@media (max-width: 480px) {
-    .bento-grid-container {
-        grid-template-columns: 1fr;
-    }
-    .bento-card {
-        flex-direction: row;
-        align-items: center;
-        gap: 20px;
-    }
-}
-
 /* --- NOVÉ: Rolovanie iba pre obsah modulov --- */
 .modules-scroll-container {
     flex: 1;             /* Zoberie všetok zvyšný priestor pod Bento */
@@ -5513,4 +5306,23 @@ span.flatpickr-weekday {
     padding-left: 5px;   /* Jemná rezerva pre tieň kariet vľavo */
     scroll-behavior: smooth;
     view-transition-name: agenda-content;
+}
+
+/* Animácia rotácie */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Trieda pre tlačidlo v stave načítavania */
+.btn-loading {
+    position: relative;
+    pointer-events: none; /* Deaktivuje kliknutia */
+    opacity: 0.8;
+}
+
+.btn-loading i.fa-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
 }
