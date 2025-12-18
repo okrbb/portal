@@ -76,9 +76,9 @@
                 <ul class="nav-dropdown-menu main-menu" style="display: none;">
                     <li><a href="#" data-target="dashboard-module">Prehľad</a></li>
                     <li><a href="#" data-target="cestovny-prikaz-module">Cestovný príkaz</a></li>
+                    <li><a href="#" data-target="dov-module">Evidencia dovoleniek</a></li>
                     <li><a href="#" data-target="pohotovost-module">Rozpis pohotovosti OKR</a></li>
-                    <li><a href="#" data-target="bbk-module">Rozpis pohotovosti BBK</a></li>
-                    <li><a href="#" data-target="izs-module">Služby IZS</a></li>
+                    <li><a href="#" data-target="izs-module">Agenda KS IZS</a></li>
                     <li><a href="#" data-target="ua-contributions-module">Príspevky UA</a></li>
                     <li><a href="#" data-target="fuel-module">Evidencia PHM</a></li>
                 </ul>
@@ -158,6 +158,13 @@
                         </div>
                     </a>
 
+                    <a href="#" class="bento-card nav-link-card" data-target="dov-module">
+                        <div class="bento-icon-wrapper"><i class="fa-solid fa-globe"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Evidencia dovoleniek</div>
+                        </div>
+                    </a>
+
                     <a href="#" class="bento-card nav-link-card" data-target="pohotovost-module">
                         <div class="bento-icon-wrapper"><i class="fas fa-phone-volume"></i></div>
                         <div class="bento-content">
@@ -165,17 +172,10 @@
                         </div>
                     </a>
 
-                    <a href="#" class="bento-card nav-link-card" data-target="bbk-module">
-                        <div class="bento-icon-wrapper"><i class="fas fa-map-marked-alt"></i></div>
-                        <div class="bento-content">
-                            <div class="bento-title">Rozpis pohotovosti BBK</div>
-                        </div>
-                    </a>
-
                     <a href="#" class="bento-card nav-link-card" data-target="izs-module">
                         <div class="bento-icon-wrapper"><i class="fa-solid fa-people-arrows"></i></div>
                         <div class="bento-content">
-                            <div class="bento-title">Služby KS IZS</div>
+                            <div class="bento-title">Agenda KS IZS</div>
                         </div>
                     </a>
 
@@ -414,6 +414,7 @@
                                     <button id="izs-clear-btn" class="ua-btn default delete-hover">Vymazať</button>
                                 </div>
                             </div>
+
                             <div class="ua-card" style="flex: 1; min-width: 400px;">
                                 <h2><span class="text-muted-header">Nadčasy</span><i class="fas fa-chevron-right title-separator"></i>Vyúčtovanie</h2>
                                 <p>- výpočet nadčasov a príplatkov</p>
@@ -430,14 +431,14 @@
                                     <button id="izs-overtime-clear-btn" class="ua-btn default delete-hover">Vymazať</button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div id="bbk-module" class="module-content hidden">
-                        <div class="ua-container" style="flex-direction: column;">
-                            <div class="ua-card">
+                            <div class="ua-card" style="flex: 1 1 100%; margin-top: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                                    <div style="flex: 1; min-width: 250px;"><h2 style="margin: 0; border: none; padding: 0;">Rozpis pohotovosti BB kraj</h2></div>
+                                    <div style="flex: 1; min-width: 250px;">
+                                        <h2 style="margin: 0; border: none; padding: 0;">
+                                            <span class="text-muted-header">Pohotovosť</span><i class="fas fa-chevron-right title-separator"></i>Rozpis BB kraj
+                                        </h2>
+                                    </div>
                                     <div style="display: flex; gap: 10px; align-items: center;">
                                         <div style="display: flex; flex-direction: column; width: 150px;">
                                             <label for="bbk-year-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Rok</label>
@@ -467,6 +468,10 @@
                                 <div id="bbk-status-msg" style="margin-top:10px; text-align:center; font-weight:bold;"></div>
                             </div>
                         </div>
+                    </div>
+
+                    <div id="dov-module" class="module-content hidden">
+                        
                     </div> 
 
                     <div id="ua-contributions-module" class="module-content hidden">
