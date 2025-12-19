@@ -8,6 +8,7 @@ import {
     collection, 
     addDoc, 
     query, 
+    where,
     orderBy, 
     getDocs, 
     deleteDoc,
@@ -33,8 +34,41 @@ export async function renderVacationModule(empId) {
     const container = document.getElementById('dov-module');
     if (!container) return;
 
+    const user = store.getUser();
     const employee = store.getEmployee(empId);
     if (!employee) return;
+
+    // --- AUTOMATICKÉ PREDVOLANIE ROKA PO UZÁVIERKE --- 
+    const systemYear = new Date().getFullYear().toString();
+    const nextYear = (parseInt(systemYear) + 1).toString();
+
+    // Ak sme v "systémovom" roku, skontrolujeme, či už nebola vykonaná uzávierka
+    // (t.j. či existujú štatistiky pre ďalší rok so záznamom o uzavretí) 
+    if (currentYear === systemYear) {
+        try {
+            const nextYearRef = doc(db, `employees/${empId}/vacationStats/${nextYear}`);
+            const nextYearSnap = await getDoc(nextYearRef);
+            
+            if (nextYearSnap.exists() && nextYearSnap.data().closedAt) {
+                currentYear = nextYear; // Automatický posun vpred 
+            }
+        } catch (e) {
+            console.warn("Nepodarilo sa overiť stav uzávierky pre automatické predvolanie.");
+        }
+    }
+
+    // Identifikácia nepretržitej prevádzky [cite: 1]
+    const funkciaString = employee.funkcia || '';
+    const funkciaParts = funkciaString.split(','); 
+    const textZaCiarkou = (funkciaParts[1] || '').trim().toLowerCase();
+    const isContinuous = textZaCiarkou === 'operátor linky 112';
+
+    // Generovanie možností pre výber roka [cite: 1]
+    const yearOptions = [];
+    const startY = new Date().getFullYear() + 1;
+    for (let y = startY; y >= 2025; y--) {
+        yearOptions.push(`<option value="${y}" ${y.toString() === currentYear ? 'selected' : ''}>Rok ${y}</option>`);
+    }
 
     container.innerHTML = `
         <div class="ua-container" style="flex-direction: column; gap: 40px;">
@@ -59,9 +93,8 @@ export async function renderVacationModule(empId) {
                         </div>
                         
                         <div class="file-actions" style="display: flex; align-items: center; gap: 15px; justify-content: flex-end;">
-                            <button type="submit" class="ua-btn default" id="btn-save-vacation">Zapísať dovolenku</button>
-                            
-                            <label class="filter-label" style="margin-bottom: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; color: var(--color-text-secondary);">
+                            <button type="submit" class="ua-btn default" id="btn-save-vacation" style="padding: 8px 16px; font-size: 0.85rem;">Zapísať dovolenku</button>
+                            <label class="filter-label" style="margin-bottom: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; color: var(--color-text-secondary); font-size: 0.9rem;">
                                 <input type="checkbox" id="vac-half-day" style="display: none;">
                                 <span class="filter-dot dot-yellow" style="margin: 0;"></span> 1/2 dňa
                             </label>
@@ -69,25 +102,40 @@ export async function renderVacationModule(empId) {
                     </form>
 
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--color-border);">
-                        <h3>Nastavenia limitov (${currentYear})</h3>
+                        <h3 id="limits-title">Nastavenia limitov (${currentYear})</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                             <div class="form-group">
                                 <label>Prenos z m.r.</label>
-                                <input type="number" id="input-prenos" step="0.5" value="0">
+                                <input type="number" id="input-prenos" step="1" value="20" 
+                                    ${!Permissions.canEditVacationLimits(user) ? 'disabled' : ''}>
                             </div>
                             <div class="form-group">
                                 <label>Ročný nárok</label>
                                 <input type="number" id="input-narok" step="1" value="20">
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                            <button class="ua-btn default" id="btn-update-limits" style="display: flex; align-items: center; gap: 15px;">Aktualizovať limity</button>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                            ${Permissions.canEditVacationLimits(user) ? `
+                                <button class="ua-btn default" id="btn-update-limits">Aktualizovať limity</button>
+                            ` : ''}
+                            
+                            ${Permissions.canCloseVacationYear(user) ? `
+                                <button class="ua-btn default delete-hover" id="btn-close-year">
+                                    <i class="fas fa-lock" style="margin-right: 8px;"></i>Uzavrieť rok
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
 
                 <div class="ua-card" style="flex: 2;">
-                    <h2>História čerpania</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0;">História čerpania - <span style="color: var(--color-orange-accent);">${employee.displayName}</span></h2>
+                        <select id="vac-year-select" class="ua-select" style="width: auto; padding: 5px 10px; background: var(--color-bg-light); border: 1px solid var(--color-border); color: white; border-radius: 4px; cursor: pointer;">
+                            ${yearOptions.join('')}
+                        </select>
+                    </div>
+
                     <div class="fuel-history-container" style="max-height: 500px; overflow-y: auto; margin-bottom: 15px;">
                         <table class="history-table">
                             <thead>
@@ -106,7 +154,9 @@ export async function renderVacationModule(empId) {
                     
                     <div class="file-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
                         <button class="ua-btn default" id="btn-download-vac-xlsx">Stiahnuť (.xlsx)</button>
-                        <button class="ua-btn default" id="btn-download-vac-all">Stiahnuť (všetkých)</button>
+                        ${Permissions.canDownloadAllVacations(user) ? `
+                            <button class="ua-btn default" id="btn-download-vac-all">Stiahnuť (všetkých)</button>
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -114,105 +164,172 @@ export async function renderVacationModule(empId) {
     `;
 
     await loadVacationData(empId);
-    attachLocalEventListeners(empId);
+    attachLocalEventListeners(empId, isContinuous);
 }
 
-// --- LOGIKA EXPORTU DO EXCELU ---
-
 /**
- * Vygeneruje a stiahne Excel súbor s prehľadom dovoleniek zamestnanca
+ * Vykoná hromadnú ročnú uzávierku s kontrolou predošlého spustenia
  */
-async function exportToExcel(empId) {
-    const employee = store.getEmployee(empId);
-    if (!employee) return;
+async function processYearlyClosure(btnElement) {
+    const nextYear = (parseInt(currentYear) + 1).toString();
+    const employeesMap = store.getEmployees();
+    
+    // --- KONTROLA PREDOŠLEJ UZÁVIERKY ---
+    let isAlreadyClosed = false;
+    let lastClosedInfo = "";
 
-    showToast("Pripravujem Excel súbor...", TOAST_TYPE.INFO);
+    // Skontrolujeme vzorku (prvého zamestnanca v mape), či už má uzavretý rok
+    const firstEmpId = Array.from(employeesMap.keys())[0];
+    if (firstEmpId) {
+        const checkRef = doc(db, `employees/${firstEmpId}/vacationStats/${nextYear}`);
+        const checkSnap = await getDoc(checkRef);
+        if (checkSnap.exists() && checkSnap.data().closedAt) {
+            isAlreadyClosed = true;
+            const d = checkSnap.data().closedAt.toDate();
+            lastClosedInfo = `\n\nPosledná uzávierka bola vykonaná: ${d.toLocaleString('sk-SK')} (${checkSnap.data().closedBy || 'Admin'})`;
+        }
+    }
+
+    // Dynamická správa pre potvrdenie
+    const baseMsg = `POZOR: Táto akcia uzavrie rok ${currentYear} pre VŠETKÝCH zamestnancov a prenesie zostatky do roku ${nextYear}.`;
+    const warningMsg = isAlreadyClosed 
+        ? `⚠️ UPOZORNENIE: Uzávierka pre tento rok už bola raz vykonaná.${lastClosedInfo}\n\nOpätovné spustenie prepíše aktuálne prenosy v roku ${nextYear}. Chcete napriek tomu pokračovať?`
+        : `${baseMsg}\n\nPokračovať?`;
+
+    if (!confirm(warningMsg)) return;
+
+    const originalContent = btnElement.innerHTML;
+    btnElement.classList.add('btn-loading');
+    btnElement.innerHTML = `<i class="fas fa-spinner"></i> Uzatváram...`;
 
     try {
-        // 1. Získanie dát z DB
-        const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
-        const statsSnap = await getDoc(statsRef);
-        const stats = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 0, cerpanie: 0 };
-        const zostatok = (Number(stats.prenos) + Number(stats.narok)) - Number(stats.cerpanie);
+        const closureData = [];
+        const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+        const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
 
-        const reqRef = collection(db, `employees/${empId}/vacationRequests`);
-        const q = query(reqRef, orderBy("startDate", "asc"));
-        const querySnap = await getDocs(q);
-        const history = querySnap.docs.map(d => d.data());
+        for (const [empId, emp] of employeesMap) {
+            if (emp.id === 'test') continue;
 
-        // 2. Vytvorenie Workbooku
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet(`Dovolenky ${currentYear}`);
+            const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
+            const statsSnap = await getDoc(statsRef);
+            const stats = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 20 };
 
-        // Štýly
-        const titleStyle = { font: { bold: true, size: 14 } };
-        const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
-        const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            const reqRef = collection(db, `employees/${empId}/vacationRequests`);
+            const q = query(reqRef, where("startDate", ">=", yearStart), where("startDate", "<=", yearEnd));
+            const querySnap = await getDocs(q);
+            let totalSpent = 0;
+            querySnap.forEach(d => totalSpent += Number(d.data().daysCount || 0));
 
-        // 3. Hlavička a info o zamestnancovi
-        sheet.addRow([`PREHĽAD DOVOLENKY - ROK ${currentYear}`]).font = titleStyle;
-        sheet.addRow([`Zamestnanec:`, employee.displayName]);
-        sheet.addRow([]);
+            const balance = (Number(stats.prenos) + Number(stats.narok)) - totalSpent;
 
-        // 4. Sumárna tabuľka
-        sheet.addRow(['SUMÁR ČERPANIA (dni)']).font = { bold: true };
-        const statsHeader = sheet.addRow(['Prenos z m.r.', 'Ročný nárok', 'Vyčerpané', 'ZOSTATOK']);
-        statsHeader.eachCell(c => Object.assign(c, headerStyle));
-        
-        const statsRow = sheet.addRow([stats.prenos, stats.narok, stats.cerpanie, zostatok]);
-        statsRow.eachCell(c => {
-            c.border = borderStyle;
-            c.alignment = { horizontal: 'center' };
-        });
-        statsRow.getCell(4).font = { bold: true, color: { argb: 'FFBC8700' } }; // Oranžový zostatok
-
-        sheet.addRow([]);
-
-        // 5. Tabuľka histórie
-        sheet.addRow(['HISTÓRIA ČERPANIA']).font = { bold: true };
-        const historyHeader = sheet.addRow(['Dátum od', 'Dátum do', 'Počet dní']);
-        historyHeader.eachCell(c => Object.assign(c, headerStyle));
-
-        history.forEach(req => {
-            const row = sheet.addRow([
-                req.startDate.toDate().toLocaleDateString('sk-SK'),
-                req.endDate.toDate().toLocaleDateString('sk-SK'),
-                req.daysCount
-            ]);
-            row.eachCell(c => {
-                c.border = borderStyle;
-                c.alignment = { horizontal: 'center' };
+            const nextYearRef = doc(db, `employees/${empId}/vacationStats/${nextYear}`);
+            await setDoc(nextYearRef, {
+                prenos: balance,
+                narok: stats.narok,
+                cerpanie: 0,
+                closedAt: Timestamp.now(), // Značka času uzávierky
+                closedBy: store.getUser()?.displayName || 'Admin' // Kto uzávierku vykonal
             });
-        });
 
-        // Nastavenie šírok stĺpcov
-        sheet.columns = [
-            { width: 25 }, { width: 25 }, { width: 15 }, { width: 15 }
-        ];
+            closureData.push({ oec: emp.oec || '-', meno: emp.displayName, prenos: stats.prenos, narok: stats.narok, cerpanie: totalSpent, zostatok: balance });
+        }
 
-        // 6. Vygenerovanie a stiahnutie
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `dovolenky_${currentYear}.xlsx`); //
+        currentYear = nextYear; 
+        await downloadClosureExcel(closureData, (parseInt(nextYear) - 1).toString());
+        showToast(`Rok úspešne uzavretý. Modul bol prepnutý na rok ${currentYear}.`, TOAST_TYPE.SUCCESS);
+        
+        const activeUser = store.getUser();
+        if (activeUser) renderVacationModule(activeUser.id || activeUser.oec);
 
-        showToast("Excel bol úspešne stiahnutý.", TOAST_TYPE.SUCCESS);
     } catch (err) {
         console.error(err);
-        showToast("Chyba pri generovaní Excelu.", TOAST_TYPE.ERROR);
+        showToast("Chyba pri ročnej uzávierke.", TOAST_TYPE.ERROR);
+    } finally {
+        btnElement.classList.remove('btn-loading');
+        btnElement.innerHTML = originalContent;
     }
 }
 
-// --- DÁTOVÁ LOGIKA NAČÍTANIA (Pôvodná) ---
+/**
+ * Pomocná funkcia pre generovanie Excelu uzávierky
+ */
+async function downloadClosureExcel(data, year) {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet(`Uzávierka ${year}`);
+    const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
+    const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+
+    sheet.addRow([`ROČNÁ UZÁVIERKA DOVOLENIEK - ROK ${year}`]).font = { bold: true, size: 16 };
+    sheet.addRow([`Dátum vykonania:`, new Date().toLocaleString('sk-SK')]);
+    sheet.addRow([]);
+
+    const headerRow = sheet.addRow(['OEC', 'Meno a priezvisko', 'Prenos z m.r.', 'Ročný nárok', 'Vyčerpané', 'Zostatok (Prenos do r. ' + (parseInt(year)+1) + ')']);
+    headerRow.eachCell(c => Object.assign(c, headerStyle));
+
+    data.forEach(item => {
+        const row = sheet.addRow([item.oec, item.meno, item.prenos, item.narok, item.cerpanie, item.zostatok]);
+        row.eachCell((c, i) => {
+            c.border = borderStyle;
+            if (i >= 3) c.alignment = { horizontal: 'center' };
+            if (i === 6 && item.zostatok < 0) c.font = { color: { argb: 'FFE53E3E' }, bold: true };
+        });
+    });
+
+    sheet.columns = [{ width: 10 }, { width: 35 }, { width: 15 }, { width: 15 }, { width: 15 }, { width: 25 }];
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `uzavierka_dovoleniek_${year}.xlsx`);
+}
+
+// --- DÁTOVÁ LOGIKA (Pôvodná + Oprava výpočtu) ---
 
 async function loadVacationData(empId) {
     const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
     const statsSnap = await getDoc(statsRef);
     
     let stats = { prenos: 0, narok: 20, cerpanie: 0 };
+    
     if (statsSnap.exists()) {
         stats = statsSnap.data();
     } else {
+        // --- NOVÁ LOGIKA: PRENOS NÁROKU Z PREDCHÁDZAJÚCEHO ROKA ---
+        try {
+            const prevYear = (parseInt(currentYear) - 1).toString();
+            const prevStatsRef = doc(db, `employees/${empId}/vacationStats/${prevYear}`);
+            const prevSnap = await getDoc(prevStatsRef);
+            
+            if (prevSnap.exists()) {
+                // Preberieme nárok z minulého roka (napr. 25 alebo 30 dní)
+                stats.narok = prevSnap.data().narok || 20;
+            }
+        } catch (e) {
+            console.warn("Nepodarilo sa prebrať nárok z minulého roka, použijem predvolených 20.");
+        }
+        
+        // Vytvoríme dokument pre nový rok s prebratým nárokom
         await setDoc(statsRef, stats);
+    }
+
+    // Výpočet reálneho čerpania (ako doteraz)
+    const reqRef = collection(db, `employees/${empId}/vacationRequests`);
+    const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+    const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
+    
+    const q = query(reqRef, 
+        where("startDate", ">=", yearStart), 
+        where("startDate", "<=", yearEnd)
+    );
+    
+    const querySnap = await getDocs(q);
+    let realSum = 0;
+    querySnap.forEach(d => {
+        realSum += Number(d.data().daysCount || 0);
+    });
+
+    stats.cerpanie = realSum;
+
+    // Samooprava v DB
+    if (realSum !== Number(statsSnap.data()?.cerpanie)) {
+        await updateDoc(statsRef, { cerpanie: realSum });
     }
 
     updateStatsUI(stats);
@@ -224,7 +341,10 @@ async function loadHistory(empId) {
     if (!historyBody) return;
 
     const reqRef = collection(db, `employees/${empId}/vacationRequests`);
-    const q = query(reqRef, orderBy("startDate", "desc"));
+    const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+    const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
+    
+    const q = query(reqRef, where("startDate", ">=", yearStart), where("startDate", "<=", yearEnd), orderBy("startDate", "desc"));
     const querySnap = await getDocs(q);
 
     if (querySnap.empty) {
@@ -240,7 +360,7 @@ async function loadHistory(empId) {
             <td>${data.startDate.toDate().toLocaleDateString('sk-SK')}</td>
             <td>${data.endDate.toDate().toLocaleDateString('sk-SK')}</td>
             <td class="text-right" style="padding-right: 20px;"><strong>${data.daysCount}</strong></td>
-            <td class="text-right">
+            <td class="text-center">
                 <button class="action-btn-edit btn-delete-vac" 
                         data-id="${requestDoc.id}" 
                         data-days="${data.daysCount}" 
@@ -281,30 +401,159 @@ function updateStatsUI(stats) {
     document.getElementById('input-narok').value = stats.narok;
 }
 
-// --- POMOCNÉ FUNKCIE A LISTENERY ---
+// --- LOGIKA EXPORTU DO EXCELU (Individuálny a Hromadný) ---
 
-function calculateBusinessDays(d1, d2) {
+async function exportToExcel(empId, btnElement) {
+    const employee = store.getEmployee(empId);
+    if (!employee || !btnElement) return;
+
+    const originalContent = btnElement.innerHTML;
+    btnElement.classList.add('btn-loading');
+    btnElement.innerHTML = `<i class="fas fa-spinner"></i> Spracúvam...`;
+
+    try {
+        const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
+        const statsSnap = await getDoc(statsRef);
+        const statsData = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 0 };
+
+        const reqRef = collection(db, `employees/${empId}/vacationRequests`);
+        const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+        const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
+        const q = query(reqRef, where("startDate", ">=", yearStart), where("startDate", "<=", yearEnd), orderBy("startDate", "asc"));
+        const querySnap = await getDocs(q);
+        const history = querySnap.docs.map(d => d.data());
+
+        const calculatedCerpanie = history.reduce((sum, req) => sum + Number(req.daysCount), 0);
+        const zostatok = (Number(statsData.prenos) + Number(statsData.narok)) - calculatedCerpanie;
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet(`Dovolenky ${currentYear}`);
+        const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
+        const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+
+        sheet.addRow([`PREHĽAD DOVOLENKY - ROK ${currentYear}`]).font = { bold: true, size: 14 };
+        sheet.addRow([`Zamestnanec:`, employee.displayName]);
+        sheet.addRow([]);
+        sheet.addRow(['SUMÁR ČERPANIA (dni)']).font = { bold: true };
+        const statsHeader = sheet.addRow(['Prenos z m.r.', 'Ročný nárok', 'Vyčerpané', 'ZOSTATOK']);
+        statsHeader.eachCell(c => Object.assign(c, headerStyle));
+        const statsRow = sheet.addRow([statsData.prenos, statsData.narok, calculatedCerpanie, zostatok]);
+        statsRow.eachCell(c => { c.border = borderStyle; c.alignment = { horizontal: 'center' }; });
+
+        sheet.addRow([]);
+        sheet.addRow(['HISTÓRIA ČERPANIA']).font = { bold: true };
+        const historyHeader = sheet.addRow(['Dátum od', 'Dátum do', 'Počet dní']);
+        historyHeader.eachCell(c => Object.assign(c, headerStyle));
+        history.forEach(req => {
+            const row = sheet.addRow([req.startDate.toDate().toLocaleDateString('sk-SK'), req.endDate.toDate().toLocaleDateString('sk-SK'), req.daysCount]);
+            row.eachCell(c => { c.border = borderStyle; c.alignment = { horizontal: 'center' }; });
+        });
+
+        const priezvisko = (employee.priezvisko || 'zamestnanec').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const fileName = `${priezvisko}_dovolenky_${currentYear}.xlsx`;
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), fileName);
+        showToast("Excel stiahnutý.", TOAST_TYPE.SUCCESS);
+    } catch (err) {
+        showToast("Chyba exportu.", TOAST_TYPE.ERROR);
+    } finally {
+        btnElement.classList.remove('btn-loading');
+        btnElement.innerHTML = originalContent;
+    }
+}
+
+async function exportAllToExcel(btnElement) {
+    if (!btnElement) return;
+    const originalContent = btnElement.innerHTML;
+    btnElement.classList.add('btn-loading');
+    btnElement.innerHTML = `<i class="fas fa-spinner"></i> Generujem...`;
+
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet(`Prehľad ${currentYear}`);
+        const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
+        const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+
+        sheet.addRow([`HROMADNÝ PREHĽAD DOVOLENIEK - ROK ${currentYear}`]).font = { bold: true, size: 16 };
+        const tableHeader = sheet.addRow(['OEC', 'Meno a priezvisko', 'Oddelenie', 'Prenos', 'Nárok', 'Vyčerpané', 'ZOSTATOK']);
+        tableHeader.eachCell(c => Object.assign(c, headerStyle));
+
+        const employeesMap = store.getEmployees();
+        const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+        const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
+
+        for (const [empId, emp] of employeesMap) {
+            const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
+            const statsSnap = await getDoc(statsRef);
+            const stats = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 20 };
+
+            const reqRef = collection(db, `employees/${empId}/vacationRequests`);
+            const q = query(reqRef, where("startDate", ">=", yearStart), where("startDate", "<=", yearEnd));
+            const querySnap = await getDocs(q);
+            let totalSpent = 0;
+            querySnap.forEach(d => totalSpent += Number(d.data().daysCount || 0));
+
+            const balance = (Number(stats.prenos) + Number(stats.narok)) - totalSpent;
+            const row = sheet.addRow([emp.oec || '-', emp.displayName, emp.oddelenie || '-', stats.prenos, stats.narok, totalSpent, balance]);
+            row.eachCell((cell, i) => { 
+                cell.border = borderStyle; 
+                if (i === 7 && balance < 0) cell.font = { color: { argb: 'FFE53E3E' }, bold: true };
+            });
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), `dovolenky_vsetci_${currentYear}.xlsx`);
+        showToast("Hromadný export dokončený.", TOAST_TYPE.SUCCESS);
+    } catch (err) {
+        showToast("Chyba hromadného exportu.", TOAST_TYPE.ERROR);
+    } finally {
+        btnElement.classList.remove('btn-loading');
+        btnElement.innerHTML = originalContent;
+    }
+}
+
+// --- POMOCNÉ FUNKCIE ---
+
+function calculateBusinessDays(d1, d2, isContinuous = false) {
     let start = new Date(d1);
     let end = new Date(d2);
     let count = 0;
     while (start <= end) {
-        let day = start.getDay();
-        if (day !== 0 && day !== 6) count++; 
+        if (isContinuous) {
+            count++;
+        } else {
+            let day = start.getDay();
+            if (day !== 0 && day !== 6) count++; 
+        }
         start.setDate(start.getDate() + 1);
     }
     return count;
 }
 
-function attachLocalEventListeners(empId) {
+function attachLocalEventListeners(empId, isContinuous) {
     const form = document.getElementById('new-vacation-form');
     const dateFrom = document.getElementById('vac-date-from');
     const dateTo = document.getElementById('vac-date-to');
     const calcBox = document.getElementById('vac-day-calculation');
     const halfDayCheckbox = document.getElementById('vac-half-day');
+    const yearSelect = document.getElementById('vac-year-select');
+
+    if (yearSelect) {
+        yearSelect.addEventListener('change', async (e) => {
+            currentYear = e.target.value;
+            // Aktualizujeme nadpis limitov, aby odrážal nový rok
+            const limitsTitle = document.getElementById('limits-title');
+            if (limitsTitle) limitsTitle.textContent = `Nastavenia limitov (${currentYear})`;
+            
+            // Znovu načítame všetky dáta pre daný rok
+            await loadVacationData(empId);
+        });
+    }
 
     const updateDisplayCount = () => {
         if (dateFrom.value && dateTo.value) {
-            let days = calculateBusinessDays(dateFrom.value, dateTo.value);
+            let days = calculateBusinessDays(dateFrom.value, dateTo.value, isContinuous);
             if (halfDayCheckbox.checked) days = 0.5; 
             document.getElementById('calc-days-val').textContent = days;
             calcBox.style.display = 'block';
@@ -317,13 +566,9 @@ function attachLocalEventListeners(empId) {
     if (form) {
         form.onsubmit = async (e) => {
             e.preventDefault();
-            let days = calculateBusinessDays(dateFrom.value, dateTo.value);
-            
-            if (halfDayCheckbox.checked) {
-                days = 0.5;
-            }
-
-            if (days <= 0) return showToast("Neplatný rozsah dátumov (víkend).", TOAST_TYPE.ERROR);
+            let days = calculateBusinessDays(dateFrom.value, dateTo.value, isContinuous);
+            if (halfDayCheckbox.checked) days = 0.5;
+            if (days <= 0) return showToast("Neplatný rozsah.", TOAST_TYPE.ERROR);
 
             try {
                 await addDoc(collection(db, `employees/${empId}/vacationRequests`), {
@@ -333,15 +578,9 @@ function attachLocalEventListeners(empId) {
                     daysCount: days,
                     createdAt: Timestamp.now()
                 });
-
-                const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
-                await updateDoc(statsRef, { cerpanie: increment(days) });
-
                 showToast(`Dovolenka (${days} d.) zapísaná.`, TOAST_TYPE.SUCCESS);
                 renderVacationModule(empId);
-            } catch (err) {
-                showToast("Nepodarilo sa uložiť dáta.", TOAST_TYPE.ERROR);
-            }
+            } catch (err) { showToast("Chyba zápisu.", TOAST_TYPE.ERROR); }
         };
     }
 
@@ -350,57 +589,46 @@ function attachLocalEventListeners(empId) {
         btnLimits.onclick = async () => {
             const prenos = parseFloat(document.getElementById('input-prenos').value) || 0;
             const narok = parseFloat(document.getElementById('input-narok').value) || 0;
-            
             try {
                 const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
                 await updateDoc(statsRef, { prenos, narok });
-                showToast("Limity úspešne aktualizované.", TOAST_TYPE.SUCCESS);
+                showToast("Limity aktualizované.", TOAST_TYPE.SUCCESS);
                 renderVacationModule(empId);
-            } catch (err) {
-                showToast("Chyba pri aktualizácii limitov.", TOAST_TYPE.ERROR);
-            }
+            } catch (err) { showToast("Chyba aktualizácie.", TOAST_TYPE.ERROR); }
         };
     }
 
-    // NOVÉ: Implementácia exportu
-    const btnDownloadPersonal = document.getElementById('btn-download-vac-xlsx');
-    if (btnDownloadPersonal) {
-        btnDownloadPersonal.onclick = () => exportToExcel(empId);
+    const btnCloseYear = document.getElementById('btn-close-year');
+    if (btnCloseYear) {
+        btnCloseYear.onclick = function() { processYearlyClosure(this); };
     }
+
+    const btnDownloadPersonal = document.getElementById('btn-download-vac-xlsx');
+    if (btnDownloadPersonal) { btnDownloadPersonal.onclick = function() { exportToExcel(empId, this); }; }
 
     const btnDownloadAll = document.getElementById('btn-download-vac-all');
-    if (btnDownloadAll) {
-        btnDownloadAll.onclick = () => {
-            showToast("Pripravujem hromadný export všetkých zamestnancov...", TOAST_TYPE.INFO);
-            // Tu neskôr doplníme logiku pre hromadný export
-        };
+    if (btnDownloadAll) { 
+        btnDownloadAll.onclick = function() {
+            if (Permissions.canExportEmployees(store.getUser())) {
+                exportAllToExcel(this);
+            } else {
+                showToast("Nedostatočné práva.", TOAST_TYPE.ERROR);
+            }
+        }; 
     }
 
     const historyBody = document.getElementById('vacation-history-body');
     if (historyBody) {
         historyBody.addEventListener('click', async (e) => {
             const btn = e.target.closest('.btn-delete-vac');
-            if (!btn) return;
-
-            if (!confirm("Naozaj chcete vymazať tento záznam o čerpaní? Dni sa pripočítajú späť k zostatku.")) return;
-            
-            const docId = btn.dataset.id;
-            const days = parseFloat(btn.dataset.days);
-
+            if (!btn || !confirm("Naozaj vymazať?")) return;
             try {
-                await deleteDoc(doc(db, `employees/${empId}/vacationRequests/${docId}`));
-                const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
-                await updateDoc(statsRef, { cerpanie: increment(-days) });
-
-                showToast("Záznam bol odstránený.", TOAST_TYPE.SUCCESS);
+                await deleteDoc(doc(db, `employees/${empId}/vacationRequests/${btn.dataset.id}`));
+                showToast("Záznam vymazaný.", TOAST_TYPE.SUCCESS);
                 renderVacationModule(empId);
-            } catch (err) {
-                showToast("Chyba pri odstraňovaní záznamu.", TOAST_TYPE.ERROR);
-            }
+            } catch (err) { showToast("Chyba pri mazaní.", TOAST_TYPE.ERROR); }
         });
     }
 }
 
-function getStatsSkeleton() {
-    return `<div class="skeleton-line long" style="height: 100px; width: 100%;"></div>`;
-}
+function getStatsSkeleton() { return `<div class="skeleton-line long" style="height: 100px; width: 100%;"></div>`; }

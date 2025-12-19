@@ -11,6 +11,7 @@ export const ROLES = {
     MANAGER_2: 'manager_2',      // Vedúci KS IZS
     SUPER_USER_1: 'super_user_1', // Denis M.
     SUPER_USER_2: 'super_user_2', // Maroš P.
+    SUPER_USER_3: 'super_user_3', // Anetta V.
     SUPER_USER_IZS_1: 'super_user_IZS_1', // Silvia S.
     SUPER_USER_IZS_2: 'super_user_IZS_2', // Ján K.
     USER: 'user',
@@ -44,18 +45,16 @@ export const Permissions = {
         }
         if (!user || !user.role) return false;
 
-        // 1. Dashboard, Cestovný príkaz a AI vidia VŠETCI (A)
+        // 1. Dashboard, Cestovný príkaz, Dovolenky a AI vidia VŠETCI (A)
         if (moduleId === 'dashboard-module' || 
             moduleId === 'cestovny-prikaz-module' || 
+            moduleId === 'dov-module' ||
             moduleId === 'ai-module') { 
             return true;
         }
 
         // 2. Ostatné moduly podľa matice
         switch (moduleId) {
-	    case 'dov-module': // Pridané: Evidencia dovoleniek iba pre Admina
-	        return hasRole(user, ROLES.ADMIN);
-
             case 'pohotovost-module': // Rozpis pohotovosti
                 return hasRole(user, 
                     ROLES.ADMIN, 
@@ -103,8 +102,11 @@ export const Permissions = {
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
         if (!user || !targetEmp) return false;
-        // NOVÉ: Ak sme v module dovoleniek, dočasne povoľujeme vidieť každého
-        if (activeModuleId === 'dov-module') return true;
+
+        // Ak ide o zamestnanca s ID 'test', skryjeme ho pre všetkých okrem demo účtu
+        if (targetEmp.id === 'test' && user.email?.toLowerCase() !== 'user@test.sk') {
+            return false;
+        }
 
         // --- DEMO LOGIKA: Vidí iba seba (profil s ID 'test') ---
         if (isDemoUser(user.email)) {
@@ -140,6 +142,31 @@ export const Permissions = {
         }
 
         return false;
+    },
+
+    // --- Špecifické práva pre Dovolenkový modul ---
+
+    canCloseVacationYear: (user) => {
+        return hasRole(user, ROLES.ADMIN); // Iba Admin
+    },
+
+    canDownloadAllVacations: (user) => {
+        // Admin, Manageri, SU_IZS_1 a SU_3
+        return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2, ROLES.SUPER_USER_IZS_1, ROLES.SUPER_USER_3);
+    },
+
+    canEditVacationLimits: (user) => {
+        // Kto môže meniť nárok a prenos (všetci okrem bežných userov)
+        return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2, ROLES.SUPER_USER_IZS_1, ROLES.SUPER_USER_3);
+    },
+
+    canInitializeVacationStats: (user) => {
+        return !!user; // Akýkoľvek prihlásený používateľ
+    },
+
+    canEditVacationLimits: (user) => {
+        // Iba Admin, Manageri a Super Useri môžu meniť nárok a prenos
+        return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2, ROLES.SUPER_USER_IZS_1, ROLES.SUPER_USER_3);
     },
 
     /**

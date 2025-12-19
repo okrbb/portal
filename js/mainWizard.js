@@ -543,10 +543,10 @@ if (searchInput && clearSearchBtn) {
 }
 
 /**
- * Zobrazí detaily zamestnanca v CP module (ak je aktívny).
- * Používa dynamický import, aby nezlyhala, ak modul ešte nie je načítaný.
+ * Zobrazí detaily zamestnanca v aktívnom module (CP alebo Dovolenky).
  */
 async function autoDisplayEmployeeDetails(empId, employee) {
+    // 1. Zvýraznenie zamestnanca v zozname
     const globalListElement = document.getElementById('global-employees-list-items');
     if (globalListElement) {
         globalListElement.querySelectorAll('li').forEach(li => li.classList.remove('active-global-item'));
@@ -557,25 +557,30 @@ async function autoDisplayEmployeeDetails(empId, employee) {
     const activeModule = document.querySelector('.module-content:not(.hidden)');
     if (!activeModule) return;
 
-    // Logika len pre CP modul
-    if (activeModule.id === 'cestovny-prikaz-module') {
-        const activeUser = store.getUser();
-        const canView = Permissions.canViewCP(activeUser, employee);
+    const activeUser = store.getUser();
 
+    // 2. LOGIKA PRE CESTOVNÝ PRÍKAZ
+    if (activeModule.id === 'cestovny-prikaz-module') {
+        const canView = Permissions.canViewCP(activeUser, employee);
         if (canView) {
-            // Dynamický import funkcie pre zobrazenie
             try {
                 const module = await import('./cp_module.js');
                 module.displayCPEmployeeDetails(empId);
             } catch (e) {
-                console.warn("CP Modul ešte nie je pripravený pre zobrazenie detailov.");
+                console.warn("CP Modul ešte nie je pripravený.");
             }
         } else {
             showToast(`Nemáte oprávnenie vidieť detaily zamestnanca ${employee.displayName}.`, TOAST_TYPE.ERROR);
-            try {
-                const module = await import('./cp_module.js');
-                module.displayCPEmployeeDetails(null);
-            } catch(e) {}
+        }
+    }
+
+    // 3. LOGIKA PRE EVIDENCIU DOVOLENIEK (Už nie je vnorená!)
+    if (activeModule.id === 'dov-module') {
+        try {
+            const module = await import('./dov_module.js');
+            module.renderVacationModule(empId);
+        } catch (e) {
+            console.error("Chyba pri načítaní dovoleniek:", e);
         }
     }
 }
