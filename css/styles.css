@@ -572,9 +572,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === KONTAJNER ZOZNAMU === */
 .employee-list-container {
-  padding: 15px;
-  overflow-y: auto;
-  flex: 1;
+    height: calc(100vh - 70px); /* Odpočet výšky top-nav, upravte podľa potreby */
+    overflow-y: auto;
+    padding-bottom: 80px; /* PRIDANÉ: Extra miesto, aby posledný zamestnanec nebol "utopený" */
 }
 
 /* ============================================
@@ -1885,7 +1885,7 @@ select option:checked {
 
 /* IZS Denná (Modrá - Stred) */
 .izs-strip-day {
-  top: 63px !important;
+  top: 72px !important;
   left: 2px !important;
   right: 66% !important;
   background-color: #4FC3F7 !important;
@@ -1898,7 +1898,7 @@ select option:checked {
 
 /* IZS Nočná (Žltá - Dole) */
 .izs-strip-night {
-  top: 72px !important;
+  top: 81px !important;
   left: 66% !important;
   right: 2px !important;
   background-color: #FFC000 !important;
@@ -1909,11 +1909,41 @@ select option:checked {
   z-index: 3;
 }
 
+.vacation-strip {
+    /* 1. Základná pozícia a veľkosť (malá gulička) */
+    top: 54px !important;    /* Pôvodná vertikálna pozícia */
+    left: 8px !important;    /* Pôvodná horizontálna pozícia */
+    width: 10px !important;
+    height: 10px !important;
+
+    /* 2. Vzhľad */
+    background-color: #8fad0c !important;
+    border-radius: 50% !important; /* Zaručuje kruh */
+    opacity: 1 !important;
+    z-index: 5;
+    right: auto !important; /* Dôležité: zabráni rozťahovaniu */
+    box-shadow: 0 0 4px rgba(229, 62, 62, 0.4);
+
+    /* 3. Animácia - animujeme "all" (všetky vlastnosti) */
+    transition: all 0.2s ease-out !important;
+}
+
 .izs-strip-day:hover,
 .izs-strip-night:hover {
   height: 18px !important;
   z-index: 18;
   transition: height 0.2s ease;
+}
+
+.vacation-strip:hover {
+    width: 16px !important;
+    height: 16px !important;
+    top: 51px !important;  /* 36px pôvodné - 3px posun */
+    left: 5px !important;  /* 8px pôvodné - 3px posun */
+
+    z-index: 25;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.7); /* Výraznejšia žiara pri hoveri */
 }
 
 /* === UDALOSTI (Guličky) === */
@@ -2019,6 +2049,10 @@ select option:checked {
 
 .dot-yellow {
   background-color: #FFC000;
+}
+
+.dot-red {
+    background-color: #8fad0c; 
 }
 
 /* Aktívny stav (zaškrtnuté) */
