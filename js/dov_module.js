@@ -156,6 +156,7 @@ export async function renderVacationModule(empId) {
                         <button class="ua-btn default" id="btn-download-vac-xlsx">Stiahnuť (.xlsx)</button>
                         ${Permissions.canDownloadAllVacations(user) ? `
                             <button class="ua-btn default" id="btn-download-vac-all">Stiahnuť (všetkých)</button>
+                            <button class="ua-btn default" id="btn-download-vac-all-detailed">Hromadný detailný export</button>
                         ` : ''}
                     </div>
                 </div>
@@ -483,9 +484,9 @@ async function exportAllToExcel(btnElement) {
         sheet.columns = [
             { width: 9 },  // OEC
             { width: 27 }, // Meno a priezvisko
-            { width: 9 },  // Oddelenie
-            { width: 9 },  // Prenos
-            { width: 9 },  // Nárok
+            { width: 10 },  // Oddelenie
+            { width: 10 },  // Prenos
+            { width: 10 },  // Nárok
             { width: 14 }, // Vyčerpané
             { width: 14 }  // ZOSTATOK
         ];
@@ -530,6 +531,104 @@ async function exportAllToExcel(btnElement) {
     } catch (err) {
         console.error(err);
         showToast("Chyba hromadného exportu.", TOAST_TYPE.ERROR);
+    } finally {
+        btnElement.classList.remove('btn-loading');
+        btnElement.innerHTML = originalContent;
+    }
+}
+
+async function exportAllDetailedToExcel(btnElement) {
+    if (!btnElement) return;
+    const originalContent = btnElement.innerHTML;
+    btnElement.classList.add('btn-loading');
+    btnElement.innerHTML = `<i class="fas fa-spinner"></i> Generujem detaily...`;
+
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet(`Detailný prehľad ${currentYear}`);
+        
+        // Formátovanie stĺpcov
+        sheet.columns = [
+            { width: 15 }, // Dátum od / Nadpis
+            { width: 15 }, // Dátum do
+            { width: 12 }, // Počet dní
+            { width: 30 }, // Poznámka / Meno
+            { width: 15 }, // Prázdny/OEC
+        ];
+
+        const styles = {
+            empHeader: { font: { bold: true, size: 12, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } } },
+            statsHeader: { font: { bold: true }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } }, border: { bottom: { style: 'thin' } } },
+            requestHeader: { font: { italic: true, color: { argb: 'FF666666' } }, border: { bottom: { style: 'thin' } } },
+            border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
+        };
+
+        const employeesMap = store.getEmployees();
+        const yearStart = Timestamp.fromDate(new Date(parseInt(currentYear), 0, 1));
+        const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
+
+        for (const [empId, emp] of employeesMap) {
+            if (empId === 'test') continue;
+
+            // 1. Načítanie štatistík
+            const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
+            const statsSnap = await getDoc(statsRef);
+            const stats = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 20 };
+
+            // 2. Načítanie žiadostí
+            const reqRef = collection(db, `employees/${empId}/vacationRequests`);
+            const q = query(reqRef, where("startDate", ">=", yearStart), where("startDate", "<=", yearEnd), orderBy("startDate", "asc"));
+            const querySnap = await getDocs(q);
+            
+            let totalSpent = 0;
+            const requests = [];
+            querySnap.forEach(d => {
+                const data = d.data();
+                totalSpent += Number(data.daysCount || 0);
+                requests.push(data);
+            });
+
+            const balance = (Number(stats.prenos) + Number(stats.narok)) - totalSpent;
+
+            // 3. Zápis do Excelu - Hlavička zamestnanca
+            const nameRow = sheet.addRow([`${emp.displayName} (OEC: ${emp.oec || '-'})`]);
+            nameRow.getCell(1).style = styles.empHeader;
+            sheet.mergeCells(nameRow.number, 1, nameRow.number, 5);
+
+            // Sumárny riadok pod menom
+            const sHeader = sheet.addRow(['Prenos', 'Nárok', 'Vyčerpané', 'ZOSTATOK', 'Oddelenie']);
+            sHeader.eachCell(c => Object.assign(c, styles.statsHeader));
+            
+            const sValues = sheet.addRow([stats.prenos, stats.narok, totalSpent, balance, emp.oddelenie || '-']);
+            sValues.getCell(4).font = { bold: true, color: { argb: balance < 0 ? 'FFE53E3E' : 'FF000000' } };
+
+            // Tabuľka konkrétnych dní
+            if (requests.length > 0) {
+                const rHeader = sheet.addRow(['Dátum od', 'Dátum do', 'Dní', 'Typ']);
+                rHeader.eachCell(c => Object.assign(c, styles.requestHeader));
+
+                requests.forEach(r => {
+                    sheet.addRow([
+                        r.startDate.toDate().toLocaleDateString('sk-SK'),
+                        r.endDate.toDate().toLocaleDateString('sk-SK'),
+                        r.daysCount,
+                        r.daysCount === 0.5 ? 'Pol dňa' : 'Dovolenka'
+                    ]);
+                });
+            } else {
+                sheet.addRow(['Žiadne čerpanie v tomto roku']).font = { italic: true };
+            }
+
+            sheet.addRow([]); // Prázdny riadok medzi zamestnancami
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), `detailny_prehlad_dovoleniek_${currentYear}.xlsx`);
+        showToast("Detailný export dokončený.", TOAST_TYPE.SUCCESS);
+
+    } catch (err) {
+        console.error(err);
+        showToast("Chyba detailného exportu.", TOAST_TYPE.ERROR);
     } finally {
         btnElement.classList.remove('btn-loading');
         btnElement.innerHTML = originalContent;
@@ -638,6 +737,17 @@ function attachLocalEventListeners(empId, isContinuous) {
                 showToast("Nedostatočné práva.", TOAST_TYPE.ERROR);
             }
         }; 
+    }
+
+    const btnDownloadAllDetailed = document.getElementById('btn-download-vac-all-detailed');
+    if (btnDownloadAllDetailed) {
+        btnDownloadAllDetailed.onclick = function() {
+            if (Permissions.canDownloadAllVacations(store.getUser())) {
+                exportAllDetailedToExcel(this);
+            } else {
+                showToast("Nedostatočné práva.", TOAST_TYPE.ERROR);
+            }
+        };
     }
 
     const historyBody = document.getElementById('vacation-history-body');
