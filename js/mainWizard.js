@@ -25,7 +25,9 @@ import {
     limit, 
     getDocs, 
     getDoc, 
-    doc 
+    doc,
+    collectionGroup,
+    Timestamp
 } from 'firebase/firestore';
 
 // === 2. UTILITY A CORE MODULY ===
@@ -715,6 +717,7 @@ async function initializeDashboardCalendar() {
     const filterPohotovost = document.getElementById('filter-pohotovost');
     const filterIzsDay = document.getElementById('filter-izs-day');
     const filterIzsNight = document.getElementById('filter-izs-night');
+    const filterDovolenky = document.getElementById('filter-dovolenky');
 
     try {
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -754,6 +757,7 @@ async function initializeDashboardCalendar() {
                 const showPohotovost = filterPohotovost ? filterPohotovost.checked : true;
                 const showIzsDay = filterIzsDay ? filterIzsDay.checked : true;
                 const showIzsNight = filterIzsNight ? filterIzsNight.checked : true;
+                const showDovolenky = filterDovolenky ? filterDovolenky.checked : true;
 
                 const start = fetchInfo.start;
                 const end = fetchInfo.end;
@@ -879,6 +883,62 @@ async function initializeDashboardCalendar() {
                             }
                         }
                     }
+
+                    if (showDovolenky) {
+                        try {
+                            const vacRef = collectionGroup(db, "vacationRequests");
+                            // Opravený dopyt: Sťahujeme všetky, ktoré končia po začiatku aktuálneho výhľadu
+                            const qVac = query(vacRef, 
+                                where("endDate", ">=", Timestamp.fromDate(fetchInfo.start))
+                            );
+                            
+                            const vacSnap = await getDocs(qVac);
+                            
+                            // Zoskupovanie mien podľa dátumov, aby sa neprekrývali
+                            const dailyVacations = {};
+
+                            vacSnap.forEach(vDoc => {
+                                const vData = vDoc.data();
+                                const emp = store.getEmployee(vData.employeeId);
+                                if (!emp) return;
+
+                                const start = vData.startDate.toDate();
+                                const end = vData.endDate.toDate();
+                                
+                                // Prechádzame každý deň trvania dovolenky
+                                let current = new Date(start);
+                                while (current <= end) {
+                                    const dateKey = current.toISOString().split('T')[0];
+                                    
+                                    // Ak deň spadá do zobrazeného rozsahu kalendára
+                                    if (current >= fetchInfo.start && current < fetchInfo.end) {
+                                        if (!dailyVacations[dateKey]) dailyVacations[dateKey] = new Set();
+                                        dailyVacations[dateKey].add(emp.displayName);
+                                    }
+                                    current.setDate(current.getDate() + 1);
+                                }
+                            });
+
+                            // Premena zoskupených dát na udalosti pre FullCalendar
+                            for (const [date, namesSet] of Object.entries(dailyVacations)) {
+                                allCalendarEvents.push({
+                                    start: date,
+                                    end: date,
+                                    display: 'background',
+                                    backgroundColor: '#8fad0c', // Farba podľa vášho styles.css
+                                    classNames: ['vacation-strip'],
+                                    allDay: true,
+                                    extendedProps: {
+                                        tooltipTitle: 'Dovolenka:',
+                                        employeeNames: Array.from(namesSet) // Tu budú teraz všetky mená
+                                    }
+                                });
+                            }
+                        } catch (err) {
+                            console.error("Chyba pri načítaní dovoleniek pre kalendár:", err);
+                        }
+                    }
+
                     successCallback(allCalendarEvents);
                 } catch (err) {
                     console.error("Chyba pri spracovaní dát rozpisov:", err);

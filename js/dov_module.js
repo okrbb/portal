@@ -428,6 +428,12 @@ async function exportToExcel(empId, btnElement) {
 
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet(`Dovolenky ${currentYear}`);
+        sheet.columns = [
+            { width: 14 }, // Stĺpec A
+            { width: 14 }, // Stĺpec B
+            { width: 14 }, // Stĺpec C
+            { width: 14 }  // Stĺpec D
+        ];
         const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
         const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
 
@@ -472,6 +478,18 @@ async function exportAllToExcel(btnElement) {
     try {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet(`Prehľad ${currentYear}`);
+        
+        // Nastavenie šírok stĺpcov podľa zadania: 9, 27, 9, 9, 9, 14, 14
+        sheet.columns = [
+            { width: 9 },  // OEC
+            { width: 27 }, // Meno a priezvisko
+            { width: 9 },  // Oddelenie
+            { width: 9 },  // Prenos
+            { width: 9 },  // Nárok
+            { width: 14 }, // Vyčerpané
+            { width: 14 }  // ZOSTATOK
+        ];
+
         const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0A2C55' } }, alignment: { horizontal: 'center' } };
         const borderStyle = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
 
@@ -484,6 +502,9 @@ async function exportAllToExcel(btnElement) {
         const yearEnd = Timestamp.fromDate(new Date(parseInt(currentYear), 11, 31, 23, 59, 59));
 
         for (const [empId, emp] of employeesMap) {
+            // --- FILTER: Vynechanie testovacieho zamestnanca ---
+            if (empId === 'test' || emp.id === 'test') continue;
+
             const statsRef = doc(db, `employees/${empId}/vacationStats/${currentYear}`);
             const statsSnap = await getDoc(statsRef);
             const stats = statsSnap.exists() ? statsSnap.data() : { prenos: 0, narok: 20 };
@@ -498,6 +519,7 @@ async function exportAllToExcel(btnElement) {
             const row = sheet.addRow([emp.oec || '-', emp.displayName, emp.oddelenie || '-', stats.prenos, stats.narok, totalSpent, balance]);
             row.eachCell((cell, i) => { 
                 cell.border = borderStyle; 
+                if (i >= 4) cell.alignment = { horizontal: 'center' }; // Zarovnanie čísiel na stred
                 if (i === 7 && balance < 0) cell.font = { color: { argb: 'FFE53E3E' }, bold: true };
             });
         }
@@ -506,6 +528,7 @@ async function exportAllToExcel(btnElement) {
         saveAs(new Blob([buffer]), `dovolenky_vsetci_${currentYear}.xlsx`);
         showToast("Hromadný export dokončený.", TOAST_TYPE.SUCCESS);
     } catch (err) {
+        console.error(err);
         showToast("Chyba hromadného exportu.", TOAST_TYPE.ERROR);
     } finally {
         btnElement.classList.remove('btn-loading');
