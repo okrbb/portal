@@ -1350,3 +1350,11 @@ if (db && auth) {
     console.error("Kritická chyba: Nepodarilo sa inicializovať databázu alebo autentifikáciu.");
     document.body.innerHTML = '<h1 style="padding: 2rem; text-align: center;">Chyba: Nepodarilo sa pripojiť k databáze.</h1>';
 }
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/portal/sw.js')
+            .then(reg => console.log('[PWA] Service Worker registrovaný.', reg.scope))
+            .catch(err => console.log('[PWA] Registrácia SW zlyhala.', err));
+    });
+}
