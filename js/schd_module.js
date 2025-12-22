@@ -566,7 +566,7 @@ export function initializeSCHDModule() {
             doc.text('Schvaľuje:', 130, fy+20); doc.text(employeeSignatures.schvaluje.meno, 130, fy+27);
 
             generatedPDFDataURI = doc.output('bloburl');
-            generatedPDFFilename = `rozpis_${appState.selectedMonth}_${appState.selectedYear}.pdf`;
+            generatedPDFFilename = `rozpis_${monthNames[appState.selectedMonth]}_${appState.selectedYear}.pdf`;
             elPdfPreviewFrame.src = generatedPDFDataURI + '#toolbar=0';
             elPreviewModal.classList.remove('hidden');
         } catch (e) { console.error(e); showToast("Chyba PDF.", TOAST_TYPE.ERROR); }
