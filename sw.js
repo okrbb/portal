@@ -31,16 +31,36 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégia: Stale-While-Revalidate (ukáž z cache, ale na pozadí skús stiahnuť novú verziu)
+// Stratégia: Stale-While-Revalidate (ukáž z cache, ale na pozadí aktualizuj)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
+      
+      // Vytvoríme prísľub zo siete (network fetch)
       const fetchPromise = fetch(event.request).then((networkResponse) => {
+        
+        // KONTROLA: Ak je odpoveď neplatná (napr. chyba 404 alebo CORS), vrátime ju bez ukladania
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+
+        // DÔLEŽITÉ: Klonujeme odpoveď HNEĎ, kým je stream čerstvý
+        const responseToCache = networkResponse.clone();
+
+        // Uložíme kópiu do cache na pozadí
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
+          cache.put(event.request, responseToCache);
         });
+
+        // Originálnu odpoveď vrátime pre prehliadač
         return networkResponse;
+      }).catch(() => {
+        // Ak zlyhá sieť aj cache (napr. ste offline a súbor v cache nie je)
+        return cachedResponse;
       });
+
+      // Ak máme niečo v cache, vrátime to okamžite (rýchlosť)
+      // fetchPromise beží na pozadí a aktualizuje cache pre budúcu návštevu
       return cachedResponse || fetchPromise;
     })
   );
