@@ -434,7 +434,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Hover efekty pre špecifické ikony */
 #fuel-info-btn:hover,
-#settings-toggle-btn:hover {
+#settings-toggle-btn:hover,
+#address_book-btn:hover {
   color: var(--color-orange-accent) !important;
   transform: scale(1.15);
 }
@@ -5403,4 +5404,101 @@ body.demo-active #duty-list-items .dashboard-emp-position {
     user-select: none;
     pointer-events: none;
     opacity: 0.8;
+}
+
+/* ROZMAZANIE BYDLISKA V ADRESÁRI PRE DEMO REŽIM */
+body.demo-active .contact-address-value,
+body.demo-active .contact-phone-home-value {
+    filter: blur(5px);           /* Úroveň rozmazania */
+    user-select: none;           /* Nemožnosť označiť text */
+    pointer-events: none;        /* Nemožnosť na text kliknúť */
+    opacity: 0.7;                /* Jemné stmavenie pre lepší vizuál */
+    display: inline-block;       /* Zabezpečí správne aplikovanie filtra */
+}
+
+/* ============================================
+   ÚPRAVA VYHĽADÁVACIEHO POĽA A FILTRA V MODÁLE KONTAKTOV
+   ============================================ */
+
+/* 1. Fix pre viditeľnosť "X" - ikona sa zobrazí len ak NEMÁ triedu .hidden */
+#contacts-modal .input-group-modern .clear-search-btn {
+    display: none !important; /* Predvolene skryté */
+}
+
+#contacts-modal .input-group-modern .clear-search-btn:not(.hidden) {
+    display: flex !important; 
+    position: absolute !important;
+    top: 50% !important; /* Zmenené z 0 na 50% */
+    transform: translateY(-50%) !important; /* Pridané pre dokonalý stred */
+    height: auto !important; /* Zrušená 100% výška, ktorá môže spôsobovať problémy */
+    align-items: center !important;
+    justify-content: center !important;
+    right: 16px !important;
+    z-index: 5;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#contacts-modal .clear-search-btn:hover {
+    color: var(--color-orange-accent) !important; 
+}
+
+/* 2. Zjednotenie výšky pre vyhľadávanie aj výber okresu */
+#contacts-search-input, 
+#filter-okres-select {
+    height: 48px !important; 
+    margin-bottom: 0 !important;
+}
+
+#contacts-search-input {
+    padding-left: 52px !important;  
+    padding-right: 52px !important; 
+}
+
+/* Úprava selectu aby bol opticky vycentrovaný rovnako ako input */
+#filter-okres-select {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 48px !important;
+}
+
+/* 3. Vycentrovanie lupy vľavo */
+#contacts-modal .input-group-modern .input-icon {
+    position: absolute !important;
+    top: 50% !important;
+    left: 16px !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    z-index: 5;
+    pointer-events: none;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 4. Úprava samotného vyhľadávacieho poľa */
+#contacts-search-input {
+    height: 48px !important; 
+    padding-left: 52px !important;  /* Priestor pre lupu */
+    padding-right: 52px !important; /* Priestor pre X */
+    margin-bottom: 0 !important;
+}
+
+/* 3. Absolútne vycentrovanie lupy voči očistenej výške kontajnera */
+#contacts-modal .input-icon {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: auto !important;
+}
+
+/* 4. Zabezpečenie viditeľnosti "spodného hoveru" (tieňa) kariet */
+#contacts-results-container {
+    padding: 10px 15px 40px 10px !important; /* Spodný padding 40px vytvorí miesto pre tieň */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
