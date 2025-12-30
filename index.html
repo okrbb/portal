@@ -15,7 +15,7 @@
 
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#dd590d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="./css/icon-192.png">
 </head>
@@ -101,6 +101,9 @@
 
         <div class="nav-right">
             <div class="settings-dropdown-wrapper" style="position: relative;">
+                <button class="icon-btn" id="address_book-btn" title="Kontakty">
+                    <i class="fas fa-address-book"></i>
+                </button>
                 <button class="icon-btn" id="settings-toggle-btn" title="Nastavenia">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -744,6 +747,47 @@
             </div>
             <div class="ai-messages-container" id="ai-messages-area"><div class="ai-msg ai-bot">Som legislatívny poradca. Ak chcete, vyžiadaje si zoznam legislatívy, ktorú ovládam. Ako vám môžem pomôcť?</div></div>
             <div class="ai-input-wrapper"><textarea id="ai-input" rows="1" placeholder="Opíšte situáciu..."></textarea><button id="send-ai-btn"><i class="fas fa-paper-plane"></i></button></div>
+        </div>
+    </div>
+
+    <div id="contacts-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 900px; height: 80vh;">
+            <div class="modal-header">
+                <h2><i class="fas fa-address-book" style="color: var(--color-orange-accent); margin-right: 10px;"></i>Adresár miest a obcí</h2>
+                <button class="modal-close" id="close-contacts-modal">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="input-group-modern" style="margin-bottom: 0; flex: 2; min-width: 250px; position: relative;">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" id="contacts-search-input" placeholder="Hľadať obec alebo starostu..." autocomplete="off">
+                        <i class="fas fa-times clear-search-btn hidden" id="clear-contacts-search-btn" title="Vymazať hľadanie" style="right: 15px;"></i>
+                    </div>
+                    
+                    <div class="input-group-modern" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <select id="filter-okres-select" style="margin-bottom: 0; padding-left: 15px;">
+                            <option value="all">Všetky okresy</option>
+                            <option value="BB">Banská Bystrica (BB)</option>
+                            <option value="BS">Banská Štiavnica (BS)</option>
+                            <option value="BR">Brezno (BR)</option>
+                            <option value="DT">Detva (DT)</option>
+                            <option value="KA">Krupina (KA)</option>
+                            <option value="LC">Lučenec (LC)</option>
+                            <option value="PT">Poltár (PT)</option>
+                            <option value="RA">Revúca (RA)</option>
+                            <option value="RS">Rimavská Sobota (RS)</option>
+                            <option value="VK">Veľký Krtíš (VK)</option>
+                            <option value="ZV">Zvolen (ZV)</option>
+                            <option value="ZC">Žarnovica (ZC)</option>
+                            <option value="ZH">Žiar nad Hronom (ZH)</option>
+                        </select>
+                    </div>
+                </div>
+                    <div id="contacts-results-container" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="ua-btn default" id="btn-download-contacts-xlsx">Stiahnuť adresár</button>
+            </div>
         </div>
     </div>
 
