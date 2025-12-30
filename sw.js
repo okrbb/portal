@@ -1,4 +1,4 @@
-const CACHE_NAME = 'okr-portal-v1';
+const CACHE_NAME = 'okr-portal-v3';
 const ASSETS_TO_CACHE = [
   '/portal/',
   '/portal/index.html',
