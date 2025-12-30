@@ -5435,13 +5435,15 @@ body.demo-active .contact-phone-home-value {
     justify-content: center !important;
     right: 16px !important;
     z-index: 5;
-    color: var(--color-text-secondary);
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
-#contacts-modal .clear-search-btn:hover {
-    color: var(--color-orange-accent) !important; 
+#contacts-search-input:focus,
+#filter-okres-select:focus {
+    background: #1f2937 !important;
+    border-color: var(--color-orange-accent) !important;
+    box-shadow: 0 0 0 3px rgba(var(--color-orange-accent-rgb), 0.15) !important;
 }
 
 /* 2. Zjednotenie výšky pre vyhľadávanie aj výber okresu */
