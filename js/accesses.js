@@ -97,6 +97,11 @@ export const Permissions = {
         }
     },
 
+    canViewContacts: (user) => {
+        // Kontakty môže vyhľadávať každý prihlásený užívateľ
+        return !!user;
+    },
+
     /**
      * Zoznam zamestnancov (Pravý panel a Detail)
      */

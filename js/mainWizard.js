@@ -40,6 +40,11 @@ import { clearEmployeesIDB, clearAIIndexIDB } from './db_service.js';
 import { Permissions } from './accesses.js';
 import { DEMO_CONFIG, isDemoUser, activateDemoMode } from './demo_mode.js';
 
+import { 
+    loadContactsToCache, 
+    initializeContactsModule 
+} from './contacts_module.js';
+
 // Poznámka: emp_module nechávame statický, pretože export tlačidlo je viditeľné hneď
 import { activateGlobalExport } from './emp_module.js';
 
@@ -1335,6 +1340,29 @@ async function initializeApp() {
         setupPasswordChangeLogic();
 
         console.log("Portál pripravený. Aktívny používateľ: ", activeUser.funkcia, activeUser.oddelenie);
+
+        // --- INICIALIZÁCIA ADRESÁRA ---
+        // 1. Načítame kontakty do cache (asynchrónne na pozadí)
+        loadContactsToCache().then(() => {
+            console.log("[Adresár] Kontakty úspešne načítané do cache.");
+        });
+
+        // 2. Aktivujeme eventy pre modálne okno adresára
+        initializeContactsModule();
+
+        // 3. Prepojíme samotné tlačidlo v Top Nav
+        const addressBookBtn = document.getElementById('address_book-btn');
+        const contactsModal = document.getElementById('contacts-modal');
+        if (addressBookBtn && contactsModal) {
+            addressBookBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                contactsModal.classList.remove('hidden');
+                // Voliteľne: automaticky nastavíme focus do vyhľadávacieho poľa v modále
+                setTimeout(() => {
+                    document.getElementById('contacts-search-input')?.focus();
+                }, 100);
+            });
+        }
 
     } catch (error) {
         console.error("Kritická chyba pri inicializácii aplikácie:", error);

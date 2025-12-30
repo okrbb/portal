@@ -16,6 +16,7 @@ import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.0/+esm";
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import MiniSearch from 'https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/es/index.js';
 import { saveAIIndexToIDB, getAIIndexFromIDB } from './db_service.js';
+import { searchContactsInCache } from './contacts_module.js';
 
 // Nastavenie Markdownu pre bezpečnosť a formátovanie
 marked.use({ breaks: true, gfm: true });
@@ -156,20 +157,39 @@ async function buildLocalSearchIndex() {
 }
 
 /**
- * Vyhľadá relevantné dokumenty pre System Prompt
+ * Vyhľadá relevantné dokumenty a kontakty obcí pre System Prompt
  */
 function getRelevantContext(userQuery) {
     if (!searchEngine || !isIndexBuilt || !userQuery) return "";
 
-    // 1. DETEKCIA ÚMYSLU: Zoznam
+    // 1. Deklarujeme premennú iba RAZ na začiatku
+    let contextString = "";
+
+    // --- 2. VYHĽADÁVANIE V ADRESÁRI OBCÍ ---
+    const foundContacts = searchContactsInCache(userQuery);
+    if (foundContacts.length > 0) {
+        contextString += "\n=== ÚDAJE Z ADRESÁRA OBCÍ ===\n";
+        foundContacts.forEach(c => {
+            contextString += `Obec/Mesto: ${c.id}\n`;
+            contextString += `- Okres: ${c.okres || '---'}\n`;
+            contextString += `- Starosta: ${c.starosta || '---'}\n`;
+            contextString += `- Bydlisko: ${c.adresa || '---'}\n`;
+            contextString += `- E-mail obec: ${c.em_o || '---'}\n`;
+            contextString += `- E-mail starosta: ${c.em_s || '---'}\n`;
+            contextString += `- Mobil starosta: ${c.mob_s || '---'}\n`;
+            contextString += `- Tel. úrad: ${c.tc_o || '---'}\n`;
+            contextString += `-----------------------------------\n`;
+        });
+    }
+
+    // --- 3. DETEKCIA ÚMYSLU: Zoznam dokumentov ---
     const listKeywords = ['zoznam', 'všetky predpisy', 'všetky zákony', 'obsah databázy', 'aké máš dokumenty'];
     const lowerQuery = userQuery.toLowerCase();
-    
     const isListRequest = listKeywords.some(kw => lowerQuery.includes(kw));
 
     if (isListRequest && allDocumentsMeta.length > 0) {
-        let listContext = "\n=== KOMPLETNÝ OBSAH DATABÁZY ===\n";
-        listContext += "Používateľ požiadal o prehľad všetkých dostupných dokumentov. Tu je ich zoznam:\n\n";
+        contextString += "\n=== KOMPLETNÝ OBSAH DATABÁZY ===\n";
+        contextString += "Používateľ požiadal o prehľad všetkých dostupných dokumentov. Tu je ich zoznam:\n\n";
         
         const byCategory = {};
         allDocumentsMeta.forEach(doc => {
@@ -178,34 +198,35 @@ function getRelevantContext(userQuery) {
         });
 
         for (const [cat, titles] of Object.entries(byCategory)) {
-            listContext += `Kategória: ${cat.toUpperCase()}\n`;
-            titles.forEach(t => listContext += `- ${t}\n`);
-            listContext += "\n";
+            contextString += `Kategória: ${cat.toUpperCase()}\n`;
+            titles.forEach(t => contextString += `- ${t}\n`);
+            contextString += "\n";
         }
-        
-        return listContext;
+        return contextString;
     }
 
-    // 2. ŠTANDARDNÉ VYHĽADÁVANIE (RAG)
+    // --- 4. ŠTANDARDNÉ VYHĽADÁVANIE V LEGISLATÍVE (RAG) ---
     const results = searchEngine.search(userQuery).slice(0, 5);
 
-    if (results.length === 0) {
-        return "V databáze sa nenašli žiadne dokumenty, ktoré by priamo zodpovedali kľúčovým slovám otázky.";
+    if (results.length > 0) {
+        // Tu už NEPOUŽÍVAME "let", iba pripájame k existujúcemu contextString
+        contextString += "\n=== DOSTUPNÁ LEGISLATÍVNA DATABÁZA (Nájdené dokumenty) ===\n";
+        contextString += "Tu je zoznam dokumentov, ktoré môžu obsahovať odpoveď. Pre prečítanie obsahu použi príkaz CMD_READ_DOC: ID.\n\n";
+
+        results.forEach((res, index) => {
+            const categoryLabel = (res.category && typeof res.category === 'string') 
+                ? res.category.toUpperCase() 
+                : 'VŠEOBECNÉ';
+
+            contextString += `${index + 1}. [${categoryLabel}] ${res.title}\n`;
+            contextString += `   ID: ${res.id}\n`;
+            contextString += `   POPIS: ${res.description || 'Bez popisu'}\n`;
+            contextString += `-----------------------------------\n`;
+        });
+    } else if (contextString === "") {
+        // Ak sa nenašli kontakty ani dokumenty
+        return "V databáze sa nenašli žiadne informácie ani dokumenty k vašej otázke.";
     }
-
-    let contextString = "\n=== DOSTUPNÁ LEGISLATÍVNA DATABÁZA (Nájdené dokumenty) ===\n";
-    contextString += "Tu je zoznam dokumentov, ktoré môžu obsahovať odpoveď. Pre prečítanie obsahu použi príkaz CMD_READ_DOC: ID.\n\n";
-
-    results.forEach((res, index) => {
-        const categoryLabel = (res.category && typeof res.category === 'string') 
-            ? res.category.toUpperCase() 
-            : 'VŠEOBECNÉ';
-
-        contextString += `${index + 1}. [${categoryLabel}] ${res.title}\n`;
-        contextString += `   ID: ${res.id}\n`;
-        contextString += `   POPIS: ${res.description || 'Bez popisu'}\n`;
-        contextString += `-----------------------------------\n`;
-    });
 
     return contextString;
 }
@@ -223,6 +244,9 @@ async function startNewChatSession() {
     Si špecializovaný AI asistent pre krízové riadenie a legislatívu SR.
     
     Tvojou hlavnou úlohou je odpovedať na otázky POUŽÍVANÍM poskytnutej databázy dokumentov (Context).
+
+    1. ADRESÁR OBCÍ: Obsahuje kontakty na starostov a úrady. Ak nájdeš údaje v kontexte "ADRESÁR OBCÍ", poskytni ich užívateľovi priamo.
+    2. LEGISLATÍVNA DATABÁZA: Ak otázka smeruje na zákony, vyhľadaj relevantný dokument a použi CMD_READ_DOC.
     
     === PRAVIDLÁ SPRÁVANIA (STRICT MODE) ===
     1. EXKLUZIVITA ZDROJOV: Na legislatívne otázky odpovedaj IBA na základe textu dokumentov, ktoré si načítaš. Nevymýšľaj si paragrafy z pamäti.
