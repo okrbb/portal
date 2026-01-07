@@ -91,15 +91,16 @@ export async function handleEditContact(contactId) {
 window.openEditContactModal = handleEditContact;
 
 /**
- * Načíta všetky kontakty a odošle ich do Workera na indexáciu.
+ * Načíta všetky kontakty (obce + zamestnancov) a odošle ich do Workera na indexáciu.
  * ✅ OPTIMALIZOVANÉ: Použitie searchService namiesto manuálneho workera
+ * ✅ NOVÉ: Načítava aj zamestnancov z kolekcie 'employees'
  */
 export async function loadContactsToCache() {
     const okresy = ["BB", "BS", "BR", "DT", "KA", "LC", "PT", "RA", "RS", "VK", "ZV", "ZC", "ZH"];
     let tempCache = [];
 
     try {
-        // Postupné načítanie namiesto paralelných požiadaviek pre zníženie záťaže
+        // 1. Načítanie kontaktov obcí a miest
         for (const okresId of okresy) {
             const querySnapshot = await getDocs(collection(db, "contacts", okresId, okresId));
             querySnapshot.forEach(doc => {
@@ -116,6 +117,30 @@ export async function loadContactsToCache() {
                     ...data
                 });
             });
+        }
+
+        // 2. ✅ NOVÉ: Načítanie zamestnancov z kolekcie 'employees'
+        try {
+            const employeesSnapshot = await getDocs(collection(db, 'employees'));
+            employeesSnapshot.forEach(doc => {
+                const data = doc.data();
+                const empId = data.kod || doc.id;
+                
+                tempCache.push({
+                    id: `emp_${empId}`,
+                    title: `${data.meno || ''} ${data.priezvisko || ''}`.trim(),
+                    type: 'employee',
+                    meno: data.meno || '',
+                    priezvisko: data.priezvisko || '',
+                    mail: data.mail || '',
+                    telefon: data.kontakt || '',
+                    oddelenie: data.oddelenie || '',
+                    funkcia: data.funkcia || '',
+                    ...data
+                });
+            });
+        } catch (e) {
+            console.warn("Chyba pri načítaní zamestnancov:", e);
         }
 
         allContactsCache = tempCache;
@@ -139,20 +164,28 @@ export async function searchContactsInWorker(queryText) {
     return searchService.searchContacts(queryText);
 }
 
-/**
- * ✅ ZACHOVANÉ: Pôvodná funkcia pre AI modul
- */
 export function searchContactsInCache(userQuery) {
     if (!userQuery) return [];
     const lowerQuery = userQuery.toLowerCase();
     return allContactsCache.filter(c => 
-        // Vyhľadávanie v názve obce/mesta
-        (c.id && c.id.toLowerCase().includes(lowerQuery)) ||
-        (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
-        (c.municipality && c.municipality.toLowerCase().includes(lowerQuery)) ||
-        // Vyhľadávanie v mene starostu
-        (c.starosta && c.starosta.toLowerCase().includes(lowerQuery)) ||
-        (c.mayor && c.mayor.toLowerCase().includes(lowerQuery))
+        // Vyhľadávanie obcí/miest
+        (c.type === 'contact' && (
+            (c.id && c.id.toLowerCase().includes(lowerQuery)) ||
+            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
+            (c.municipality && c.municipality.toLowerCase().includes(lowerQuery)) ||
+            (c.starosta && c.starosta.toLowerCase().includes(lowerQuery)) ||
+            (c.mayor && c.mayor.toLowerCase().includes(lowerQuery))
+        )) ||
+        // Vyhľadávanie zamestnancov
+        (c.type === 'employee' && (
+            (c.meno && c.meno.toLowerCase().includes(lowerQuery)) ||
+            (c.priezvisko && c.priezvisko.toLowerCase().includes(lowerQuery)) ||
+            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
+            (c.mail && c.mail.toLowerCase().includes(lowerQuery)) ||
+            (c.telefon && c.telefon.toLowerCase().includes(lowerQuery)) ||
+            (c.oddelenie && c.oddelenie.toLowerCase().includes(lowerQuery)) ||
+            (c.funkcia && c.funkcia.toLowerCase().includes(lowerQuery))
+        ))
     );
 }
 

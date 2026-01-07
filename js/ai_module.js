@@ -26,18 +26,29 @@ Po zobrazení výsledkov UKONČI odpoveď - žiadny ďalší text ani návrhy.
 /**
  * POMOCNÁ FUNKCIA: Naformátuje dáta lokálne bez použitia AI
  * Zabezpečuje rovnaký vzhľad ako z Gemini, ale zadarmo a okamžite.
+ * ✅ NOVÉ: Podporuje aj formátovanie zamestnancov
  */
 function formatLocalContacts(contacts) {
     let htmlResult = "";
     contacts.slice(0, 10).forEach(c => {
-        htmlResult += `### Obec/Mesto: ${c.id || '---'}\n`;
-        htmlResult += `- **Okres:** ${c.okres || '---'}\n`;
-        htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
-        htmlResult += `- **Bydlisko:** ${c.adresa || '---'}\n`;
-        htmlResult += `- **E-mail obec:** ${c.em_o || '---'}\n`;
-        htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
-        htmlResult += `- **Mobil starosta:** ${c.mob_s || '---'}\n`;
-        htmlResult += `- **Tel. úrad:** ${c.tc_o || '---'}\n\n`;
+        if (c.type === 'employee') {
+            // Formátovanie pre zamestnancov
+            htmlResult += `### Zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';
+            htmlResult += `- **Oddelenie:** ${c.oddelenie || '---'}\n`;
+            htmlResult += `- **Funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **E-mail:** ${c.mail || '---'}\n`;
+            htmlResult += `- **Telefón/Kontakt:** ${c.telefon || '---'}\n\n`;
+        } else {
+            // Formátovanie pre obce/mestá
+            htmlResult += `### Obec/Mesto: ${c.id || '---'}\n`;
+            htmlResult += `- **Okres:** ${c.okres || '---'}\n`;
+            htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
+            htmlResult += `- **Bydlisko:** ${c.adresa || '---'}\n`;
+            htmlResult += `- **E-mail obec:** ${c.em_o || '---'}\n`;
+            htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
+            htmlResult += `- **Mobil starosta:** ${c.mob_s || '---'}\n`;
+            htmlResult += `- **Tel. úrad:** ${c.tc_o || '---'}\n\n`;
+        }
         htmlResult += `-----------------------------------\n\n`;
     });
     
