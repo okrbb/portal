@@ -1,0 +1,217 @@
+{
+  "collection": "towns_em",
+  "backupDate": "2026-01-05T18:52:16.675Z",
+  "count": 42,
+  "data": [
+    {
+      "id": "Badín",
+      "name": "Badín",
+      "email": "badin@obecbadin.sk"
+    },
+    {
+      "id": "Baláže",
+      "email": "starosta@balaze.sk",
+      "name": "Baláže"
+    },
+    {
+      "id": "Banská Bystrica",
+      "email": "dasa.scensna@banskabystrica.sk",
+      "name": "Banská Bystrica"
+    },
+    {
+      "id": "Brusno",
+      "email": "obec@brusno.sk",
+      "name": "Brusno"
+    },
+    {
+      "id": "Dolná Mičiná",
+      "name": "Dolná Mičiná",
+      "email": "info@dolnamicina.sk"
+    },
+    {
+      "id": "Dolný Harmanec",
+      "name": "Dolný Harmanec",
+      "email": "ou@dolnyharmanec.sk"
+    },
+    {
+      "id": "Donovaly",
+      "name": "Donovaly",
+      "email": "obec@donovaly.sk"
+    },
+    {
+      "id": "Dúbravica",
+      "email": "obec@dubravica.sk",
+      "name": "Dúbravica"
+    },
+    {
+      "id": "Harmanec",
+      "email": "obec@harmanec.sk",
+      "name": "Harmanec"
+    },
+    {
+      "id": "Hiadeľ",
+      "email": "urad@hiadel.sk",
+      "name": "Hiadeľ"
+    },
+    {
+      "id": "Horná Mičiná",
+      "name": "Horná Mičiná",
+      "email": "hornamicina@gmail.com"
+    },
+    {
+      "id": "Horné Pršany",
+      "name": "Horné Pršany",
+      "email": "obec@horneprsany.sk"
+    },
+    {
+      "id": "Hrochoť",
+      "name": "Hrochoť",
+      "email": "hrochot@hrochot.sk"
+    },
+    {
+      "id": "Hronsek",
+      "email": "obec@hronsek.sk",
+      "name": "Hronsek"
+    },
+    {
+      "id": "Kordíky",
+      "email": "obeckordiky@obeckordiky.sk",
+      "name": "Kordíky"
+    },
+    {
+      "id": "Králiky",
+      "email": "obec@obeckraliky.sk",
+      "name": "Králiky"
+    },
+    {
+      "id": "Kynceľová",
+      "email": "obecnyuradkyncelova@gmail.com",
+      "name": "Kynceľová"
+    },
+    {
+      "id": "Lučatín",
+      "name": "Lučatín",
+      "email": "obeclucatin@lucatin.eu"
+    },
+    {
+      "id": "Malachov",
+      "email": "ou@malachov.sk",
+      "name": "Malachov"
+    },
+    {
+      "id": "Medzibrod",
+      "email": "urad@obecmedzibrod.sk",
+      "name": "Medzibrod"
+    },
+    {
+      "id": "Motyčky",
+      "email": "motyckyobec@gmail.com",
+      "name": "Motyčky"
+    },
+    {
+      "id": "Moštenica",
+      "email": "administrativa@mostenica.eu",
+      "name": "Moštenica"
+    },
+    {
+      "id": "Môlča",
+      "name": "Môlča",
+      "email": "molca@molca.sk"
+    },
+    {
+      "id": "Nemce",
+      "email": "obec@nemce.sk",
+      "name": "Nemce"
+    },
+    {
+      "id": "Oravce",
+      "name": "Oravce",
+      "email": "obec@oravce.sk"
+    },
+    {
+      "id": "Podkonice",
+      "email": "podkonice@podkonice.sk",
+      "name": "Podkonice"
+    },
+    {
+      "id": "Pohronský Bukovec",
+      "name": "Pohronský Bukovec",
+      "email": "obec.pohronskybukovec@zoznam.sk"
+    },
+    {
+      "id": "Poniky",
+      "name": "Poniky",
+      "email": "poniky@poniky.sk"
+    },
+    {
+      "id": "Povrazník",
+      "name": "Povrazník",
+      "email": "povraznik@povraznik.sk"
+    },
+    {
+      "id": "Priechod",
+      "name": "Priechod",
+      "email": "starosta@priechod.sk"
+    },
+    {
+      "id": "Riečka",
+      "name": "Riečka",
+      "email": "obec@riecka.sk"
+    },
+    {
+      "id": "Sebedín-Bečov",
+      "name": "Sebedín-Bečov",
+      "email": "podatelna@sebedinbecov.sk"
+    },
+    {
+      "id": "Selce",
+      "email": "ouselce@selce.sk",
+      "name": "Selce"
+    },
+    {
+      "id": "Slovenská Ľupča",
+      "name": "Slovenská Ľupča",
+      "email": "sekretariat@slovenskalupca.sk"
+    },
+    {
+      "id": "Staré Hory",
+      "email": "info@starehory.sk",
+      "name": "Staré Hory"
+    },
+    {
+      "id": "Strelníky",
+      "name": "Strelníky",
+      "email": "urad@strelniky.sk"
+    },
+    {
+      "id": "Tajov",
+      "email": "obectajov@obectajov.sk",
+      "name": "Tajov"
+    },
+    {
+      "id": "Turecká",
+      "name": "Turecká",
+      "email": "administrativa@obecturecka.sk"
+    },
+    {
+      "id": "Vlkanová",
+      "name": "Vlkanová",
+      "email": "obec@vlkanova.sk"
+    },
+    {
+      "id": "Čerín",
+      "email": "pavel.kmet@cerin.sk",
+      "name": "Čerín"
+    },
+    {
+      "id": "Ľubietová",
+      "email": "starosta@lubietova.sk",
+      "name": "Ľubietová"
+    },
+    {
+      "id": "Špania Dolina",
+      "email": "obec@spaniadolina.sk",
+      "name": "Špania Dolina"
+    }
+  ]
+}

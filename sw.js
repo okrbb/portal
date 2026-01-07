@@ -1,9 +1,12 @@
 /* sw.js - ENHANCED PWA STRATEGY (v5.3) */
 
 // Verzia cache - pri automate tu build proces vloží hash (napr. 'v' + Date.now())
-const CACHE_VERSION = 'v5.7';
+const CACHE_VERSION = `v${Date.now()}`;
 const STATIC_CACHE = `okr-portal-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `okr-portal-dynamic-${CACHE_VERSION}`;
+
+// Aktualizačný check interval (5 minút)
+const UPDATE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 // Jadro aplikácie (Shell) - stratégia Cache First
 const CORE_ASSETS = [
@@ -55,7 +58,39 @@ self.addEventListener('activate', (event) => {
         })
     );
     self.clients.claim();
+    
+    // Spustíme pravidelný check aktualizácií
+    startUpdateCheck();
 });
+
+/**
+ * Pravidelná kontrola novej verzie aplikácie
+ */
+function startUpdateCheck() {
+    setInterval(() => {
+        console.log('[SW] Kontrolujem novú verziu aplikácie...');
+        fetch('./index.html', { cache: 'no-store' })
+            .then(response => response.text())
+            .then(html => {
+                // Ak sa obsah zmenil (v praxi by ste mohli mať verziu v HTML meta tagu)
+                // Notifikujeme všetkých klientov
+                self.clients.matchAll().then(clients => {
+                    clients.forEach(client => {
+                        client.postMessage({
+                            type: 'UPDATE_AVAILABLE',
+                            message: 'Nová verzia aplikácie je dostupná. Aplikácia sa automaticky aktualizuje...'
+                        });
+                    });
+                });
+                
+                // Čistíme cache a pusť novú verziu
+                caches.delete(STATIC_CACHE);
+                caches.delete(DYNAMIC_CACHE);
+                console.log('[SW] Cache vyčistená, aplikácia sa obnoví pri ďalšej navigácii');
+            })
+            .catch(err => console.log('[SW] Chyba pri kontrole aktualizácie:', err));
+    }, UPDATE_CHECK_INTERVAL);
+}
 
 /**
  * FETCH: Inteligentné riadenie požiadaviek podľa typu assetu

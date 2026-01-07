@@ -1,0 +1,1352 @@
+{
+  "collection": "publishedSchedules",
+  "backupDate": "2026-01-05T18:52:16.364Z",
+  "count": 13,
+  "data": [
+    {
+      "id": "2025-0",
+      "lastSaved": "2025-11-19T14:27:13.216Z",
+      "dutyAssignments": {
+        "2025-1": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841"
+          }
+        ],
+        "2025-4": [
+          {
+            "id": "28831",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2",
+            "id": "28842"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841"
+          }
+        ],
+        "2025-2": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-3": [
+          {
+            "id": "28832",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant"
+          },
+          {
+            "id": "28852",
+            "meno": "Ing. Silvia Sklenárová",
+            "skupina": "Skupina 1"
+          },
+          {
+            "id": "28836",
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ],
+        "2025-5": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3",
+            "id": "28845"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "skupina": "Skupina 3",
+            "id": "28835"
+          }
+        ]
+      },
+      "month": 0,
+      "year": 2025,
+      "reporting": {},
+      "monthName": "január",
+      "serviceOverrides": {}
+    },
+    {
+      "id": "2025-1",
+      "reporting": {},
+      "serviceOverrides": {},
+      "monthName": "február",
+      "lastSaved": "2025-11-19T14:28:20.122Z",
+      "dutyAssignments": {
+        "2025-7": [
+          {
+            "id": "28831",
+            "meno": "Mgr. Mário Banič",
+            "skupina": "Skupina 2"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-9": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "id": "28836",
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-8": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3",
+            "id": "28845"
+          },
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-6": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "skupina": "Skupina 1",
+            "id": "28852",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "skupina": "Skupina 1",
+            "id": "28836",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ],
+        "2025-5": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851",
+            "skupina": "Skupina 3"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ]
+      },
+      "year": 2025,
+      "month": 1
+    },
+    {
+      "id": "2025-10",
+      "year": 2025,
+      "month": 10,
+      "lastSaved": "2025-11-19T15:13:01.087Z",
+      "serviceOverrides": {},
+      "monthName": "november",
+      "reporting": {
+        "2025-47": [
+          "28851"
+        ],
+        "2025-48": [
+          "28836"
+        ],
+        "2025-45": [
+          "28852"
+        ],
+        "2025-44": [
+          "28835"
+        ],
+        "2025-46": [
+          "28842"
+        ]
+      },
+      "dutyAssignments": {
+        "2025-47": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845",
+            "skupina": "Skupina 3"
+          },
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-44": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3",
+            "id": "28845"
+          },
+          {
+            "id": "28851",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-45": [
+          {
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1",
+            "id": "28832"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-48": [
+          {
+            "skupina": "Skupina 1",
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ],
+        "2025-46": [
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Mário Banič",
+            "id": "28831"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2025-11",
+      "dutyAssignments": {
+        "2025-51": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852"
+          },
+          {
+            "id": "28836",
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ],
+        "2025-49": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ],
+        "2026-1": [
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-50": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3",
+            "id": "28851"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-52": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ]
+      },
+      "lastSaved": "2025-11-20T10:11:22.816Z",
+      "serviceOverrides": {
+        "2025-49": {
+          "28842": {
+            "id": "28852",
+            "meno": "Ing. Silvia Sklenárová",
+            "type": "swap"
+          }
+        },
+        "2025-51": {
+          "28852": {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "type": "swap"
+          }
+        }
+      },
+      "monthName": "december",
+      "year": 2025,
+      "month": 11,
+      "reporting": {
+        "2025-52": [
+          "28842"
+        ],
+        "2026-1": [
+          "28851"
+        ],
+        "2025-49": [
+          "28841"
+        ],
+        "2025-50": [
+          "28835"
+        ],
+        "2025-51": [
+          "28842"
+        ]
+      }
+    },
+    {
+      "id": "2025-2",
+      "reporting": {},
+      "serviceOverrides": {},
+      "lastSaved": "2025-11-19T14:28:45.430Z",
+      "month": 2,
+      "dutyAssignments": {
+        "2025-9": [
+          {
+            "skupina": "Skupina 1",
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-11": [
+          {
+            "skupina": "Skupina 3",
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "skupina": "Skupina 3",
+            "id": "28835"
+          }
+        ],
+        "2025-12": [
+          {
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852",
+            "skupina": "Skupina 1"
+          },
+          {
+            "id": "28836",
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ],
+        "2025-13": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "skupina": "Skupina 2",
+            "id": "28831"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841"
+          }
+        ],
+        "2025-14": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845",
+            "skupina": "Skupina 3"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-10": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842",
+            "skupina": "Skupina 2"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2",
+            "id": "28841"
+          }
+        ]
+      },
+      "year": 2025,
+      "monthName": "marec"
+    },
+    {
+      "id": "2025-3",
+      "monthName": "apríl",
+      "month": 3,
+      "reporting": {},
+      "dutyAssignments": {
+        "2025-16": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-17": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3",
+            "id": "28845"
+          },
+          {
+            "id": "28851",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-15": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-14": [
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845"
+          },
+          {
+            "id": "28851",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-18": [
+          {
+            "skupina": "Skupina 1",
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836",
+            "skupina": "Skupina 1"
+          }
+        ]
+      },
+      "year": 2025,
+      "serviceOverrides": {},
+      "lastSaved": "2025-11-19T14:29:14.450Z"
+    },
+    {
+      "id": "2025-4",
+      "lastSaved": "2025-11-19T14:29:37.063Z",
+      "year": 2025,
+      "monthName": "máj",
+      "dutyAssignments": {
+        "2025-20": [
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851",
+            "skupina": "Skupina 3"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-18": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "id": "28836",
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-21": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852"
+          },
+          {
+            "id": "28836",
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1"
+          }
+        ],
+        "2025-19": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "skupina": "Skupina 2",
+            "id": "28831"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841"
+          }
+        ],
+        "2025-22": [
+          {
+            "id": "28831",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2",
+            "id": "28842"
+          },
+          {
+            "skupina": "Skupina 2",
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ]
+      },
+      "reporting": {},
+      "serviceOverrides": {},
+      "month": 4
+    },
+    {
+      "id": "2025-5",
+      "dutyAssignments": {
+        "2025-23": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-25": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ],
+        "2025-24": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ],
+        "2025-22": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-26": [
+          {
+            "skupina": "Skupina 3",
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28835",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-27": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836"
+          }
+        ]
+      },
+      "month": 5,
+      "serviceOverrides": {},
+      "monthName": "jún",
+      "year": 2025,
+      "lastSaved": "2025-11-19T14:29:55.554Z",
+      "reporting": {}
+    },
+    {
+      "id": "2025-6",
+      "lastSaved": "2025-11-19T14:30:14.084Z",
+      "year": 2025,
+      "serviceOverrides": {},
+      "monthName": "júl",
+      "dutyAssignments": {
+        "2025-27": [
+          {
+            "id": "28832",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ],
+        "2025-31": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2",
+            "id": "28841"
+          }
+        ],
+        "2025-28": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842",
+            "skupina": "Skupina 2"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-29": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "id": "28851",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "id": "28835",
+            "meno": "Mgr. Miriam Galková",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-30": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ]
+      },
+      "month": 6,
+      "reporting": {}
+    },
+    {
+      "id": "2025-7",
+      "monthName": "august",
+      "month": 7,
+      "lastSaved": "2025-11-19T14:30:33.148Z",
+      "reporting": {},
+      "dutyAssignments": {
+        "2025-35": [
+          {
+            "skupina": "Skupina 3",
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3",
+            "id": "28851"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2025-32": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "id": "28845",
+            "skupina": "Skupina 3"
+          },
+          {
+            "id": "28851",
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-31": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "skupina": "Skupina 2",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-34": [
+          {
+            "id": "28831",
+            "meno": "Mgr. Mário Banič",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-33": [
+          {
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1",
+            "id": "28832"
+          },
+          {
+            "id": "28852",
+            "skupina": "Skupina 1",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "id": "28836",
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ]
+      },
+      "year": 2025,
+      "serviceOverrides": {}
+    },
+    {
+      "id": "2025-8",
+      "lastSaved": "2025-11-19T14:30:53.539Z",
+      "reporting": {},
+      "dutyAssignments": {
+        "2025-37": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842"
+          },
+          {
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-39": [
+          {
+            "skupina": "Skupina 1",
+            "meno": "Ing. Vladimír Melikant",
+            "id": "28832"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "skupina": "Skupina 1",
+            "id": "28852"
+          },
+          {
+            "skupina": "Skupina 1",
+            "id": "28836",
+            "meno": "Mgr. Denis Mičovský"
+          }
+        ],
+        "2025-36": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "skupina": "Skupina 1",
+            "id": "28852"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836"
+          }
+        ],
+        "2025-40": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik",
+            "id": "28841"
+          }
+        ],
+        "2025-38": [
+          {
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3"
+          },
+          {
+            "id": "28851",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28835",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ]
+      },
+      "month": 8,
+      "monthName": "september",
+      "serviceOverrides": {},
+      "year": 2025
+    },
+    {
+      "id": "2025-9",
+      "reporting": {},
+      "serviceOverrides": {},
+      "lastSaved": "2025-11-19T14:31:24.133Z",
+      "year": 2025,
+      "monthName": "október",
+      "month": 9,
+      "dutyAssignments": {
+        "2025-43": [
+          {
+            "skupina": "Skupina 2",
+            "id": "28831",
+            "meno": "Mgr. Mário Banič"
+          },
+          {
+            "skupina": "Skupina 2",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "id": "28842"
+          },
+          {
+            "id": "28841",
+            "skupina": "Skupina 2",
+            "meno": "Mgr. Maroš Plieštik"
+          }
+        ],
+        "2025-44": [
+          {
+            "id": "28845",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3",
+            "id": "28851"
+          },
+          {
+            "id": "28835",
+            "meno": "Mgr. Miriam Galková",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2025-40": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "skupina": "Skupina 2",
+            "id": "28831"
+          },
+          {
+            "id": "28842",
+            "meno": "Ing. Anetta Vereš Pšanecká",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28841",
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2"
+          }
+        ],
+        "2025-42": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "id": "28852",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ],
+        "2025-41": [
+          {
+            "skupina": "Skupina 3",
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851"
+          },
+          {
+            "id": "28835",
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2026-0",
+      "serviceOverrides": {},
+      "lastSaved": "2025-12-22T09:38:36.963Z",
+      "reporting": {
+        "2026-2": [
+          "28836"
+        ],
+        "2026-4": [
+          "28835"
+        ],
+        "2026-1": [
+          "28851"
+        ],
+        "2026-3": [
+          "28841"
+        ],
+        "2026-5": [
+          "28852"
+        ]
+      },
+      "monthName": "január",
+      "dutyAssignments": {
+        "2026-1": [
+          {
+            "meno": "Mgr. Juraj Tuhársky",
+            "skupina": "Skupina 3",
+            "id": "28845"
+          },
+          {
+            "skupina": "Skupina 3",
+            "meno": "Mgr. Ján Kubaliak",
+            "id": "28851"
+          },
+          {
+            "meno": "Mgr. Miriam Galková",
+            "id": "28835",
+            "skupina": "Skupina 3"
+          }
+        ],
+        "2026-5": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "meno": "Ing. Silvia Sklenárová",
+            "skupina": "Skupina 1",
+            "id": "28852"
+          },
+          {
+            "meno": "Mgr. Denis Mičovský",
+            "skupina": "Skupina 1",
+            "id": "28836"
+          }
+        ],
+        "2026-4": [
+          {
+            "skupina": "Skupina 3",
+            "id": "28845",
+            "meno": "Mgr. Juraj Tuhársky"
+          },
+          {
+            "meno": "Mgr. Ján Kubaliak",
+            "skupina": "Skupina 3",
+            "id": "28851"
+          },
+          {
+            "skupina": "Skupina 3",
+            "id": "28835",
+            "meno": "Mgr. Miriam Galková"
+          }
+        ],
+        "2026-3": [
+          {
+            "meno": "Mgr. Mário Banič",
+            "id": "28831",
+            "skupina": "Skupina 2"
+          },
+          {
+            "id": "28842",
+            "skupina": "Skupina 2",
+            "meno": "Ing. Anetta Vereš Pšanecká"
+          },
+          {
+            "meno": "Mgr. Maroš Plieštik",
+            "skupina": "Skupina 2",
+            "id": "28841"
+          }
+        ],
+        "2026-2": [
+          {
+            "id": "28832",
+            "meno": "Ing. Vladimír Melikant",
+            "skupina": "Skupina 1"
+          },
+          {
+            "skupina": "Skupina 1",
+            "id": "28852",
+            "meno": "Ing. Silvia Sklenárová"
+          },
+          {
+            "skupina": "Skupina 1",
+            "meno": "Mgr. Denis Mičovský",
+            "id": "28836"
+          }
+        ]
+      },
+      "month": 0,
+      "year": 2026
+    }
+  ]
+}

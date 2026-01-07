@@ -1,0 +1,1451 @@
+{
+  "collection": "publishedSchedulesIZS",
+  "backupDate": "2026-01-05T18:52:16.499Z",
+  "count": 4,
+  "data": [
+    {
+      "id": "2025-10",
+      "updatedBy": "mario.banic2@minv.sk",
+      "updatedAt": "2025-12-10T19:33:28.944Z",
+      "days": {
+        "1": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "2": {
+          "dayShift": [
+            "MESIARIK",
+            "TUHÁRSKY",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "3": {
+          "nightShift": [
+            "GAJDOŠ",
+            "MESIARIK"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KUZMA",
+            "KREMPASKÝ"
+          ]
+        },
+        "4": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KOSTOLNÁ"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "5": {
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "KUBIZŇA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ]
+        },
+        "6": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KUBIZŇA",
+            "TOMA"
+          ]
+        },
+        "7": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "8": {
+          "nightShift": [
+            "VAJS",
+            "MESIARIK",
+            "TOMA"
+          ],
+          "dayShift": [
+            "SKLENÁROVÁ",
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ]
+        },
+        "9": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "10": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "11": {
+          "dayShift": [
+            "GAJDOŠ",
+            "MESIARIK",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KREMPASKÝ",
+            "KOSTOLNÁ"
+          ]
+        },
+        "12": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "13": {
+          "nightShift": [
+            "KUBIZŇA",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "BIELY"
+          ]
+        },
+        "14": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "VAJS",
+            "KREMPASKÝ"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "TOMA"
+          ]
+        },
+        "15": {
+          "nightShift": [
+            "TUHÁRSKY",
+            "ODALOŠ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KÁNOVÁ",
+            "CHLEBOVIČ"
+          ]
+        },
+        "16": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA"
+          ]
+        },
+        "17": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KÁNOVÁ"
+          ]
+        },
+        "18": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KUZMA",
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ]
+        },
+        "19": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "VAJS",
+            "KUBIZŇA"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "20": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KOSTOLNÁ",
+            "KÁNOVÁ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "21": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUZMA",
+            "TOMA"
+          ]
+        },
+        "22": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "SKLENÁROVÁ",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "23": {
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "24": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KOSTOLNÁ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "CHLEBOVIČ"
+          ]
+        },
+        "25": {
+          "dayShift": [
+            "MESIARIK",
+            "KOSTOLNÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "26": {
+          "dayShift": [
+            "KUBIZŇA",
+            "ODALOŠ",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "KREMPASKÝ",
+            "KOSTOLNÁ"
+          ]
+        },
+        "27": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "28": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KUZMA",
+            "BIELY"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "29": {
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "30": {
+          "dayShift": [
+            "KOSTOLNÁ",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        }
+      },
+      "monthName": "November",
+      "monthIndex": 10,
+      "year": 2025
+    },
+    {
+      "id": "2025-11",
+      "year": 2025,
+      "monthIndex": 11,
+      "updatedBy": "mario.banic2@minv.sk",
+      "updatedAt": "2026-01-05T15:17:34.036Z",
+      "monthName": "December",
+      "days": {
+        "1": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "2": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "3": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "4": {
+          "nightShift": [
+            "KUZMA",
+            "KÁNOVÁ",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "KOSTOLNÁ"
+          ]
+        },
+        "5": {
+          "dayShift": [
+            "GAJDOŠ",
+            "MESIARIK",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "SKLENÁROVÁ",
+            "KUZMA"
+          ]
+        },
+        "6": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KÁNOVÁ",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KOSTOLNÁ",
+            "ODALOŠ",
+            "BIELY"
+          ]
+        },
+        "7": {
+          "dayShift": [
+            "VAJS",
+            "MESIARIK",
+            "KÁNOVÁ"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "8": {
+          "dayShift": [
+            "KUZMA",
+            "KREMPASKÝ",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "9": {
+          "nightShift": [
+            "KUZMA",
+            "KUBIZŇA",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "VAJS"
+          ]
+        },
+        "10": {
+          "dayShift": [
+            "MESIARIK",
+            "KOSTOLNÁ",
+            "KÁNOVÁ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "11": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "TOMA"
+          ]
+        },
+        "12": {
+          "nightShift": [
+            "TUHÁRSKY",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "13": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "BIELY"
+          ]
+        },
+        "14": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUZMA",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÝ",
+            "KUBIZŇA",
+            "BIELY"
+          ]
+        },
+        "15": {
+          "dayShift": [
+            "VAJS",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "16": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUZMA",
+            "KUBIZŇA"
+          ]
+        },
+        "17": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "GAJDOŠ",
+            "KUBIZŇA"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "18": {
+          "dayShift": [
+            "KUZMA",
+            "KREMPASKÝ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "19": {
+          "nightShift": [
+            "KUZMA",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "20": {
+          "dayShift": [
+            "VAJS",
+            "GAJDOŠ",
+            "KOSTOLNÁ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "21": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "22": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "KUBIZŇA",
+            "BIELY",
+            "CHLEBOVIČ"
+          ]
+        },
+        "23": {
+          "dayShift": [
+            "KUZMA",
+            "KREMPASKÝ",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "24": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUZMA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "25": {
+          "dayShift": [
+            "VAJS",
+            "KUBIZŇA",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "26": {
+          "dayShift": [
+            "KUBIZŇA",
+            "ODALOŠ",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "27": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "BIELY"
+          ]
+        },
+        "28": {
+          "dayShift": [
+            "VAJS",
+            "KUZMA",
+            "KOSTOLNÁ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "29": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "TOMA"
+          ]
+        },
+        "30": {
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "31": {
+          "dayShift": [
+            "GAJDOŠ",
+            "MESIARIK",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KUZMA",
+            "KOSTOLNÁ"
+          ]
+        }
+      }
+    },
+    {
+      "id": "2025-7",
+      "days": {
+        "1": {
+          "dayShift": [
+            "KOSTOLNÁ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "KUBIZŇA",
+            "ODALOŠ"
+          ]
+        },
+        "2": {
+          "nightShift": [
+            "MESIARIK",
+            "BIELY",
+            "TOMA"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "SKLENÁROVÁ",
+            "CHLEBOVIČ"
+          ]
+        },
+        "3": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KOSTOLNÁ",
+            "BIELY"
+          ]
+        },
+        "4": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "ODALOŠ"
+          ]
+        },
+        "5": {
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "6": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "7": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ],
+          "dayShift": [
+            "KÁNOVÁ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "8": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "ODALOŠ",
+            "KORNAJ, MBA"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA"
+          ]
+        },
+        "9": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "TUHÁRSKY",
+            "KÁNOVÁ"
+          ]
+        },
+        "10": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ"
+          ],
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "11": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "12": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "13": {
+          "dayShift": [
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "14": {
+          "dayShift": [
+            "MESIARIK",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "15": {
+          "nightShift": [
+            "MESIARIK",
+            "KORNAJ, MBA",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KUZMA"
+          ]
+        },
+        "16": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "MESIARIK",
+            "KUZMA"
+          ]
+        },
+        "17": {
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "18": {
+          "dayShift": [
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "19": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "TOMA"
+          ]
+        },
+        "20": {
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "TOMA"
+          ]
+        },
+        "21": {
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "22": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ]
+        },
+        "23": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "KORNAJ, MBA"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUZMA",
+            "KUBIZŇA"
+          ]
+        },
+        "24": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "25": {
+          "dayShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "26": {
+          "dayShift": [
+            "VAJS",
+            "BIELY"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "27": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KORNAJ, MBA"
+          ]
+        },
+        "28": {
+          "dayShift": [
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KUZMA",
+            "KORNAJ, MBA"
+          ]
+        },
+        "29": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "30": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "31": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        }
+      },
+      "monthName": "August",
+      "monthIndex": 7,
+      "year": 2025,
+      "updatedBy": "juraj.tuharsky@minv.sk",
+      "updatedAt": "2025-11-21T07:24:45.278Z"
+    },
+    {
+      "id": "2026-0",
+      "year": 2026,
+      "monthName": "Január",
+      "monthIndex": 0,
+      "updatedAt": "2026-01-02T12:40:11.791Z",
+      "updatedBy": "silvia.sklenarova@minv.sk",
+      "days": {
+        "1": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "2": {
+          "nightShift": [
+            "MESIARIK",
+            "KOSTOLNÁ",
+            "KÁNOVÁ"
+          ],
+          "dayShift": [
+            "VAJS",
+            "ODALOŠ"
+          ]
+        },
+        "3": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KÁNOVÁ",
+            "ODALOŠ"
+          ]
+        },
+        "4": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "CHLEBOVIČ"
+          ]
+        },
+        "5": {
+          "dayShift": [
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "6": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "7": {
+          "dayShift": [
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "8": {
+          "nightShift": [
+            "KUBIZŇA",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ]
+        },
+        "9": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "10": {
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "ODALOŠ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "11": {
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "12": {
+          "dayShift": [
+            "KREMPASKÝ",
+            "ODALOŠ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "13": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ],
+          "nightShift": [
+            "ODALOŠ",
+            "TOMA"
+          ]
+        },
+        "14": {
+          "dayShift": [
+            "VAJS",
+            "MESIARIK"
+          ],
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ"
+          ]
+        },
+        "15": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "16": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "TOMA"
+          ]
+        },
+        "17": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "ODALOŠ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "VAJS",
+            "GAJDOŠ",
+            "TOMA"
+          ]
+        },
+        "18": {
+          "nightShift": [
+            "ODALOŠ",
+            "CHLEBOVIČ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "19": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "KOSTOLNÁ",
+            "KUBIZŇA"
+          ]
+        },
+        "20": {
+          "dayShift": [
+            "ODALOŠ",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "21": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "22": {
+          "dayShift": [
+            "VAJS",
+            "KREMPASKÝ"
+          ],
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "23": {
+          "nightShift": [
+            "KUBIZŇA",
+            "KÁNOVÁ",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ]
+        },
+        "24": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "MESIARIK",
+            "KOSTOLNÁ"
+          ]
+        },
+        "25": {
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "nightShift": [
+            "VAJS",
+            "KOSTOLNÁ",
+            "BIELY"
+          ]
+        },
+        "26": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        },
+        "27": {
+          "nightShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ],
+          "dayShift": [
+            "KREMPASKÁ",
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "28": {
+          "dayShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "nightShift": [
+            "KUZMA",
+            "ODALOŠ"
+          ]
+        },
+        "29": {
+          "nightShift": [
+            "KREMPASKÁ",
+            "KREMPASKÝ",
+            "BIELY"
+          ],
+          "dayShift": [
+            "VAJS",
+            "KOSTOLNÁ"
+          ]
+        },
+        "30": {
+          "nightShift": [
+            "VAJS",
+            "KUZMA",
+            "KOSTOLNÁ"
+          ],
+          "dayShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ]
+        },
+        "31": {
+          "nightShift": [
+            "GAJDOŠ",
+            "KUBIZŇA",
+            "CHLEBOVIČ"
+          ],
+          "dayShift": [
+            "MESIARIK",
+            "KÁNOVÁ",
+            "TOMA"
+          ]
+        }
+      }
+    }
+  ]
+}

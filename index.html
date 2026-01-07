@@ -909,6 +909,184 @@
         });
     </script>
 
+    <!-- Update Notification System -->
+    <div id="update-notification" class="update-notification" style="display: none;">
+        <div class="update-notification-content">
+            <i class="fas fa-info-circle"></i>
+            <div class="update-notification-text">
+                <strong>Nová verzia</strong>
+                <p id="update-message">Nová verzia aplikácie je dostupná. Aplikácia sa automaticky obnoví...</p>
+            </div>
+            <button id="update-reload-btn" class="update-reload-btn">Obnoviť teraz</button>
+            <button id="update-close-btn" class="update-close-btn">Zatvoriť</button>
+        </div>
+    </div>
+
+    <style>
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #dd590d 0%, #ff7f3f 100%);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .update-notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .update-notification-content i {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .update-notification-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .update-notification-text strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .update-notification-text p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .update-reload-btn,
+        .update-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .update-reload-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .update-close-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 8px;
+            opacity: 0.7;
+        }
+
+        .update-close-btn:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .update-notification {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .update-notification-content {
+                flex-wrap: wrap;
+            }
+
+            .update-notification-text {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        // Registrácia service workera a spracovanie aktualizácií
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(registration => {
+                console.log('[APP] Service Worker zaregistrovaný:', registration);
+
+                // Spracovanie správ od service workera
+                navigator.serviceWorker.onmessage = (event) => {
+                    if (event.data.type === 'UPDATE_AVAILABLE') {
+                        console.log('[APP]', event.data.message);
+                        showUpdateNotification(event.data.message);
+                    }
+                };
+
+                // Kontrola aktualizácií pri každej zmene stavu
+                registration.onupdatefound = () => {
+                    const newWorker = registration.installing;
+                    newWorker.onstatechange = () => {
+                        if (newWorker.state === 'activated') {
+                            console.log('[APP] Aplikácia bola aktualizovaná');
+                            // Stránka sa automaticky obnoví po kliknutí na "Obnoviť teraz"
+                            // alebo po úplnom refreshi
+                        }
+                    };
+                };
+            }).catch(err => console.error('[APP] Chyba registrácie SW:', err));
+        }
+
+        function showUpdateNotification(message) {
+            const notification = document.getElementById('update-notification');
+            const messageElement = document.getElementById('update-message');
+            const reloadBtn = document.getElementById('update-reload-btn');
+            const closeBtn = document.getElementById('update-close-btn');
+
+            if (messageElement) {
+                messageElement.textContent = message;
+            }
+
+            notification.style.display = 'block';
+
+            reloadBtn.onclick = () => {
+                // Vyčistíme cache a obnovíme stránku
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                }).finally(() => {
+                    location.reload(true);
+                });
+            };
+
+            closeBtn.onclick = () => {
+                notification.style.display = 'none';
+            };
+
+            // Automatické zatvorenie po 10 sekundách
+            setTimeout(() => {
+                if (notification.style.display !== 'none') {
+                    notification.style.display = 'none';
+                }
+            }, 10000);
+        }
+    </script>
+
 </body>
 </html>
+
 
