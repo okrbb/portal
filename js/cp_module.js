@@ -485,7 +485,7 @@ async function generateCPDocx(data, filename) {
         // ✅ LAZY LOADING: Načítanie Word bundlu (PizZip + Docxtemplater + FileSaver)
         const { Docxtemplater, PizZip, FileSaver } = await lazyLoader.loadWordBundle();
 
-        const response = await fetch('/data/cp.docx'); 
+        const response = await fetch('./data/cp.docx'); 
         if (!response.ok) throw new Error('Nepodarilo sa načítať šablónu');
 
         const content = await response.arrayBuffer();
