@@ -1,0 +1,307 @@
+/* ============================================
+   SETTINGS DROPDOWN MENU - ENHANCED
+   S podporou pre Admin sekciu
+   ============================================ */
+
+.settings-dropdown-wrapper {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.settings-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: rgba(31, 41, 55, 0.98);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  min-width: 280px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 2100;
+  overflow: hidden;
+  
+  /* ZMENA: explicitne display namiesto opacity */
+  display: none !important;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-dropdown-menu.active {
+  display: block !important;
+  transform: translateY(0);
+}
+
+/* Menu Items */
+.settings-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    color: var(--color-text-primary, #e5e7eb);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.settings-dropdown-menu a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: var(--color-orange-accent, #dd590d);
+    padding-left: 22px;
+}
+
+.settings-dropdown-menu a:active {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.settings-dropdown-menu a i {
+    width: 20px;
+    font-size: 16px;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.settings-dropdown-menu a:hover i {
+    opacity: 1;
+    color: var(--color-orange-accent, #dd590d);
+}
+
+/* ============================================
+   ADMIN SEKCIA - SEPARATOR
+   ============================================ */
+
+.menu-separator {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(221, 89, 13, 0.3) 20%,
+        rgba(221, 89, 13, 0.3) 80%,
+        transparent
+    );
+    margin: 12px 0;
+    position: relative;
+}
+
+.menu-separator::before {
+    content: 'ADMIN';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-bg-secondary, rgba(31, 41, 55, 0.98));
+    padding: 0 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--color-orange-accent, #dd590d);
+    opacity: 0.6;
+}
+
+/* ============================================
+   ADMIN ITEMS - Špeciálne štýly
+   ============================================ */
+
+.settings-dropdown-menu a[data-admin-item="true"] {
+    position: relative;
+}
+
+/* Admin items majú tenký accent border */
+.settings-dropdown-menu a[data-admin-item="true"]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+.settings-dropdown-menu a[data-admin-item="true"]:hover::before {
+    background: var(--color-orange-accent, #dd590d);
+}
+
+/* Danger style (pre Delete funkcie) */
+.settings-dropdown-menu a.menu-item-danger {
+    color: #ef4444;
+}
+
+.settings-dropdown-menu a.menu-item-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-left-color: #ef4444;
+}
+
+.settings-dropdown-menu a.menu-item-danger:hover i {
+    color: #ef4444;
+}
+
+.settings-dropdown-menu a.menu-item-danger::before {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================
+   ICON BUTTON (Settings Toggle)
+   ============================================ */
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary, #9ca3af);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(221, 89, 13, 0.3);
+    color: var(--color-orange-accent, #dd590d);
+    transform: translateY(-2px);
+}
+
+.icon-btn:active {
+    transform: translateY(0);
+}
+
+.icon-btn.active {
+    background: rgba(221, 89, 13, 0.15);
+    border-color: var(--color-orange-accent, #dd590d);
+    color: var(--color-orange-accent, #dd590d);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .settings-dropdown-menu {
+        min-width: 240px;
+        right: -10px;
+    }
+
+    .settings-dropdown-menu a {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
+/* ============================================
+   DARK MODE ADJUSTMENTS
+   ============================================ */
+
+@media (prefers-color-scheme: light) {
+    .settings-dropdown-menu {
+        background: rgba(255, 255, 255, 0.98);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-dropdown-menu a {
+        color: #1f2937;
+    }
+
+    .settings-dropdown-menu a:hover {
+        background: rgba(221, 89, 13, 0.08);
+    }
+
+    .menu-separator::before {
+        background: rgba(255, 255, 255, 0.98);
+    }
+
+    .icon-btn {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.1);
+        color: #6b7280;
+    }
+
+    .icon-btn:hover {
+        background: rgba(0, 0, 0, 0.08);
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.settings-dropdown-menu a:focus-visible,
+.icon-btn:focus-visible {
+    outline: 2px solid var(--color-orange-accent, #dd590d);
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .settings-dropdown-menu,
+    .settings-dropdown-menu a,
+    .icon-btn {
+        transition: none;
+    }
+}
+
+/* ============================================
+   LOADING STATE (pre async operácie)
+   ============================================ */
+
+.settings-dropdown-menu a.loading {
+    pointer-events: none;
+    opacity: 0.6;
+    position: relative;
+}
+
+.settings-dropdown-menu a.loading::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--color-orange-accent, #dd590d);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* ============================================
+   BADGE (pre notifikácie - budúce použitie)
+   ============================================ */
+
+.settings-dropdown-menu a .badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    background: var(--color-orange-accent, #dd590d);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.settings-dropdown-menu a .badge.badge-danger {
+    background: #ef4444;
+}
+
+.settings-dropdown-menu a .badge.badge-success {
+    background: #10b981;
+}
