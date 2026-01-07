@@ -1,0 +1,914 @@
+﻿<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKR portál</title>
+    
+    <link rel="icon" href="./css/favicon.png" type="image/x-icon">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/action-panel.css">
+    <link rel="stylesheet" href="./css/settings-menu.css">
+
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#dd590d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./css/icon-192.png">
+</head>
+<body>
+    <div id="auth__login-modal-overlay" class="login-overlay">
+        <div class="login-container-modern">
+            <div class="login-brand-side">
+                <div class="brand-content">
+                    <div class="logo-modern-wrapper">
+                        <img src="./css/logo.svg" alt="Logo Odbor Krízového Riadenia" class="logo-img">
+                    </div>
+                    <h2>ODBOR KRÍZOVÉHO RIADENIA</h2>
+                    <p>Banská Bystrica</p>
+                </div>
+                <div class="brand-bg-overlay"></div>
+            </div>
+
+            <div class="login-form-side">
+                <div class="form-header">
+                    <p>Zadajte služobný email a heslo</p>
+                </div>
+                
+                <form id="auth__login-form">
+                    <div class="input-group-modern">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="auth__email-input" required autocomplete="username" placeholder=" ">
+                        <label for="auth__email-input">E-mail</label>
+                        <div class="input-border"></div>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="auth__password-input" required autocomplete="current-password" placeholder=" ">
+                        <label for="auth__password-input">Heslo</label>
+                        <div class="input-border"></div>
+                    </div>
+
+                    <div class="remember-me-wrapper modern">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="auth__remember-me-checkbox">
+                            <span class="checkmark"></span>
+                            Zapamätať si prihlasovacie údaje
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-modern-login">
+                        <span>Prihlásiť sa</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                     <div class="forgot-password-wrapper modern">
+                        <a href="#" id="auth__forgot-password-link">Zabudol som heslo</a>
+                    </div>
+
+                    <div id="auth__login-error-msg" class="login-error modern"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <nav class="top-nav">
+        <div class="nav-left sidebar-header">
+            <div class="nav-logo logo" data-target="dashboard-module">
+                <img src="./css/logo.svg" alt="Logo" class="nav-logo-img">
+            </div>
+
+            <div class="nav-dropdown-wrapper">
+               
+                    <h2>ODBOR KRÍZOVÉHO RIADENIA</h2>
+                
+                <ul class="nav-dropdown-menu main-menu" style="display: none;">
+                    <li><a href="#" data-target="dashboard-module">Prehľad</a></li>
+                    <li><a href="#" data-target="cestovny-prikaz-module">Cestovný príkaz</a></li>
+                    <li><a href="#" data-target="dov-module">Evidencia dovoleniek</a></li>
+                    <li><a href="#" data-target="pohotovost-module">Rozpis pohotovosti OKR</a></li>
+                    <li><a href="#" data-target="izs-module">Agenda KS IZS</a></li>
+                    <li><a href="#" data-target="ua-contributions-module">Príspevky UA</a></li>
+                    <li><a href="#" data-target="fuel-module">Evidencia PHM</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="nav-center">
+            <div class="global-search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Hľadať zamestnanca ..." id="nav__global-employee-search">
+                <i class="fas fa-times clear-search-btn hidden" id="nav__clear-search-btn" title="Vymazať hľadanie"></i>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <!-- ✅ KONTAKTY -->
+            <button class="icon-btn" id="nav__address_book-btn" title="Kontakty">
+                <i class="fas fa-address-book"></i>
+            </button>
+            
+            <!-- ✅ NASTAVENIA (s dropdown menu) -->
+            <div class="settings-dropdown-wrapper">
+                <button class="icon-btn" id="nav__settings-toggle-btn" title="Nastavenia">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <div class="settings-dropdown-menu">
+                    <!-- Export zamestnancov - PRESUNÚŤ SEM -->
+                    <a href="#" id="nav__export-excel-btn"><i class="fas fa-id-card"></i> Zoznam zamestnancov</a>
+                    
+                    <!-- Pôvodné položky -->
+                    <a href="#" id="nav__reload-btn"><i class="fa-solid fa-arrow-rotate-right"></i> Obnoviť aplikáciu</a>
+                    <a href="#" id="nav__change-password-btn"><i class="fas fa-key"></i> Zmeniť heslo</a>
+                    
+                    <!-- Admin sekcia sa pridá automaticky cez JS (admin_panel_module.js) -->
+
+                    <div class="menu-separator"></div>
+                    <!-- Backup Data -->
+                    <a href="#" id="admin__backup-data-btn" data-admin-item="true" style="display: none;">
+                        <i class="fas fa-database"></i>
+                        Zálohovať dáta
+                    </a>
+
+                    <!-- Restore Data -->
+                    <a href="#" id="admin__restore-data-btn" data-admin-item="true" style="display: none;">
+                        <i class="fas fa-upload"></i>
+                        Obnoviť dáta
+                    </a>
+
+                    <!-- Download Access Logs -->
+                    <a href="#" id="admin__download-access-logs-btn" data-admin-item="true" style="display: none;">
+                        <i class="fas fa-download"></i>
+                        Stiahnuť Access Logs
+                    </a>
+
+                    <!-- Delete Access Logs -->
+                    <a href="#" id="admin__delete-access-logs-btn" data-admin-item="true" class="menu-item-danger" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        Vymazať Access Logs
+                    </a>
+                </div>
+            </div>
+            
+            <!-- ✅ ODHLÁSENIE (samostatná ikona) -->
+            <button class="icon-btn icon-btn-logout" id="nav__logout-btn" title="Odhlásiť sa">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+            
+            <!-- ✅ USER PROFILE (len zobrazovací, BEZ dropdown) -->
+            <div class="nav-user-profile nav-user-profile-display">
+                <div class="nav-user-details">
+                    <span class="user-name" id="nav__sidebar-user-name">---</span>
+                    <span class="user-position" id="nav__sidebar-user-position">---</span>
+                </div>
+                <!-- Odstránená šípka a dropdown menu -->
+            </div>
+        </div>
+            </nav>
+
+    <div class="portal-container">
+        
+        <aside class="sidebar-right" id="sidebar__right-panel">
+            <div class="sidebar-right-header">
+                <h2>Zamestnanci <span class="count-badge" id="sidebar__global-emp-count">0</span></h2>
+                <button class="close-sidebar-btn" id="sidebar__close-right-sidebar"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="employee-list-container">
+                <ul id="sidebar__global-employees-list-items">
+                    <li>Načítavam...</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="content-scroll-area">
+
+                <div class="bento-grid-container">
+                    
+                    <a href="#" class="bento-card nav-link-card active" data-target="dashboard-module">
+                        <div class="bento-icon-wrapper"><i class="fa-solid fa-users-viewfinder"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Prehľad</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="cestovny-prikaz-module">
+                        <div class="bento-icon-wrapper"><i class="fas fa-suitcase-rolling"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Cestovný príkaz</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="dov-module">
+                        <div class="bento-icon-wrapper"><i class="fa-solid fa-globe"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Evidencia dovoleniek</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="pohotovost-module">
+                        <div class="bento-icon-wrapper"><i class="fas fa-phone-volume"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Rozpis pohotovosti OKR</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="izs-module">
+                        <div class="bento-icon-wrapper"><i class="fa-solid fa-people-arrows"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Agenda KS IZS</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="ua-contributions-module">
+                        <div class="bento-icon-wrapper"><i class="fas fa-hand-holding-dollar"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Príspevky UA</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="bento-card nav-link-card" data-target="fuel-module">
+                        <div class="bento-icon-wrapper"><i class="fas fa-gas-pump"></i></div>
+                        <div class="bento-content">
+                            <div class="bento-title">Evidencia PHM</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="modules-scroll-container">
+
+                    <div id="dashboard__module" class="module-content">
+                        <div class="dashboard-container" style="margin-top: 0;">
+                            <div class="dashboard-main">
+                                <div class="dashboard-row">
+                                    <div class="dashboard-right-col">
+                                        <div class="dashboard-card welcome-card" id="dashboard__welcome-card-container">
+                                            <div class="welcome-content">
+                                                <h3 id="dashboard__welcome-greeting">Načítavam...</h3>
+                                                <p id="dashboard__welcome-date">...</p>
+                                                <p id="dashboard__welcome-meniny" style="font-size: 0.85rem; color: var(--color-orange-accent); margin-top: 2px; font-weight: 600; min-height: 20px;"></p>
+                                                <p id="dashboard__welcome-sviatok" style="font-size: 0.85rem; color: #4CAF50; margin-top: 9px; font-weight: 600; min-height: 20px;"></p>
+                                            </div>
+                                            <i class="fas fa-sun welcome-icon" id="dashboard__welcome-icon"></i>
+                                            <span id="dashboard__welcome-temp" class="welcome-temp">--°C</span>
+                                        </div>
+                                        <div id="dashboard__announcement-widget-container" class="announcement-card"></div>
+                                        <div class="dashboard-card dashboard-duty-card" id="dashboard__duty-list">
+                                            <h2><i class="fas fa-user-clock" style="color: var(--color-orange-accent); margin-right: 8px;"></i>Pohotovosť (dnes)</h2>
+                                            <ul id="dashboard__duty-list-items"><li>Načítavam...</li></ul>
+                                        </div>
+                                    </div>
+                                    <div class="dashboard-card dashboard-calendar-card" id="dashboard__calendar-placeholder">
+                                        <div class="calendar-header-row">
+                                            <h2>Kalendár služieb</h2>
+                                            <div class="calendar-filters">
+                                                <label class="filter-label"><input type="checkbox" id="dashboard__filter-dovolenky" checked><span class="filter-dot dot-red"></span> Dovolenka</label>
+                                                <label class="filter-label"><input type="checkbox" id="dashboard__filter-pohotovost" checked><span class="filter-dot dot-orange"></span> Pohotovosť</label>
+                                                <label class="filter-label"><input type="checkbox" id="dashboard__filter-izs-day" checked><span class="filter-dot dot-blue"></span> IZS Denná</label>
+                                                <label class="filter-label"><input type="checkbox" id="dashboard__filter-izs-night" checked><span class="filter-dot dot-yellow"></span> IZS Nočná</label>
+                                            </div>
+                                        </div>
+                                        <div id="dashboard__calendar-render-area"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cp__module" class="module-content hidden">
+                        <div class="cp-module-layout">
+                            <div class="cp-employee-info-col">
+                                <div class="dashboard-card" id="cp__employee-detail-card">
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend">Zamestnanec
+                                        <i class="fas fa-pen-to-square edit-iban-icon" id="cp__btn-edit-iban" title="Upraviť IBAN zamestnanca"></i>
+                                        </legend>
+                                        <div id="cp__employee-details" class="cp-employee-card">
+                                            <p>Vyberte zamestnanca z globálneho zoznamu vpravo kliknutím.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dashboard-card" id="cp__meal-allowance-card">
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend">Vyúčtovanie stravy</legend>
+                                        <div id="cp__meal-calculation" class="cp-employee-card">
+                                            <div id="cp__meal-calculation-results" style="display: none;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="dashboard-card">
+                                <form id="cp__form-embedded">
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend">Základné údaje o ceste</legend>
+                                        <div class="form-group-cp">
+                                            <label for="cp__ucel"><span class="label-text">Účel cesty</span><span class="label-required">*</span></label>
+                                            <input type="text" id="cp__ucel" name="ucel" placeholder="Napr. služobná cesta, konferencia..." required>
+                                        </div>
+                                        <div class="form-group-cp">
+                                            <label for="cp__miesto"><span class="label-text">Miesto služobnej cesty</span><span class="label-required">*</span></label>
+                                            <input type="text" id="cp__miesto" name="miesto" placeholder="Napr. Bratislava, Košice..." required>
+                                        </div>
+                                        <div class="form-group-cp">
+                                            <label for="cp__spolucestujuci"><span class="label-text">Spolucestujúci</span></label>
+                                            <input type="text" id="cp__spolucestujuci" name="spolucestujuci" placeholder="Voliteľné - meno spolucestujúceho">
+                                        </div>
+                                    </div>
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend">Časové údaje</legend>
+                                        <div class="cp-time-grid">
+                                            <div class="cp-time-block">
+                                                <h4 class="cp-time-block-title">Začiatok cesty</h4>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_zc_datum"><span class="label-text">Dátum</span><span class="label-required">*</span></label>
+                                                    <input type="date" id="cp__datum_zc_datum" name="datum_zc_datum" required>
+                                                </div>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_zc_cas"><span class="label-text">Čas</span><span class="label-required">*</span></label>
+                                                    <div class="cp-select-wrapper">
+                                                        <select id="cp__datum_zc_cas" name="datum_zc_cas" required><option value="">-- čas --</option></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="cp-time-block">
+                                                <h4 class="cp-time-block-title">Koniec cesty</h4>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_kc_datum"><span class="label-text">Dátum</span><span class="label-required">*</span></label>
+                                                    <input type="date" id="cp__datum_kc_datum" name="datum_kc_datum" required>
+                                                </div>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_kc_cas"><span class="label-text">Čas</span><span class="label-required">*</span></label>
+                                                    <div class="cp-select-wrapper">
+                                                        <select id="cp__datum_kc_cas" name="datum_kc_cas" required><option value="">-- čas --</option></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend"></legend>
+                                        <div class="cp-columns-2">
+                                            <div>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_1"><span class="label-text">Dátum podpisu vedúceho</span><span class="label-required">*</span></label>
+                                                    <input type="date" id="cp__datum_1" name="datum_1" required>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="form-group-cp">
+                                                    <label for="cp__datum_2"><span class="label-text">Dátum podpisu zamestnanca</span><span class="label-required">*</span></label>
+                                                    <input type="date" id="cp__datum_2" name="datum_2" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cp-fieldset-wrapper cp-form-start">
+                                        <legend class="cp-legend">Vyúčtovanie cesty</legend>
+                                        <div class="cp-accounting-container">
+                                            <div class="cp-vyuctovanie-riadok">
+                                                <strong class="cp-row-label">1. deň</strong>
+                                                <input type="text" id="cp__cesta_z1" name="cesta_z1" placeholder="Cesta z...">
+                                                <input type="text" id="cp__miesto_1" name="miesto_1" placeholder="Miesto">
+                                                <input type="text" id="cp__cesta_k1" name="cesta_k1" placeholder="Cesta do...">
+                                            </div>
+                                            <div class="cp-vyuctovanie-riadok">
+                                                <strong class="cp-row-label">2. deň</strong>
+                                                <input type="text" id="cp__cesta_z2" name="cesta_z2" placeholder="Cesta z...">
+                                                <input type="text" id="cp__miesto_2" name="miesto_2" placeholder="Miesto">
+                                                <input type="text" id="cp__cesta_k2" name="cesta_k2" placeholder="Cesta do...">
+                                            </div>
+                                            <div class="cp-vyuctovanie-riadok">
+                                                <strong class="cp-row-label">3. deň</strong>
+                                                <input type="text" id="cp__cesta_z3" name="cesta_z3" placeholder="Cesta z...">
+                                                <input type="text" id="cp__miesto_3" name="miesto_3" placeholder="Miesto">
+                                                <input type="text" id="cp__cesta_k3" name="cesta_k3" placeholder="Cesta do...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cp-button-container">
+                                        <button type="button" id="cp__btn-clear-cp-form" class="ua-btn default delete-hover"><span>Vymazať formulár</span></button>
+                                        <button type="submit" id="cp__generate-btn" class="ua-btn default">Generovať cestovný príkaz</button>
+                                    </div>
+                                </form>
+                            </div> 
+                        </div> 
+                    </div>
+
+                    <div id="duty__module" class="module-content hidden">
+                        <div class="duty-schedule-container">
+                            <aside class="duty-groups-sidebar">
+                                <h2>Dostupné skupiny</h2>
+                                <div id="duty__duty-groups-list"></div>
+                            </aside>
+                            <main class="duty-schedule-main">
+                                <div class="duty-controls">
+                                    <div class="duty-controls-selectors">
+                                        <select id="duty__duty-month-select">
+                                            <option value="0">Január</option>
+                                            <option value="1">Február</option>
+                                            <option value="2">Marec</option>
+                                            <option value="3">Apríl</option>
+                                            <option value="4">Máj</option>
+                                            <option value="5">Jún</option>
+                                            <option value="6">Júl</option>
+                                            <option value="7">August</option>
+                                            <option value="8">September</option>
+                                            <option value="9">Október</option>
+                                            <option value="10">November</option>
+                                            <option value="11">December</option>
+                                        </select>
+                                        <select id="duty__duty-year-select"></select>
+                                    </div>
+                                    <div class="duty-controls-actions">
+                                        <button id="duty__duty-preview-btn" class="ua-btn default">Náhľad rozpisu</button>
+                                        <button id="duty__duty-download-btn" class="ua-btn default">Stiahnuť výkaz</button>
+                                        <button id="duty__duty-delete-btn" class="ua-btn default delete-hover">Vymazať rozpis</button>
+                                    </div>
+                                </div>
+                                <div id="duty__duty-weeks-container" class="duty-weeks-container"></div>
+                                <div class="duty-hint-box">
+                                    <i class="fa-solid fa-info"></i>
+                                    <span>Presuňte skupinu do týždňa. Rotácia sa automaticky aplikuje.<br>
+                                        <b style="color: var(--color-orange-accent);">Kliknutím</b> na zamestnanca pridáte hlásenie.<br>
+                                        <b style="color: var(--color-orange-accent);">Dvojklikom</b> nastavíte zastupovanie.<br>
+                                        <b style="color: var(--color-orange-accent);">Kliknutím pravým tlačidlom</b> vymeníte zamestnancov.</span>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+
+                    <div id="izs__module" class="module-content hidden">
+                        <div class="ua-container" style="flex-direction: row; flex-wrap: wrap; gap: 20px; align-items: stretch;"> 
+                            <div class="ua-card" style="flex: 1; min-width: 400px;">
+                                <h2><span class="text-muted-header">Evidencia dochádzky</span><i class="fas fa-chevron-right title-separator"></i>Rozpis služieb</h2>
+                                <p>- spracovaný súbor sa otvorí v samostatnom okne</p>
+                                <div class="file-upload-section">
+                                    <div id="izs__izs-drop-zone" class="drop-zone">
+                                        <p><strong>Presuňte súbor .xlsx sem</strong></p>
+                                        <p>alebo kliknite pre výber súboru</p>
+                                        <input type="file" id="izs__izs-file-input" accept=".xlsx, .xls" style="display: none;"> 
+                                    </div>
+                                </div>
+                                <div id="izs__izs-file-name" class="file-name-display hidden">Vybraný súbor: <span></span></div>
+                                <div class="file-actions" style="margin-top: 1.5rem;">
+                                    <button id="izs__izs-process-btn" class="ua-btn default">Spracovať</button>
+                                    <button id="izs__izs-clear-btn" class="ua-btn default delete-hover">Vymazať</button>
+                                </div>
+                            </div>
+
+                            <div class="ua-card" style="flex: 1; min-width: 400px;">
+                                <h2><span class="text-muted-header">Nadčasy</span><i class="fas fa-chevron-right title-separator"></i>Vyúčtovanie</h2>
+                                <p>- výpočet nadčasov a príplatkov</p>
+                                <div class="file-upload-section">
+                                    <div id="izs__izs-overtime-drop-zone" class="drop-zone">
+                                        <p><strong>Presuňte súbor .xlsx sem</strong></p>
+                                        <p>alebo kliknite pre výber súboru</p>
+                                        <input type="file" id="izs__izs-overtime-file-input" accept=".xlsx, .xls" style="display: none;"> 
+                                    </div>
+                                </div>
+                                <div id="izs__izs-overtime-file-name" class="file-name-display hidden">Vybraný súbor: <span></span></div>
+                                <div class="file-actions" style="margin-top: 1.5rem;">
+                                    <button id="izs__izs-overtime-process-btn" class="ua-btn default">Spracovať</button>
+                                    <button id="izs__izs-overtime-clear-btn" class="ua-btn default delete-hover">Vymazať</button>
+                                </div>
+                            </div>
+
+                            <div class="ua-card" style="flex: 1 1 100%; margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                                    <div style="flex: 1; min-width: 250px;">
+                                        <h2 style="margin: 0; border: none; padding: 0;">
+                                            <span class="text-muted-header">Pohotovosť</span><i class="fas fa-chevron-right title-separator"></i>Rozpis BB kraj
+                                        </h2>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <div style="display: flex; flex-direction: column; width: 150px;">
+                                            <label for="bbk__bbk-year-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Rok</label>
+                                            <input type="number" id="bbk__bbk-year-input" placeholder="Rok" class="header-input">
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; width: 120px;">
+                                            <label for="bbk__bbk-week-input" style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 2px;">Týždeň</label>
+                                            <input type="number" id="bbk__bbk-week-input" min="1" max="53" placeholder="Týždeň" class="header-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="file-upload-section" style="flex-direction: column; align-items: stretch;">
+                                    <div id="bbk__bbk-drop-zone" class="drop-zone">
+                                        <p><strong>Presuňte súbory .xlsx sem</strong></p>
+                                        <p>(môžete vybrať viac súborov naraz)</p>
+                                        <input type="file" id="bbk__bbk-file-input" accept=".xlsx" multiple style="display: none;"> 
+                                    </div>
+                                </div>
+                                <div class="file-actions" style="margin-top: 1.5rem;">
+                                    <button id="bbk__bbk-process-btn" class="ua-btn default" disabled>Spracovať a stiahnuť</button>
+                                    <button id="bbk__bbk-clear-btn" class="ua-btn default delete-hover">Vymazať všetko</button>
+                                </div>
+                                <div id="bbk__bbk-file-list" class="process-results hidden" style="margin-top: 1rem;">
+                                    <h4>Zoznam súborov:</h4>
+                                    <ul id="bbk__bbk-file-list-ul" style="max-height: 200px; overflow-y: auto;"></ul>
+                                </div>
+                                <div id="bbk__bbk-status-msg" style="margin-top:10px; text-align:center; font-weight:bold;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="dov__module" class="module-content hidden">
+                        
+                    </div> 
+
+                    <div id="ua__module" class="module-content hidden">
+                        <div class="ua-container">
+                            <div class="ua-card">
+                                <h2>Spracovanie súborov</h2>
+                                    <div class="file-upload-section">
+                                        <div id="ua__dropZone" class="drop-zone">
+                                            <p><strong>Presuňte súbor .xlsx sem</strong></p>
+                                            <p>alebo kliknite pre výber súboru</p>
+                                            <input type="file" id="ua__fileInput" accept=".xlsx, .xls" style="display: none;"> 
+                                        </div>
+                                    </div>
+                                    <div id="ua__fileNameDisplay" class="file-name-display hidden">Vybraný súbor: <span></span></div>
+                                    <div class="file-actions">
+                                        <button id="ua__processBtn" class="ua-btn default">Spracovať</button>
+                                        <button id="ua__clearBtn" class="ua-btn default delete-hover">Vymazať</button>
+                                    </div>
+                                    <div id="ua__processResultsDisplay" class="process-results"> <h4>Výsledky spracovania:</h4>
+                                        <ul id="ua__processResultsList"><li class="empty-state">...</li></ul>
+                                    </div>
+                            </div>
+                            <div class="ua-card" id="ua__emailForm">
+                                <h2>Príprava e-mailov</h2>
+                                <div class="form-group"><select id="ua__emailSelect"><option value="">-- Vyberte obec --</option></select></div>
+                                <div class="form-group"><label for="ua__emailSubject">Predmet:</label><input type="text" id="ua__emailSubject" readonly></div>
+                                <div class="form-group"><label for="ua__emailBody">Telo e-mailu:</label><textarea id="ua__emailBody" rows="6" readonly></textarea></div>
+                                <button id="ua__generateEmailBtn" class="ua-btn default">Sťiahnúť prílohu a odslať mail</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="fuel__module" class="module-content hidden">
+                        <div class="ua-container" style="flex-direction: column;">
+                            <div class="ua-card" style="background: rgba(31, 41, 55, 0.4);">
+                                <div style="display: flex; justify-content: space-between; align-items: center;"><h2>Spotreba PHM</h2></div>
+                                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                                    <strong style="color: var(--color-text-secondary);">Obdobie:</strong>
+                                    <select id="fuel__fuel-filter-month" class="edit-select" style="width: 180px; margin-bottom: 0;">
+                                        <option value="">Celkový prehľad</option>
+                                        <option value="0">Január</option>
+                                        <option value="1">Február</option>
+                                        <option value="2">Marec</option>
+                                        <option value="3">Apríl</option>
+                                        <option value="4">Máj</option>
+                                        <option value="5">Jún</option>
+                                        <option value="6">Júl</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">Október</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select id="fuel__fuel-filter-year" class="edit-select" style="width: 100px; margin-bottom: 0;"></select>
+                                    <span id="fuel__fuel-info-btn" style="font-size: 2rem; color: var(--color-text-secondary); margin-left: auto; cursor: pointer;">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="fuel__fuel-cars-grid" class="dashboard-row" style="flex-wrap: wrap; gap: var(--spacing-md);">
+                                <div class="skeleton-wrapper"><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div> </div>
+        </main>
+    </div>
+
+    <div id="fuel__history-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 1200px; height: 85vh;">
+            <div class="modal-header"><h2 id="fuel__history-modal-title">História vozidla</h2><button class="modal-close" id="fuel__close-history-modal">&times;</button></div>
+            <div class="modal-body" style="overflow-y: auto; padding: 20px;">
+                <div style="height: 300px; width: 100%; margin-bottom: 20px; position: relative;"><canvas id="fuel__fuel-history-chart"></canvas></div>
+                <table class="history-table"><thead><tr><th>Dátum</th><th>Udalosť</th><th class="text-right">Tachometer</th><th class="text-right">Vzdialenosť</th><th class="text-right">Spotreba / PHM</th><th class="text-right">Detail</th><th class="actions-col"></th></tr></thead><tbody id="fuel__history-table-body"></tbody></table>
+            </div>
+            <div class="modal-footer">
+                <button class="ua-btn default" id="fuel__btn-history-excel">Stiahni Excel</button>
+                <button class="ua-btn default delete-hover" onclick="document.getElementById('fuel__history-modal').classList.add('hidden')">Zavrieť</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fuel__fuel-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header"><h2 id="fuel__fuel-modal-title">Záznam tankovania</h2><button class="modal-close" id="fuel__close-fuel-modal">&times;</button></div>
+            <div class="modal-body">
+                <form id="fuel__fuel-form">
+                    <input type="hidden" id="fuel__fuel-car-id"><input type="hidden" id="fuel__fuel-edit-record-id"><input type="hidden" id="fuel__fuel-action-type">
+                    <div id="fuel__new-car-fields" class="hidden">
+                        <div class="form-group"><label>Značka a model</label><input type="text" id="fuel__fuel-brand" placeholder="napr. Škoda Octavia"></div>
+                        <div class="form-group"><label>EČV (ŠPZ)</label><input type="text" id="fuel__fuel-spz" placeholder="BB-123AB"></div>
+                        <div class="form-group"><label>Evidenčné číslo OKR</label><input type="text" id="fuel__fuel-ev-number" placeholder="OKR-001"></div>
+                        <div class="form-group"><label>Počiatočný stav KM</label><input type="number" id="fuel__fuel-init-km" placeholder="0"></div>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex: 1;"><label>Norma (mesto)</label><input type="number" step="0.1" id="fuel__fuel-norm-city" placeholder="napr. 8.5"></div>
+                            <div class="form-group" style="flex: 1;"><label>Norma (mimo)</label><input type="number" step="0.1" id="fuel__fuel-norm-outside" placeholder="napr. 6.0"></div>
+                        </div>
+                    </div>
+                    <div id="fuel__refuel-fields">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <div class="form-group"><label>Dátum tankovania</label><input type="date" id="fuel__fuel-date" required></div>
+                                <div class="form-group"><label>Aktuálny stav tachometra (Km)</label><input type="number" id="fuel__fuel-km" required placeholder="Napr. 33500"></div>
+                                <div class="form-group"><label>Z toho prejdené v meste (norma C)</label><input type="number" id="fuel__fuel-km-city" placeholder="Zadajte km v meste"></div>
+                            </div>
+                            <div>
+                                <div class="form-group"><label>Natankované litre</label><input type="number" step="0.01" id="fuel__fuel-liters" required placeholder="0.00"></div>
+                                <div class="form-group"><label>Cena (€) - voliteľné</label><input type="number" step="0.01" id="fuel__fuel-price" placeholder="0.00"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 20px;"><button type="submit" class="ua-btn accent">Uložiť tankovanie</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="fuel__km-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header"><h2>Záznam jazdy</h2><button class="modal-close" id="fuel__close-km-modal">&times;</button></div>
+            <div class="modal-body">
+                <form id="fuel__km-form">
+                    <input type="hidden" id="fuel__km-car-id"><input type="hidden" id="fuel__km-edit-record-id">
+                    <div class="form-group"><label>Dátum jazdy</label><input type="date" id="fuel__km-date" required></div>
+                    <div class="form-group"><label>Nový stav tachometra (Km)</label><input type="number" id="fuel__km-total-state" required placeholder="Napr. 33600"></div>
+                    <div class="form-group"><label>Z toho prejdené v meste (norma C)</label><input type="number" id="fuel__km-city-input" placeholder="Zadajte km v meste"></div>
+                    <div class="modal-footer" style="padding: 0; border: none; margin-top: 20px;"><button type="submit" class="ua-btn accent">Uložiť jazdu</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="fuel__fuel-help-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 750px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle" style="color: var(--color-orange-accent); margin-right: 10px;"></i>Metodika výpočtu a Editácia</h2>
+                <button class="modal-close" id="fuel__close-fuel-help">&times;</button>
+            </div>
+            <div class="modal-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-primary);">
+                
+                <h3 style="color: var(--color-orange-accent); margin-top: 0;">1. Karty vozidiel</h3>
+                <p>Na karte vozidla sa zobrazuje <strong style="color: #DD6B20;">priemerná spotreba</strong> za vybrané obdobie. Rozlišujú sa dva stavy pre zobrazenie spotreby v konkrétnom mesiaci.</p>
+                <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 20px; list-style-type: disc;">
+                    <li><strong>Jazdy s tankovaním</strong> <p>V tomto prípade aplikácia počíta <strong style="color: #DD6B20;">reálnu spotrebu</strong> pre daný mesiac.</p></li>
+                    <li style="margin-top: 5px;"><strong>Jazdy bez tankovania - <i class="fas fa-calculator" style="color: #DD6B20;"></i></strong><p>Tu aplikácia nemôže vypočítať reálnu spotrebu (lebo nevie, koľko paliva reálne ubudlo, keďže ste netankovali).
+                        Používa preto <strong style="color: #DD6B20;">virtuálnu (odhadovanú) spotrebu.</strong></li>
+                        <ol style="margin-left: 2rem;">
+                        <li style="margin-top: 5px;"><strong>Existuje história:</strong> Ak má auto už nejakú históriu tankovaní z iných mesiacov, aplikácia použije dlhodobý reálny priemer vozidla (vypočítaný zo všetkých tankovaní v histórii).</li>
+                        <li><strong>História neexistuje:</strong> Ak auto ešte nemá žiadne tankovania, aplikácia použije technickú normu (kombináciu normy v meste a mimo mesta podľa toho, koľko km sa jazdilo v meste).</li>
+                        </ol>
+                </ul>
+
+                <div style="border-top: 1px solid var(--color-border); margin: 15px 0;"></div>
+
+                <h3 style="color: var(--color-orange-accent);">2. História a Mesačný výkaz</h3>
+                <p style="margin-top: 5px;">V histórii rozlišujeme dva typy výpočtov, ktoré sú farebne odlíšené:</p>
+                
+                <div style="margin-top: 10px; margin-bottom: 20px;">
+                    <strong>A. Reálna spotreba</strong><strong style="color: #48BB78;"> ( Zelená /</strong><strong style="color: #E53E3E;"> Červená )</strong>
+                    <p style="margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        Zobrazuje sa, ak ste v danom mesiaci tankovali.
+                    </p>
+                    <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">(Natankované litre ÷ Prejdené km) × 100</code>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>B. Virtuálna spotreba - ikona </strong><strong style="color: #DD6B20;"><i class="fas fa-calculator"></i></strong><strong> ( ~), alebo ich kombinácia</strong>
+                    <p style="margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        Zobrazujú sa, ak ste jazdili, ale <strong style="color: #DD6B20;">netankovali</strong> (palivo z minulého mesiaca).
+                        Systém vypočíta teoretickú spotrebu na základe vašich noriem pre mesto a mimo mesta, ak existuje história vozidla vypočíta dlhodobý priemer.
+                    </p>
+                </div>
+
+                <div style="border-top: 1px solid var(--color-border); margin: 15px 0;"></div>
+
+                <h3 style="color: var(--color-orange-accent);">3. Editácia a Prepočty</h3>
+                <p style="margin-top: 5px;">
+                    Aplikácia obsahuje <strong style="color: #DD6B20;">inteligentný reťazový prepočet</strong>.
+                    Ak spätne upravíte starý záznam (napr. zmeníte stav tachometra pri jazde v januári), systém automaticky:
+                </p>
+                <ol style="margin-left: 2rem; margin-top: 5px;">
+                    <li>Opraví daný záznam.</li>
+                    <li>Prepočíta vzdialenosti a spotrebu pre <strong style="color: #DD6B20;">všetky nasledujúce tankovania</strong> až do súčasnosti.</li>
+                </ol>
+
+            </div>
+            <div class="modal-footer">
+                <button class="ua-btn default" id="fuel__close-fuel-help-footer">Zavrieť</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth__change-password-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h2>Zmena hesla</h2><button id="auth__close-password-modal" class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <form id="auth__change-password-form">
+                    <div class="form-group"><label for="auth__current-password">Súčasné heslo:</label><input type="password" id="auth__current-password" required></div>
+                    <div class="form-group"><label for="auth__new-password">Nové heslo:</label><input type="password" id="auth__new-password" required></div>
+                    <div class="form-group"><label for="auth__confirm-password">Potvrdenie:</label><input type="password" id="auth__confirm-password" required></div>
+                    <div id="auth__password-error-msg" style="color: #E53E3E; display: none;"></div>
+                    <div class="modal-footer" style="padding: 0; border: none;"><button type="submit" class="ua-btn accent" style="width: 100%;">Zmeniť heslo</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="auth__forgot-password-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h2>Obnova hesla</h2><button id="auth__close-forgot-modal" class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <p>Zadajte e-mailovú adresu pre reset hesla.</p>
+                <form id="auth__forgot-password-form">
+                    <div class="form-group"><label for="auth__forgot-email">E-mail:</label><input type="email" id="auth__forgot-email" required></div>
+                    <div class="modal-footer" style="padding: 0; border: none;"><button type="submit" class="ua-btn accent" style="width: 100%;">Odoslať</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modals__delete-logs-overlay" class="delete-modal-overlay hidden">
+        <div class="delete-modal">
+            <i class="fas fa-exclamation-triangle"></i><h3>Potvrdenie akcie</h3><p>Naozaj zmazať logy?</p>
+            <div class="modal-actions"><button id="modals__modal-btn-cancel" class="modal-btn cancel">Zrušiť</button><button id="modals__modal-btn-confirm-delete" class="modal-btn delete">Zmazať</button></div>
+        </div>
+    </div>
+
+    <div id="modals__iban-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h2>Upraviť IBAN</h2><button id="modals__close-iban-modal" class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <form id="modals__iban-form">
+                        <div class="form-group">
+                            <label for="modals__iban-input">IBAN:</label>
+                            <input type="text" id="modals__iban-input" placeholder="SK89 7500 0000 0000 0123 4567" title="IBAN musí mať tvar: SK + 22 znakov (čísla), napr. SK8975000000000012345678">
+                            <small style="display: block; margin-top: 8px; color: var(--color-text-secondary, #9ca3af); font-size: 0.85rem;">Formát: SK + 22 číslic (napr. SK8975000000000012345678)</small>
+                        </div>
+                    <div class="modal-footer" style="padding: 0; border: none;"><button type="submit" class="ua-btn default" style="width: 100%;">Uložiť</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modals__izsPreviewModal" class="modal-overlay hidden">
+        <div class="modal-content izs-modal-window">
+            <div class="modal-header"><h2>Náhľad Plánu služieb</h2><button id="modals__izsCloseModalBtn" class="modal-close">&times;</button></div>
+            <div id="modals__izsModalBody" class="modal-body" style="background-color: #ffffff; color: #000000; overflow: auto;"></div>
+            <div class="modal-footer" id="modals__izsModalFooter"></div>
+        </div>
+    </div>
+
+    <div id="modals__previewModal" class="modal-overlay hidden"> 
+        <div class="modal-content" style="height: 85vh; max-width: 1000px;">
+            <div class="modal-header"><h2>Náhľad dokumentu</h2><button id="modals__closeModalButton" class="modal-close">&times;</button></div>
+            <div class="modal-body" style="padding: 0;"><iframe id="modals__pdfPreviewFrame" width="100%" height="100%" style="border: none; background-color: #fff;"></iframe></div>
+            <div class="modal-footer"><button id="modals__downloadPdfButton" class="ua-btn default">Stiahnuť PDF</button></div>
+        </div>
+    </div>
+
+    <div id="ai__ai-modal-overlay" class="ai-modal-overlay hidden">
+        <div class="ai-modal-window">
+            <div class="ai-modal-header">
+                <div class="ai-header-title"><i class="fas fa-comments"></i><span>AI Asistent</span></div>
+                <div class="ai-header-controls"><button id="ai__ai-reset-btn" class="ai-action-btn"><i class="fas fa-eraser"></i></button><button id="ai__ai-close-btn" class="ai-action-btn close"><i class="fas fa-times"></i></button></div>
+            </div>
+            <div class="ai-messages-container" id="ai__ai-messages-area"><div class="ai-msg ai-bot">Ahoj, som asistent kontaktov.</br>Ak potrebuješ kontakt zadaj meno osoby, alebo názov obce/mesta.</br>Ako ti môžem pomôcť?</div></div>
+            <div class="ai-input-wrapper"><textarea id="ai__ai-input" rows="1" placeholder="Opíšte situáciu..."></textarea><button id="ai__send-ai-btn"><i class="fas fa-paper-plane"></i></button></div>
+        </div>
+    </div>
+
+    <div id="contacts__contacts-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 900px; height: 80vh;">
+            <div class="modal-header">
+                <h2><i class="fas fa-address-book" style="color: var(--color-orange-accent); margin-right: 10px;"></i>Adresár miest a obcí</h2>
+                <button class="modal-close" id="contacts__close-contacts-modal">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="input-group-modern" style="margin-bottom: 0; flex: 2; min-width: 250px; position: relative;">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" id="contacts__contacts-search-input" placeholder="Hľadať obec alebo starostu..." autocomplete="off">
+                        <i class="fas fa-times clear-search-btn hidden" id="contacts__clear-contacts-search-btn" title="Vymazať hľadanie" style="right: 15px;"></i>
+                    </div>
+                    
+                    <div class="input-group-modern" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <select id="contacts__filter-okres-select" style="margin-bottom: 0; padding-left: 15px;">
+                            <option value="all">Všetky okresy</option>
+                            <option value="BB">Banská Bystrica (BB)</option>
+                            <option value="BS">Banská Štiavnica (BS)</option>
+                            <option value="BR">Brezno (BR)</option>
+                            <option value="DT">Detva (DT)</option>
+                            <option value="KA">Krupina (KA)</option>
+                            <option value="LC">Lučenec (LC)</option>
+                            <option value="PT">Poltár (PT)</option>
+                            <option value="RA">Revúca (RA)</option>
+                            <option value="RS">Rimavská Sobota (RS)</option>
+                            <option value="VK">Veľký Krtíš (VK)</option>
+                            <option value="ZV">Zvolen (ZV)</option>
+                            <option value="ZC">Žarnovica (ZC)</option>
+                            <option value="ZH">Žiar nad Hronom (ZH)</option>
+                        </select>
+                    </div>
+                </div>
+                    <div id="contacts__contacts-results-container" style="flex: 1; overflow-y: auto; padding-right: 5px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="ua-btn default" id="contacts__btn-download-contacts-xlsx">Stiahnuť adresár</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    { "imports": { "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js", "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js", "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" } }
+    </script>
+
+    <script type="module" src="./js/id-registry.js"></script>
+    <script type="module" src="./js/id-validator.js"></script>
+    <script type="module" src="./js/accessibility.js"></script>
+    <script type="module" src="./js/ui_enhancements.js"></script>
+    <script type="module" src="./js/lazy_loader.js"></script>
+
+    <script type="module" src="./js/cp_module.js"></script>
+    <script type="module" src="./js/ua_module.js"></script>
+    <script type="module" src="./js/emp_module.js"></script>
+    <script type="module" src="./js/schd_module.js"></script>
+    <script type="module" src="./js/widget.js"></script>
+    <script type="module" src="./js/mainWizard.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navDropdownBtn = document.querySelector('.nav-dropdown-btn');
+            const navDropdownMenu = document.querySelector('.nav-dropdown-menu');
+            const userProfileContainer = document.querySelector('.nav-user-profile');
+            const userDropdown = document.querySelector('.profile-dropdown-menu');
+            const settingsBtn = document.getElementById('settings-toggle-btn');
+            const settingsMenu = document.querySelector('.settings-dropdown-menu');
+
+            if (navDropdownBtn && navDropdownMenu) {
+                navDropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); e.preventDefault();
+                    // navDropdownMenu.classList.toggle('show'); // Menu je skryté, logika je teraz v mainWizard.js
+                });
+            }
+            if (userProfileContainer && userDropdown) {
+                userProfileContainer.addEventListener('click', (e) => {
+                    e.stopPropagation(); userDropdown.classList.toggle('show');
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                    if (settingsMenu) settingsMenu.classList.remove('show');
+                });
+            }
+            if (settingsBtn && settingsMenu) {
+                settingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); settingsMenu.classList.toggle('active');
+                    if (userDropdown) userDropdown.classList.remove('show');
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                });
+            }
+            
+                document.addEventListener('click', () => {
+                    if (navDropdownMenu) navDropdownMenu.classList.remove('show');
+                    if (userDropdown) userDropdown.classList.remove('show');
+                    if (settingsMenu) settingsMenu.classList.remove('active');
+                });
+            
+            const scrollContainer = document.querySelector('.modules-scroll-container');
+            const navLinks = document.querySelectorAll('[data-target]'); // Vyberie všetky odkazy na moduly
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (scrollContainer) {
+                            // Dočasne vypneme plynulé rolovanie pre okamžitý skok
+                            scrollContainer.style.scrollBehavior = 'auto'; 
+                            
+                            // Nastavíme pozíciu na úplný vrch
+                            scrollContainer.scrollTop = 0;
+                            
+                            // Vrátime plynulé rolovanie (ak ho chcete mať pre myš)
+                            // setTimeout zabezpečí, že sa to vráti až po skoku
+                            setTimeout(() => {
+                                scrollContainer.style.scrollBehavior = 'smooth';
+                            }, 50);
+                        }
+                    });
+                });
+        });
+    </script>
+
+</body>
+</html>
+
