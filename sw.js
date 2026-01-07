@@ -1,7 +1,7 @@
 /* sw.js - ENHANCED PWA STRATEGY (v5.3) */
 
 // Verzia cache - pri automate tu build proces vloží hash (napr. 'v' + Date.now())
-const CACHE_VERSION = 'v5.4';
+const CACHE_VERSION = 'v5.5';
 const STATIC_CACHE = `okr-portal-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `okr-portal-dynamic-${CACHE_VERSION}`;
 
