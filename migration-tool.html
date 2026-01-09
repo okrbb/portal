@@ -143,11 +143,10 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
+    
     <script>
-        let logOutput = '';
-        let db = null;
-        
-        // Firebase config - ulož sem svoju konfiguráciu
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyC5H-1gzZYJN8QSU2-IKm0y3ZQJBxVVZ4U",
             authDomain: "okrbb-portal-prod.firebaseapp.com",
@@ -156,6 +155,12 @@
             messagingSenderId: "950707607688",
             appId: "1:950707607688:web:45a26e2e01dc8fd6a59872"
         };
+        
+        // Inicializuj Firebase hneď
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        let logOutput = '';
         
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString('sk-SK');
@@ -191,16 +196,7 @@
             showStatus('Inicializujem Firebase...', 'loading');
 
             try {
-                // Inicializuj Firebase
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                    log('✓ Firebase inicializovaný', 'success');
-                } else {
-                    log('✓ Firebase už inicializovaný', 'info');
-                }
-
-                db = firebase.firestore();
-                
+                log('✓ Firebase je inicializovaný', 'success');
                 log('🔄 Spúšťam migráciu: primátor → primator', 'info');
                 
                 const contactsRef = db.collection('contacts');
