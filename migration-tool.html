@@ -145,6 +145,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
     <script>
         let logOutput = '';
+        let db = null;
+        
+        // Firebase config - ulož sem svoju konfiguráciu
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5H-1gzZYJN8QSU2-IKm0y3ZQJBxVVZ4U",
+            authDomain: "okrbb-portal-prod.firebaseapp.com",
+            projectId: "okrbb-portal-prod",
+            storageBucket: "okrbb-portal-prod.appspot.com",
+            messagingSenderId: "950707607688",
+            appId: "1:950707607688:web:45a26e2e01dc8fd6a59872"
+        };
         
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString('sk-SK');
@@ -177,29 +188,27 @@
             const output = document.getElementById('output');
             output.innerHTML = '';
             output.classList.add('active');
-            showStatus('Inicializujem aplikáciu...', 'loading');
+            showStatus('Inicializujem Firebase...', 'loading');
 
             try {
-                // Skontroluj či je Firebase dostupný
-                if (!window.firebase || !window.firebase.firestore) {
-                    throw new Error('Firebase nie je dostupný. Skontroluj internetové pripojenie.');
+                // Inicializuj Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                    log('✓ Firebase inicializovaný', 'success');
+                } else {
+                    log('✓ Firebase už inicializovaný', 'info');
                 }
 
-                // Načítaj Firebase config
-                const response = await fetch('./js/config.js');
-                if (!response.ok) throw new Error('Nepodarilo sa načítať Firebase konfigúráciu');
-
-                log('✓ Firebase inicializovaný', 'info');
-                showStatus('Nahrávam dáta z Firebase...', 'loading');
-
-                // Predpokladáme že Firebase je už inicializovaný v main aplikácii
-                // Ak nie, musíme ho inicializovať tu
-                const db = firebase.firestore();
+                db = firebase.firestore();
                 
                 log('🔄 Spúšťam migráciu: primátor → primator', 'info');
                 
                 const contactsRef = db.collection('contacts');
                 const querySnapshot = await contactsRef.get();
+                
+                if (querySnapshot.empty) {
+                    throw new Error('Zbierka contacts je prázdna alebo neexistuje');
+                }
                 
                 let processedCount = 0;
                 let changedCount = 0;
