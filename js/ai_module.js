@@ -49,7 +49,7 @@ function formatLocalContacts(contacts) {
             htmlResult += `### obec/mesto: ${c.id || '---'}\n`;
             htmlResult += `- **okres:** ${c.okres || '---'}\n`;
             // Zobraz starostu alebo primátora - podľa toho čo existuje
-            htmlResult += `- **starosta:** ${c.starosta || c.primator || '---'}\n`;
+            htmlResult += `- **starosta/primátor:** ${c.name || c.primator || '---'}\n`;
             htmlResult += `- **email:** ${c.em_s || '---'}\n`;
             htmlResult += `- **mobil:** ${c.mob_s || '---'}\n`;
             htmlResult += `- **bydlisko:** ${c.adresa || '---'}\n`;

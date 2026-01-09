@@ -13,7 +13,7 @@
       "mob_s": "0915355545",
       "tc_o": "4182601",
       "em_o": "badin@obecbadin.sk",
-      "starosta": "Mgr. Pavol Hric"
+      "name": "Mgr. Pavol Hric"
     },
     {
       "id": "Baláže",
@@ -25,13 +25,13 @@
       "em_o": "starosta@balaze.sk",
       "em_s": "starosta@balaze.sk",
       "tc_o": "4196079",
-      "starosta": "Mgr. Róbert Chaban"
+      "name": "Mgr. Róbert Chaban"
     },
     {
       "id": "Banská Bystrica",
       "_okresContext": "BB",
       "mob_s": "0915838406",
-      "starosta": "MUDr. Ján Nosko",
+      "name": "MUDr. Ján Nosko",
       "tc_d": null,
       "tc_o": "4330102",
       "em_s": "kancelariaprimatora@banskabystrica.sk",
@@ -48,7 +48,7 @@
       "em_o": "obec@brusno.sk; matrika@brusno.sk",
       "em_s": "starosta@brusno.sk",
       "tc_o": "4701021",
-      "starosta": "Ing. Igor Švec",
+      "name": "Ing. Igor Švec",
       "tc_d": null
     },
     {
@@ -58,7 +58,7 @@
       "tc_o": "4192202",
       "mob_s": "0914120426",
       "em_o": "info@dolnamicina.sk",
-      "starosta": "Oto Hudec",
+      "name": "Oto Hudec",
       "tc_s": "4192202",
       "tc_d": "0948310053",
       "em_s": "starosta@dolnamicina.sk"
@@ -73,7 +73,7 @@
       "tc_s": "4198129",
       "tc_o": "4198129",
       "em_s": "starosta@dolnyharmanec.sk",
-      "starosta": "Matúš Vajs"
+      "name": "Matúš Vajs"
     },
     {
       "id": "Donovaly",
@@ -84,7 +84,7 @@
       "em_o": "obec@donovaly.sk",
       "mob_s": "0911500631",
       "tc_o": "4199806",
-      "starosta": "Miroslav Daňo",
+      "name": "Miroslav Daňo",
       "tc_s": "4199806"
     },
     {
@@ -96,7 +96,7 @@
       "tc_s": "4192215",
       "em_o": "obec@dubravica.sk",
       "adresa": "Dúbravica 59",
-      "starosta": "Ing. Janka Slobodníková",
+      "name": "Ing. Janka Slobodníková",
       "tc_o": "4192215"
     },
     {
@@ -109,7 +109,7 @@
       "em_o": "obec@harmanec.sk",
       "mob_s": "0911896022",
       "adresa": "Harmanec 15",
-      "starosta": "Henrieta Ivanová"
+      "name": "Henrieta Ivanová"
     },
     {
       "id": "Hiadeľ",
@@ -119,7 +119,7 @@
       "mob_s": "0918457267",
       "tc_d": "0908744469",
       "adresa": "Hiadeľ 148",
-      "starosta": "Ondrej Snopko",
+      "name": "Ondrej Snopko",
       "em_o": "urad@hiadel.sk, hiadel@hiadel.sk",
       "em_s": "starosta@hiadel.sk"
     },
@@ -131,7 +131,7 @@
       "tc_d": null,
       "tc_o": "4180923",
       "adresa": "Horná Mičiná 15",
-      "starosta": "Ivan Lenár",
+      "name": "Ivan Lenár",
       "em_o": "hornamicina@gmail.com",
       "mob_s": "0907087151"
     },
@@ -143,14 +143,14 @@
       "adresa": "Horné Pršany 148",
       "tc_o": "4101759",
       "em_o": "obec@horneprsany.sk",
-      "starosta": "Ivan Dobrota",
+      "name": "Ivan Dobrota",
       "tc_d": null,
       "mob_s": "0903439468"
     },
     {
       "id": "Hrochoť",
       "_okresContext": "BB",
-      "starosta": "Bc. Marián Mazúch",
+      "name": "Bc. Marián Mazúch",
       "em_s": "marian.mazuch@hrochot.sk",
       "em_o": "hrochot@hrochot.sk",
       "tc_s": "4190160",
@@ -162,7 +162,7 @@
     {
       "id": "Hronsek",
       "_okresContext": "BB",
-      "starosta": "Ing. Miroslav Ostrihoň, PhD",
+      "name": "Ing. Miroslav Ostrihoň, PhD",
       "mob_s": "0907069876",
       "em_s": "starosta@hronsek.sk",
       "tc_o": "4188107",
@@ -181,14 +181,14 @@
       "adresa": "Kordíky 96",
       "em_o": "obeckordiky@obeckordiky.sk",
       "em_s": "obeckordiky@obeckordiky.sk",
-      "starosta": "Dušan Tuček"
+      "name": "Dušan Tuček"
     },
     {
       "id": "Králiky",
       "_okresContext": "BB",
       "adresa": "Pánska ul. 388/22, Králiky",
       "tc_d": null,
-      "starosta": "Ivan Škamla",
+      "name": "Ivan Škamla",
       "tc_o": "4197657",
       "em_o": "obec@obeckraliky.sk",
       "em_s": "starosta@obeckraliky.sk",
@@ -198,7 +198,7 @@
     {
       "id": "Kynceľová",
       "_okresContext": "BB",
-      "starosta": "Ing. Martina Kubišová, PhD",
+      "name": "Ing. Martina Kubišová, PhD",
       "adresa": "Kynceľovská cesta 30/30",
       "tc_d": "4112514",
       "mob_s": "0915800715",
@@ -216,7 +216,7 @@
       "adresa": "Lučatín 153",
       "em_o": "obeclucatin@lucatin.eu",
       "tc_s": "0910112377",
-      "starosta": "Ing. Pavel Kováč",
+      "name": "Ing. Pavel Kováč",
       "em_s": "starosta@lucatin.eu"
     },
     {
@@ -226,7 +226,7 @@
       "mob_s": "0915435267",
       "em_o": "ou@malachov.sk",
       "tc_s": "4104030",
-      "starosta": "Ing. Martin Pál",
+      "name": "Ing. Martin Pál",
       "em_s": "starosta@malachov.sk",
       "adresa": "Banícka 43, Malachov",
       "tc_d": null
@@ -236,7 +236,7 @@
       "_okresContext": "BB",
       "em_s": "starostamedzibrod@gmail.com",
       "adresa": "Železničná 1, Medzibrod",
-      "starosta": "Ing. Pavol Svetlík",
+      "name": "Ing. Pavol Svetlík",
       "tc_o": "4184339",
       "tc_s": "4184339",
       "em_o": "urad@obecmedzibrod.sk",
@@ -252,7 +252,7 @@
       "adresa": "Štubne 8, Motyčky",
       "tc_o": "4199288",
       "tc_s": "4199288",
-      "starosta": "Maroš Lacko",
+      "name": "Maroš Lacko",
       "em_o": "motyckyobec@gmail.com"
     },
     {
@@ -261,7 +261,7 @@
       "em_s": "starosta@mostenica.eu",
       "tc_s": "4196354",
       "tc_o": "4196354",
-      "starosta": "Katarína Chabanová",
+      "name": "Katarína Chabanová",
       "adresa": "Moštenica 130",
       "mob_s": "0911981467",
       "tc_d": null,
@@ -271,7 +271,7 @@
       "id": "Môlča",
       "_okresContext": "BB",
       "em_o": "molca@molca.sk",
-      "starosta": "Mgr. Mariana Luptáková",
+      "name": "Mgr. Mariana Luptáková",
       "tc_s": "4147808",
       "tc_d": null,
       "mob_s": "0918393492",
@@ -286,7 +286,7 @@
       "tc_d": null,
       "em_s": "alena.krajnakova@nemce.dcom.sk",
       "em_o": "obec@nemce.sk",
-      "starosta": "Alena Grekčová",
+      "name": "Alena Grekčová",
       "adresa": "Nemčianska cesta 63, Nemce",
       "tc_s": "0905643357",
       "mob_s": "0905643357"
@@ -299,7 +299,7 @@
       "tc_d": null,
       "adresa": "Oravce 41",
       "em_o": "starosta@oravce.sk",
-      "starosta": "Ľubomír Pinka",
+      "name": "Ľubomír Pinka",
       "tc_s": "4192257",
       "em_s": "starosta@oravce.sk"
     },
@@ -308,7 +308,7 @@
       "_okresContext": "BB",
       "tc_s": "4187838",
       "adresa": "Podkonice 357",
-      "starosta": "JUDr. Ing. Ivan Barla",
+      "name": "JUDr. Ing. Ivan Barla",
       "tc_o": "4187838",
       "em_s": "starosta@podkonice.sk",
       "tc_d": null,
@@ -319,7 +319,7 @@
       "id": "Pohronský Bukovec",
       "_okresContext": "BB",
       "tc_s": "4194209",
-      "starosta": "Igor Šagát",
+      "name": "Igor Šagát",
       "tc_d": null,
       "em_o": "obec.pohronskybukovec@zoznam.sk",
       "adresa": "Pohronský Bukovec 41",
@@ -333,7 +333,7 @@
       "em_s": "starostka@poniky.sk",
       "adresa": "Dolná ul. 95/41, Poniky",
       "tc_o": "4193703",
-      "starosta": "Ing. Jana Ondrejková",
+      "name": "Ing. Jana Ondrejková",
       "tc_d": null,
       "em_o": "poniky@poniky.sk",
       "mob_s": "0910912710",
@@ -347,7 +347,7 @@
       "tc_d": null,
       "em_o": "povraznik@povraznik.sk",
       "adresa": "Povrazník 33",
-      "starosta": "Ivona Patrášová",
+      "name": "Ivona Patrášová",
       "tc_s": "4295284",
       "tc_o": "4295284"
     },
@@ -358,7 +358,7 @@
       "adresa": "Priechod 358",
       "tc_d": "0911816088",
       "em_o": "vajsova@priechod.sk, homolova@priechod.sk",
-      "starosta": "Ing. Erik Murgaš",
+      "name": "Ing. Erik Murgaš",
       "mob_s": "0907836981",
       "em_s": "starosta@priechod.sk",
       "tc_s": "4189043"
@@ -369,7 +369,7 @@
       "em_o": "obec@riecka.sk",
       "adresa": "Hlavná 170, Riečka",
       "tc_d": null,
-      "starosta": "Milan Petrán",
+      "name": "Milan Petrán",
       "mob_s": "0918840271",
       "em_s": "starosta@riecka.sk",
       "tc_o": "4197203",
@@ -384,13 +384,13 @@
       "tc_s": "4192211",
       "tc_d": "4192240",
       "tc_o": "4192211",
-      "starosta": "Ing. Ján Škamla",
+      "name": "Ing. Ján Škamla",
       "em_o": "podatelna@sebedinbecov.sk"
     },
     {
       "id": "Selce",
       "_okresContext": "BB",
-      "starosta": "Ing. Daniel Hlinka",
+      "name": "Ing. Daniel Hlinka",
       "adresa": "Dolná ul. 7, Selce",
       "tc_s": "4181521",
       "em_o": "ouselce@selce.sk",
@@ -403,7 +403,7 @@
       "id": "Slovenská Ľupča",
       "_okresContext": "BB",
       "tc_d": null,
-      "starosta": "Mgr. Roland Lamper",
+      "name": "Mgr. Roland Lamper",
       "em_o": "sekretariat@slovenskulupca.sk",
       "mob_s": "0903940850",
       "tc_s": "4723215",
@@ -418,7 +418,7 @@
       "mob_s": "0905703496",
       "em_s": "starosta@starehory.sk",
       "tc_s": "4199202",
-      "starosta": "Ing. Marián Gajdoš",
+      "name": "Ing. Marián Gajdoš",
       "em_o": "info@starehory.sk; matrika@starehory.sk",
       "tc_o": "4199202",
       "adresa": "Staré Hory 328"
@@ -426,7 +426,7 @@
     {
       "id": "Strelníky",
       "_okresContext": "BB",
-      "starosta": "Ján Majer",
+      "name": "Ján Majer",
       "adresa": "Strelníky 110",
       "tc_o": "4295331",
       "em_s": "strelniky@strelniky.sk",
@@ -438,7 +438,7 @@
     {
       "id": "Tajov",
       "_okresContext": "BB",
-      "starosta": "Mgr. Janette Cimermanová",
+      "name": "Mgr. Janette Cimermanová",
       "em_o": "obectajov@obectajov.sk",
       "tc_o": "4197213",
       "em_s": "obectajov@obectajov.sk",
@@ -451,7 +451,7 @@
       "id": "Turecká",
       "_okresContext": "BB",
       "tc_o": "4199270",
-      "starosta": "Ivan Janovec",
+      "name": "Ivan Janovec",
       "tc_s": "4199270",
       "mob_s": "0908616212",
       "em_o": "administrativa@obecturecka.sk",
@@ -469,7 +469,7 @@
       "tc_d": null,
       "tc_s": "4188388",
       "em_o": "obec@vlkanova.sk",
-      "starosta": "Andrea Klesniaková"
+      "name": "Andrea Klesniaková"
     },
     {
       "id": "Čerín",
@@ -481,7 +481,7 @@
       "em_s": "pavel.kmet@cerin.sk",
       "adresa": "Čerín, Čačín 24",
       "em_o": "jana.fungacova@cerin.sk",
-      "starosta": "Pavel Kmeť"
+      "name": "Pavel Kmeť"
     },
     {
       "id": "Ľubietová",
@@ -490,7 +490,7 @@
       "tc_d": null,
       "em_o": "matrika@lubietova.sk",
       "mob_s": "0903555451",
-      "starosta": "Ing. Pavol Zajac",
+      "name": "Ing. Pavol Zajac",
       "tc_o": "2289011",
       "adresa": "Čelienec 612, Ľubietová",
       "tc_s": "2289011"
@@ -501,7 +501,7 @@
       "tc_s": "4198271",
       "em_o": "obec@spaniadolina.sk",
       "mob_s": "0907821148",
-      "starosta": "Mgr. Martina Wilhelmerová",
+      "name": "Mgr. Martina Wilhelmerová",
       "tc_o": "4198271",
       "tc_d": null,
       "em_s": "starosta@spaniadolina.sk",
@@ -513,7 +513,7 @@
       "adresa": "Banská Belá 435",
       "em_o": "podatelna@banskabela.sk",
       "tc_d": "0903507502",
-      "starosta": "MVDr.Branislav Babirád",
+      "name": "MVDr.Branislav Babirád",
       "mob_s": "0911978862",
       "tc_o": "6933221",
       "em_s": "starosta@banskabela.sk",
@@ -522,7 +522,7 @@
     {
       "id": "Banská Štiavnica",
       "_okresContext": "BS",
-      "starosta": "Mgr. Nadežda Babiaková",
+      "name": "Mgr. Nadežda Babiaková",
       "mob_s": "0905525941",
       "em_o": "msu@banskastiavnica.sk",
       "tc_s": "6949611",
@@ -534,7 +534,7 @@
     {
       "id": "Banský Studenec",
       "_okresContext": "BS",
-      "starosta": "Pavol Santoris",
+      "name": "Pavol Santoris",
       "em_o": "podatelna@banskystudenec.sk",
       "tc_d": "0908918208",
       "mob_s": "0903459751",
@@ -547,7 +547,7 @@
       "id": "Baďan",
       "_okresContext": "BS",
       "mob_s": "0907358377",
-      "starosta": "RNDr. Ľubica Kuková",
+      "name": "RNDr. Ľubica Kuková",
       "em_o": "obec.badan@gmail.com",
       "tc_s": "0918892842",
       "em_s": "starostka@badan.sk",
@@ -565,7 +565,7 @@
       "tc_s": "6995100",
       "tc_o": "6995100",
       "mob_s": "0911963593",
-      "starosta": "Mgr. Monika Zlesíková"
+      "name": "Mgr. Monika Zlesíková"
     },
     {
       "id": "Dekýš",
@@ -576,7 +576,7 @@
       "tc_s": "6993120",
       "tc_o": "6993120",
       "em_o": "starosta@dekys.sk",
-      "starosta": "Ing. Roman Lauko",
+      "name": "Ing. Roman Lauko",
       "tc_d": "0908924538"
     },
     {
@@ -584,7 +584,7 @@
       "_okresContext": "BS",
       "em_o": "podatelna@obecilija.sk",
       "tc_d": null,
-      "starosta": "Vratislav Cengel",
+      "name": "Vratislav Cengel",
       "mob_s": "0911198255",
       "tc_o": "6920847",
       "adresa": "Ilija 86",
@@ -596,7 +596,7 @@
       "_okresContext": "BS",
       "em_o": "ocukozelnik@gmail.com",
       "tc_d": "0904605702",
-      "starosta": "Ing. Soňa Pallayová",
+      "name": "Ing. Soňa Pallayová",
       "adresa": "Kozelník 23",
       "mob_s": "0915731018",
       "tc_s": "6933213",
@@ -611,7 +611,7 @@
       "adresa": "Močiar 68",
       "em_s": "obecmociar@gmail.com",
       "tc_d": null,
-      "starosta": "Michal Kašiar",
+      "name": "Michal Kašiar",
       "tc_s": "6992626",
       "em_o": "obecmociar@gmail.com"
     },
@@ -621,7 +621,7 @@
       "tc_s": "6992125",
       "tc_o": "6992125",
       "adresa": "Teplá 64, Podhorie",
-      "starosta": "Ing. Dana Lóžiová",
+      "name": "Ing. Dana Lóžiová",
       "mob_s": "0915817675",
       "em_o": "obecnyurad@podhorie.sk",
       "tc_d": "0907781594",
@@ -637,7 +637,7 @@
       "tc_d": "6994145",
       "mob_s": "0907805684",
       "em_s": "obec.pocuvadlo@gmail.com",
-      "starosta": "Dušan Triebuśník"
+      "name": "Dušan Triebuśník"
     },
     {
       "id": "Prenčov",
@@ -648,7 +648,7 @@
       "tc_s": "6726244",
       "em_o": "prencov@prencov.sk",
       "tc_d": "0911482204",
-      "starosta": "Mgr. Alena Ciglanová",
+      "name": "Mgr. Alena Ciglanová",
       "mob_s": "0903482205"
     },
     {
@@ -661,7 +661,7 @@
       "adresa": "Svätý Anton 151",
       "em_s": "starosta@svatyanton.sk",
       "mob_s": "0903966044",
-      "starosta": "Martin Kminiak"
+      "name": "Martin Kminiak"
     },
     {
       "id": "Vysoká",
@@ -669,7 +669,7 @@
       "em_s": "Kukovav@gmail.com",
       "tc_d": null,
       "tc_o": "6993137",
-      "starosta": "Valéria Kuková",
+      "name": "Valéria Kuková",
       "mob_s": "0918872485",
       "tc_s": "6993137",
       "em_o": "vysoka@obecvysoka.sk",
@@ -682,7 +682,7 @@
       "mob_s": "0905853479",
       "em_s": "starosta@obecstiavnickebane.sk",
       "adresa": "Štiavnické Bane 450",
-      "starosta": "Stanislav Neuschl",
+      "name": "Stanislav Neuschl",
       "em_o": "podatelna@obecstiavnickebane.sk",
       "tc_s": "6929262",
       "tc_o": "6929116"
@@ -695,7 +695,7 @@
       "tc_d": "6188301",
       "em_s": "starosta@bacuch.sk",
       "em_o": "obecnyurad@bacuch.sk",
-      "starosta": "Ing. Michal Chovanec",
+      "name": "Ing. Michal Chovanec",
       "tc_s": "6188301",
       "tc_o": "6188301"
     },
@@ -703,7 +703,7 @@
       "id": "Beňuš",
       "_okresContext": "BR",
       "em_o": "obec@benus.sk",
-      "starosta": "Katarína Srnková",
+      "name": "Katarína Srnková",
       "adresa": "Gašparovo 207, Beňuš",
       "tc_d": null,
       "mob_s": "905784616",
@@ -714,7 +714,7 @@
     {
       "id": "Braväcovo",
       "_okresContext": "BR",
-      "starosta": "Ing. Peter Baliak",
+      "name": "Ing. Peter Baliak",
       "tc_d": "6198741",
       "tc_o": "6198132",
       "adresa": "Braväcovo 90",
@@ -731,14 +731,14 @@
       "mob_s": "911674673",
       "em_s": "primator@brezno.sk",
       "em_o": "podatelna@brezno.sk",
-      "starosta": "JUDr. Tomáš Ábel, PhD.",
+      "name": "JUDr. Tomáš Ábel, PhD.",
       "adresa": "9. mája 38, Brezno",
       "tc_s": "2856100"
     },
     {
       "id": "Bystrá",
       "_okresContext": "BR",
-      "starosta": "Mgr. Martin Alberty",
+      "name": "Mgr. Martin Alberty",
       "tc_d": null,
       "em_o": "oubystra@bystra.sk",
       "mob_s": "911292921",
@@ -753,7 +753,7 @@
       "em_o": "dolnalehota@zoznam.sk",
       "adresa": "Dolná Lehota 249",
       "mob_s": "911530851",
-      "starosta": "Viera Hudíková",
+      "name": "Viera Hudíková",
       "tc_o": "6179237",
       "em_s": "dolnalehota@zoznam.sk",
       "tc_d": "6179226",
@@ -762,7 +762,7 @@
     {
       "id": "Drábsko",
       "_okresContext": "BR",
-      "starosta": "Martina Kocová-Grgačová",
+      "name": "Martina Kocová-Grgačová",
       "tc_s": "6180083",
       "tc_o": "6180083",
       "em_s": "obecdrabsko@gmail.com",
@@ -774,7 +774,7 @@
     {
       "id": "Heľpa",
       "_okresContext": "BR",
-      "starosta": "Miroslav Lilko",
+      "name": "Miroslav Lilko",
       "mob_s": "905651122",
       "tc_d": "908797177",
       "adresa": "Jánošíkova 660/34, Heľpa",
@@ -786,7 +786,7 @@
     {
       "id": "Horná Lehota",
       "_okresContext": "BR",
-      "starosta": "Vladimír Bušniak",
+      "name": "Vladimír Bušniak",
       "tc_d": null,
       "em_o": "obec@horna-lehota.sk",
       "em_s": "obec@horna-lehota.sk",
@@ -803,7 +803,7 @@
       "mob_s": "948592971",
       "tc_d": null,
       "em_s": "starostahronec@obechronec.sk",
-      "starosta": "Bohuslav Nemky",
+      "name": "Bohuslav Nemky",
       "em_o": "starostahronec@gmail.com",
       "adresa": "Jilemnického 387, Hronec"
     },
@@ -812,7 +812,7 @@
       "_okresContext": "BR",
       "adresa": "Dedina 27, Jarabá",
       "em_s": "obecnyurad@jaraba.sk",
-      "starosta": "JUDr. Juraj Pružinec",
+      "name": "JUDr. Juraj Pružinec",
       "tc_s": "6195112",
       "mob_s": "908927032",
       "tc_o": "6195112",
@@ -829,12 +829,12 @@
       "tc_d": "6192437",
       "tc_s": "6192123",
       "em_s": "obec@jasenie.sk",
-      "starosta": "Ing. Marek Kordík"
+      "name": "Ing. Marek Kordík"
     },
     {
       "id": "Lom nad Rimavicou",
       "_okresContext": "BR",
-      "starosta": "Martina Úradníková",
+      "name": "Martina Úradníková",
       "tc_s": "6180002",
       "em_o": "starosta@lnr.sk",
       "mob_s": "948474542",
@@ -849,7 +849,7 @@
       "mob_s": "903561808",
       "tc_o": "6199911",
       "em_s": "starostka@michalova.sk",
-      "starosta": "Ing. Terézia Tisovčíková",
+      "name": "Ing. Terézia Tisovčíková",
       "tc_s": "6199911",
       "em_o": "starostka@michalova.sk",
       "adresa": "Ulička 11/9, Michalová",
@@ -859,7 +859,7 @@
       "id": "Mýto pod Ďumbierom",
       "_okresContext": "BR",
       "em_o": "ou@mytopoddumbierom.sk",
-      "starosta": "Ing. Roman Švantner",
+      "name": "Ing. Roman Švantner",
       "adresa": "Mýto pod Ďumbierom 123",
       "tc_s": "6195106",
       "tc_d": "6195392",
@@ -870,7 +870,7 @@
     {
       "id": "Nemecká",
       "_okresContext": "BR",
-      "starosta": "Branislav Čižmárik",
+      "name": "Branislav Čižmárik",
       "mob_s": "911654344",
       "tc_o": "6117754",
       "tc_d": null,
@@ -886,7 +886,7 @@
       "adresa": "Dolná 26, Osrblie",
       "em_o": "obec@osrblie.sk",
       "tc_d": "903552108",
-      "starosta": "Bc. Peter Siman",
+      "name": "Bc. Peter Siman",
       "mob_s": "905421993",
       "tc_s": "6179129",
       "tc_o": "6179129"
@@ -899,7 +899,7 @@
       "tc_s": "6171664",
       "tc_o": "6171664",
       "em_o": "podatelna@podbrezova.sk",
-      "starosta": "Mgr. Ladislav Kardhordó",
+      "name": "Mgr. Ladislav Kardhordó",
       "tc_d": null,
       "em_s": "starosta@podbrezova.sk"
     },
@@ -909,7 +909,7 @@
       "mob_s": "902974411",
       "em_s": "starosta@pohorela.sk",
       "em_o": "obec@pohorela.sk",
-      "starosta": "Ing. Jana Tkáčiková",
+      "name": "Ing. Jana Tkáčiková",
       "tc_s": "6196109",
       "adresa": "Partizánska 523, Pohorelá",
       "tc_d": "6196495",
@@ -918,7 +918,7 @@
     {
       "id": "Pohronská Polhora",
       "_okresContext": "BR",
-      "starosta": "Ing. Dušan Nepšinský",
+      "name": "Ing. Dušan Nepšinský",
       "mob_s": "910703025",
       "tc_d": "6199253",
       "em_o": "starosta@ppolhora.sk",
@@ -934,7 +934,7 @@
       "tc_d": "902713001",
       "tc_s": "6193138",
       "em_s": "starosta@polomka.sk",
-      "starosta": "PhDr. Magdaléna Melagová",
+      "name": "PhDr. Magdaléna Melagová",
       "mob_s": "903548443",
       "adresa": "Komenského 107, Polomka",
       "tc_o": "6193138"
@@ -942,7 +942,7 @@
     {
       "id": "Predajná",
       "_okresContext": "BR",
-      "starosta": "Ing. Tatiana Čontofalská",
+      "name": "Ing. Tatiana Čontofalská",
       "em_s": "starostkapredajna@gmail.com",
       "tc_d": "6192358",
       "em_o": "starostkapredajna@gmail.com",
@@ -955,7 +955,7 @@
       "id": "Ráztoka",
       "_okresContext": "BR",
       "tc_o": "6182284",
-      "starosta": "Ing. Martina Klimeková",
+      "name": "Ing. Martina Klimeková",
       "mob_s": "902344197",
       "em_o": "raztoka@slovanet.sk",
       "tc_d": "902334197",
@@ -973,7 +973,7 @@
       "mob_s": "904981308",
       "em_o": "obecsihla@gmail.com",
       "em_s": "obecsihla@gmail.com",
-      "starosta": "Mgr. Katarína Kováčová"
+      "name": "Mgr. Katarína Kováčová"
     },
     {
       "id": "Telgárt",
@@ -982,7 +982,7 @@
       "mob_s": "918454935",
       "adresa": "Telgárt 434",
       "tc_d": "911355201",
-      "starosta": "MVDr. Vasil Černák",
+      "name": "MVDr. Vasil Černák",
       "em_s": "vasil.cernak@telgart.dcom.sk",
       "em_o": "info@obectelgart.sk",
       "tc_o": "6194600"
@@ -991,7 +991,7 @@
       "id": "Valaská",
       "_okresContext": "BR",
       "em_s": "starosta@valaska.sk",
-      "starosta": "Peter Jenča",
+      "name": "Peter Jenča",
       "tc_o": "6711500",
       "adresa": "TDH 456/32, Valaská",
       "em_o": "starosta@valaska.sk",
@@ -1007,7 +1007,7 @@
       "mob_s": "911669130",
       "em_o": "obecvalkovna@valkovna.sk",
       "adresa": "Vaľkovňa 57",
-      "starosta": "Vladimír Pokoš",
+      "name": "Vladimír Pokoš",
       "em_s": "obecvalkovna@valkovna.sk",
       "tc_s": "6196937"
     },
@@ -1016,7 +1016,7 @@
       "_okresContext": "BR",
       "tc_o": "6183179",
       "em_s": "starosta@zavadkanadhronom.sk",
-      "starosta": "Mgr. Šiška Vladimír",
+      "name": "Mgr. Šiška Vladimír",
       "adresa": "Hrbok 448/26, Závadka N/H",
       "em_o": "starosta@zavadkanadhronom.sk",
       "tc_d": null,
@@ -1031,7 +1031,7 @@
       "em_s": "starosta@ciernybalog.sk",
       "tc_d": "907804777",
       "em_o": "ciernybalog@ciernybalog.sk",
-      "starosta": "Mgr. Michal Vetrák",
+      "name": "Mgr. Michal Vetrák",
       "adresa": "P. Jilemnického 664/98, Čierny Balog",
       "tc_s": "6304314"
     },
@@ -1041,7 +1041,7 @@
       "em_o": "obusumiac@pohonet.sk",
       "adresa": "Juraja Kriváňa 149, Šumiac",
       "tc_o": "6181318",
-      "starosta": "PhDr. Jarmila Gordanová",
+      "name": "PhDr. Jarmila Gordanová",
       "em_s": "obusumiac@pohonet.sk",
       "tc_s": "6181318",
       "tc_d": null,
@@ -1054,7 +1054,7 @@
       "em_s": "primator@detva.sk",
       "em_o": "podatelna@detva.sk",
       "tc_s": "3700401",
-      "starosta": "Branislav Baran",
+      "name": "Branislav Baran",
       "mob_s": "0908333171",
       "tc_d": null,
       "tc_o": "3700404"
@@ -1066,7 +1066,7 @@
       "mob_s": "0907642510",
       "tc_d": null,
       "tc_o": "5376386",
-      "starosta": "Pavel Šulek",
+      "name": "Pavel Šulek",
       "adresa": "Detvianska Huta 357",
       "em_s": "obec.dh@gmail.com",
       "tc_s": "5376386"
@@ -1080,7 +1080,7 @@
       "em_s": "obec@dubravy.sk",
       "tc_s": "5459520",
       "em_o": "obec@dubravy.sk",
-      "starosta": "Elena Grňová",
+      "name": "Elena Grňová",
       "mob_s": "0903493917"
     },
     {
@@ -1093,7 +1093,7 @@
       "adresa": "Horný Tisovník 78",
       "mob_s": "0902259257",
       "em_s": "htisovnik@podpolanou.sk",
-      "starosta": "Ján Kľuka"
+      "name": "Ján Kľuka"
     },
     {
       "id": "Hriňová",
@@ -1102,7 +1102,7 @@
       "tc_d": null,
       "tc_o": "3210100",
       "em_s": "primator@hrinova.sk",
-      "starosta": "Mgr. Stanislav Horník",
+      "name": "Mgr. Stanislav Horník",
       "adresa": "Vrchárska 1689/25, Hriňová",
       "tc_s": "3210101",
       "mob_s": "0908190801"
@@ -1116,14 +1116,14 @@
       "tc_o": "0948924549",
       "mob_s": "0908214720",
       "adresa": "Klokoč 28",
-      "starosta": "Radoslav Hruška",
+      "name": "Radoslav Hruška",
       "tc_d": null
     },
     {
       "id": "Korytárky",
       "_okresContext": "DT",
       "tc_s": "5466010",
-      "starosta": "Dušan Mitter",
+      "name": "Dušan Mitter",
       "tc_d": null,
       "em_s": "starosta@korytarky.sk",
       "mob_s": "0908928215",
@@ -1134,7 +1134,7 @@
     {
       "id": "Kriváň",
       "_okresContext": "DT",
-      "starosta": "Imrich Paľko",
+      "name": "Imrich Paľko",
       "tc_o": "5469004",
       "tc_s": "5469152",
       "adresa": "Kriváň 292",
@@ -1152,7 +1152,7 @@
       "tc_d": null,
       "em_s": "starosta@obeclatky.sk",
       "tc_o": "5376333",
-      "starosta": "Bc. Mário Kubiš",
+      "name": "Bc. Mário Kubiš",
       "em_o": "starosta@obeclatky.sk"
     },
     {
@@ -1163,7 +1163,7 @@
       "adresa": "Podkriváň 500",
       "em_o": "obecpodkrivan@gmail.com",
       "tc_d": null,
-      "starosta": "Jozef Malatinec",
+      "name": "Jozef Malatinec",
       "tc_o": "047/4493101",
       "tc_s": "047/4493101"
     },
@@ -1171,7 +1171,7 @@
       "id": "Slatinské Lazy",
       "_okresContext": "DT",
       "tc_o": "5402564",
-      "starosta": "Anna Stanecká",
+      "name": "Anna Stanecká",
       "adresa": "Slatinské Lazy 200",
       "tc_s": "5402565",
       "em_s": "starosta@obec-slatinskelazy.sk",
@@ -1183,7 +1183,7 @@
       "id": "Stará Huta",
       "_okresContext": "DT",
       "tc_s": "5389009",
-      "starosta": "Milan Gonda",
+      "name": "Milan Gonda",
       "adresa": "Stará Huta 129",
       "em_o": "kacerova@obecstarahuta.sk",
       "em_s": "starosta@obecstarahuta.sk",
@@ -1196,7 +1196,7 @@
       "_okresContext": "DT",
       "em_s": "starostka@stozok.sk",
       "tc_s": "5455520",
-      "starosta": "Bc. Darinka Petrincová",
+      "name": "Bc. Darinka Petrincová",
       "em_o": "stozok@stozok.sk",
       "adresa": "Stožok 235",
       "mob_s": "0915959920",
@@ -1207,7 +1207,7 @@
       "id": "Vígľaš",
       "_okresContext": "DT",
       "tc_s": "5394243",
-      "starosta": "Ing. Róbert Záchenský",
+      "name": "Ing. Róbert Záchenský",
       "mob_s": "0905647501",
       "em_s": "starosta@viglas.net",
       "tc_o": "5394243",
@@ -1219,7 +1219,7 @@
       "id": "Vígľašská Huta-Kalinka",
       "_okresContext": "DT",
       "em_s": "starosta@vhkalinka.sk",
-      "starosta": "Ing. Štefan Fojtík",
+      "name": "Ing. Štefan Fojtík",
       "mob_s": "0915819075",
       "tc_d": "0907069968",
       "em_o": "obecvhk@vhkalinka.sk",
@@ -1235,7 +1235,7 @@
       "em_o": "bzovik.starosta@gmail.com",
       "adresa": "Bzovík 59",
       "tc_o": "5519397",
-      "starosta": "Ing. Peter Lazár",
+      "name": "Ing. Peter Lazár",
       "tc_s": "5519399",
       "em_s": "bzovik.starosta@gmail.com"
     },
@@ -1246,7 +1246,7 @@
       "tc_d": null,
       "tc_s": "5573282",
       "tc_o": "5573282",
-      "starosta": "Mgr. Margita Boďová",
+      "name": "Mgr. Margita Boďová",
       "em_s": "starosta@obeccerovo.sk",
       "em_o": "info@obeccerovo.sk",
       "adresa": "Cerovo 280"
@@ -1259,7 +1259,7 @@
       "adresa": "Devičie 11",
       "tc_d": null,
       "tc_o": "5591480",
-      "starosta": "Mgr. Ján Baláž",
+      "name": "Mgr. Ján Baláž",
       "em_s": "ocudevicie@gmail.com",
       "tc_s": "5591480"
     },
@@ -1270,7 +1270,7 @@
       "mob_s": "0914214984",
       "tc_d": null,
       "tc_s": "5595164",
-      "starosta": "Margita Alakšová",
+      "name": "Margita Alakšová",
       "adresa": "Dolné Mladonice 4",
       "em_o": "obec.dolnemladonice@gmail.com",
       "em_s": "obec.dolnemladonice@gmail.com"
@@ -1283,7 +1283,7 @@
       "mob_s": "0915589239",
       "adresa": "Dolný Badín 28",
       "ems": "obec@dolnybadin.sk",
-      "starosta": "Natália Mikulášiová",
+      "name": "Natália Mikulášiová",
       "tc_d": null,
       "tc_o": "5597115",
       "em_o": "obec@dolnybadin.sk",
@@ -1293,7 +1293,7 @@
       "id": "Domaníky",
       "_okresContext": "KA",
       "mob_s": "0903767558",
-      "starosta": "Mária Mozolová",
+      "name": "Mária Mozolová",
       "tc_o": "5591120",
       "tc_d": null,
       "em_o": "obecdomaniky@gmail.com",
@@ -1310,7 +1310,7 @@
       "em_s": "obecdrienovo@gmail.com",
       "tc_s": "5597130",
       "em_o": "obecdrienovo@gmail.com",
-      "starosta": "Ing. Mária Lukáčová",
+      "name": "Ing. Mária Lukáčová",
       "adresa": "Drienovo 88"
     },
     {
@@ -1323,7 +1323,7 @@
       "em_s": "starosta@obecdrazovce.sk",
       "mob_s": "0904885913",
       "tc_o": "5596131",
-      "starosta": "Renáta Mrázová"
+      "name": "Renáta Mrázová"
     },
     {
       "id": "Dudince",
@@ -1333,7 +1333,7 @@
       "tc_s": "5243103",
       "mob_s": "0915710330",
       "tc_d": null,
-      "starosta": "PaedDr. Dušan Strieborný",
+      "name": "PaedDr. Dušan Strieborný",
       "tc_o": "5243101",
       "em_s": "primator@dudince-mesto.sk"
     },
@@ -1343,7 +1343,7 @@
       "tc_o": "5583913",
       "em_o": "urad@moravce.sk",
       "tc_d": null,
-      "starosta": "Dalibor Tesársky",
+      "name": "Dalibor Tesársky",
       "adresa": "Opatovská 161/16, H. M.",
       "em_s": "starosta@moravce.sk",
       "tc_s": "5583915",
@@ -1353,7 +1353,7 @@
       "id": "Hontianske Nemce",
       "_okresContext": "KA",
       "tc_s": "5591280",
-      "starosta": "JUDr. Renáta Matejová",
+      "name": "JUDr. Renáta Matejová",
       "em_s": "starosta@hontianskenemce.sk",
       "tc_d": null,
       "em_o": "obec@hontianskenemce.sk",
@@ -1368,7 +1368,7 @@
       "mob_s": "0904399991",
       "tc_o": "5596016",
       "em_o": "info@honttesare.sk",
-      "starosta": "Mgr. Štefan Foltán",
+      "name": "Mgr. Štefan Foltán",
       "tc_d": null,
       "adresa": "Hontianske Tesáre 113",
       "em_s": "starosta@hontiansketesare.sk"
@@ -1382,7 +1382,7 @@
       "em_s": "obechornemladonice@centrum.sk",
       "tc_o": "5595230",
       "em_o": "obechornemladonice@centrum.sk",
-      "starosta": "Mgr. Erika Korčoková",
+      "name": "Mgr. Erika Korčoková",
       "tc_s": "5595230"
     },
     {
@@ -1390,7 +1390,7 @@
       "_okresContext": "KA",
       "tc_d": "5597175",
       "adresa": "Horný Badín 10",
-      "starosta": "Mária Hnilicová",
+      "name": "Mária Hnilicová",
       "mob_s": "0910947326",
       "tc_s": "5597135",
       "em_o": "obec@hornybadin.sk",
@@ -1401,7 +1401,7 @@
       "id": "Jalšovík",
       "_okresContext": "KA",
       "tc_o": "5524132",
-      "starosta": "Adriana Vicianová",
+      "name": "Adriana Vicianová",
       "tc_d": "5524323",
       "tc_s": "5524132",
       "em_o": "obecjalsovik@gmail.com",
@@ -1413,7 +1413,7 @@
       "id": "Kozí Vrbovok",
       "_okresContext": "KA",
       "em_s": "starosta@kozivrbovok.sk",
-      "starosta": "Peter Čižmár",
+      "name": "Peter Čižmár",
       "mob_s": "0918787975",
       "tc_d": "0907295560",
       "tc_s": "5572246",
@@ -1429,7 +1429,7 @@
       "tc_o": "5550311",
       "tc_s": "5550311",
       "adresa": "D. Štúra 1, Krupina",
-      "starosta": "Ing. Radoslav Vazan",
+      "name": "Ing. Radoslav Vazan",
       "em_o": "krupina@krupina.sk",
       "tc_d": null
     },
@@ -1441,7 +1441,7 @@
       "em_o": "obec@kralovce-krnisov.sk",
       "adresa": "Kráľovce-Krnišov 67",
       "mob_s": "0918898338",
-      "starosta": "Miroslava Balková",
+      "name": "Miroslava Balková",
       "tc_s": "5581619",
       "tc_o": "5581619"
     },
@@ -1454,7 +1454,7 @@
       "adresa": "Lackov 14",
       "mob_s": "0918530327",
       "em_o": "obeclackov@hotmail.sk",
-      "starosta": "Ing. Andrea Parobková",
+      "name": "Ing. Andrea Parobková",
       "tc_o": "0960465870"
     },
     {
@@ -1462,7 +1462,7 @@
       "_okresContext": "KA",
       "tc_o": "5596177",
       "em_s": "milos.cmela@ladzany.sk",
-      "starosta": "Miloš Čmela",
+      "name": "Miloš Čmela",
       "mob_s": "0903518837",
       "tc_d": null,
       "adresa": "Ladzany 40",
@@ -1475,7 +1475,7 @@
       "tc_o": "5402840-2",
       "tc_s": "5402840-2",
       "em_s": "starosta@obec.litava.sk",
-      "starosta": "Ľubica Tuhárska",
+      "name": "Ľubica Tuhárska",
       "tc_d": "5574531",
       "em_o": "matrika@obec.litava.sk",
       "mob_s": "0911277738",
@@ -1486,7 +1486,7 @@
       "_okresContext": "KA",
       "adresa": "Lišov 43",
       "tc_d": "5589392",
-      "starosta": "Mgr. Marián Škoník",
+      "name": "Mgr. Marián Škoník",
       "em_s": "starosta@obeclisov.sk",
       "em_o": "starosta@obeclisov.sk",
       "tc_o": "5519190",
@@ -1503,7 +1503,7 @@
       "mob_s": "0911930106",
       "em_o": "obecmedovarce@gmail.com",
       "adresa": "Medovarce 43",
-      "starosta": "Pavel Plachý"
+      "name": "Pavel Plachý"
     },
     {
       "id": "Rykynčice",
@@ -1511,7 +1511,7 @@
       "tc_s": "5593115",
       "mob_s": "0903387739",
       "tc_d": "0910912480",
-      "starosta": "Eva Nemčovská",
+      "name": "Eva Nemčovská",
       "tc_o": "5593115",
       "adresa": "Dolné Rykynčice 70",
       "em_o": "obecrykyncice@gmail.com",
@@ -1523,7 +1523,7 @@
       "tc_o": "5591996",
       "tc_s": "5591830",
       "adresa": "Sebechleby 194",
-      "starosta": "Ing. Terézia Krnáčová",
+      "name": "Ing. Terézia Krnáčová",
       "tc_d": null,
       "em_o": "matrika@sebechleby.com",
       "mob_s": "0903418966",
@@ -1536,7 +1536,7 @@
       "tc_d": null,
       "tc_o": "5550163",
       "em_o": "maria.sulcova@gmail.com",
-      "starosta": "Mgr. Mária Šulcová",
+      "name": "Mgr. Mária Šulcová",
       "adresa": "Selce 49",
       "em_s": "maria.sulcova@gmail.com",
       "tc_s": "5597334"
@@ -1548,7 +1548,7 @@
       "adresa": "Senohrad 283",
       "tc_d": "0910235630",
       "em_o": "info@senohrad.sk",
-      "starosta": "Mgr. Erika Turanová",
+      "name": "Mgr. Erika Turanová",
       "em_s": "starostka@senohrad.sk",
       "tc_s": "5402631",
       "mob_s": "0911100852"
@@ -1557,7 +1557,7 @@
       "id": "Sudince",
       "_okresContext": "KA",
       "mob_s": "0908499900",
-      "starosta": "Daniela Šinková",
+      "name": "Daniela Šinková",
       "em_o": "obecsudince@zoznam.sk",
       "tc_d": "5589141",
       "adresa": "Sudince 16",
@@ -1573,14 +1573,14 @@
       "mob_s": "0911749686",
       "tc_d": null,
       "em_o": "obecsudovce@zoznam.sk",
-      "starosta": "Mgr. Andrea Hanuliaková",
+      "name": "Mgr. Andrea Hanuliaková",
       "tc_s": "5589144",
       "em_s": "starostka.sudovce@gmail.com"
     },
     {
       "id": "Terany",
       "_okresContext": "KA",
-      "starosta": "Mgr. Iveta Gajdošová",
+      "name": "Mgr. Iveta Gajdošová",
       "em_s": "obecterany@obecterany.sk",
       "tc_d": null,
       "tc_o": "5583225",
@@ -1593,7 +1593,7 @@
       "id": "Trpín",
       "_okresContext": "KA",
       "tc_d": null,
-      "starosta": "Mária Selecká",
+      "name": "Mária Selecká",
       "em_o": "obectrpin@centrum.sk",
       "adresa": "Trpín 45",
       "em_s": "obectrpin@centrum.sk",
@@ -1611,7 +1611,7 @@
       "adresa": "Uňatín 14",
       "tc_s": "5512595",
       "mob_s": "0904049312",
-      "starosta": "Anna Babiaková"
+      "name": "Anna Babiaková"
     },
     {
       "id": "Zemiansky Vrbovok",
@@ -1620,7 +1620,7 @@
       "adresa": "Zemiansky Vrbovok 74",
       "tc_s": null,
       "tc_d": "0917101705",
-      "starosta": "Erik Mäsiar",
+      "name": "Erik Mäsiar",
       "mob_s": "0918495082",
       "em_o": "obeczemianskyvrbovok@gmail.com",
       "tc_o": null
@@ -1632,7 +1632,7 @@
       "tc_o": "5597129",
       "em_s": "jan.sliacky@cabradskyvrbovok.sk",
       "tc_d": null,
-      "starosta": "Ján Sliacky",
+      "name": "Ján Sliacky",
       "mob_s": "0902192174",
       "tc_s": "5597111",
       "em_o": "obec@cabradskyvrbovok.sk"
@@ -1644,7 +1644,7 @@
       "tc_o": "5595211",
       "em_o": "obecekovce@zvnet.net",
       "adresa": "Čekovce 19",
-      "starosta": "Milan Gregáň",
+      "name": "Milan Gregáň",
       "tc_s": "5595211",
       "em_s": "obecekovce@zvnet.net",
       "mob_s": "0907813143"
@@ -1655,7 +1655,7 @@
       "adresa": "Žibritov 21",
       "tc_o": "5511475",
       "mob_s": "0918597725",
-      "starosta": "Dušan Laco",
+      "name": "Dušan Laco",
       "tc_s": "5511475",
       "em_o": "obec.zibritov@azet.sk",
       "tc_d": "5521387",
@@ -1669,7 +1669,7 @@
       "mob_s": "090270593",
       "tc_o": "4389131",
       "em_s": "obecbelina@centrum.sk",
-      "starosta": "Mgr. Zoltán Marcinkó",
+      "name": "Mgr. Zoltán Marcinkó",
       "tc_s": "4389131",
       "tc_d": null
     },
@@ -1679,7 +1679,7 @@
       "mob_s": "0908930167",
       "tc_s": "4381815",
       "tc_d": "0905570464",
-      "starosta": "Mgr. Jozef Cupper",
+      "name": "Mgr. Jozef Cupper",
       "em_s": "jozef.cupper@obecbiskupice.sk",
       "adresa": "Biskupická 37/76, Biskupice",
       "tc_o": "4381815",
@@ -1694,14 +1694,14 @@
       "adresa": "Boľkovce 270, Lučenec",
       "tc_o": "4394144",
       "em_o": "martina.orsulikova@bolkovce.sk",
-      "starosta": "Ladislav Vanko",
+      "name": "Ladislav Vanko",
       "mob_s": "0905570464"
     },
     {
       "id": "Budiná",
       "_okresContext": "LC",
       "adresa": "Budiná 1",
-      "starosta": "JUDr., Ing. Marian Čerpák",
+      "name": "JUDr., Ing. Marian Čerpák",
       "tc_o": "4397335",
       "mob_s": "0908626866",
       "em_s": "marian.cerpak@gmail.com",
@@ -1719,7 +1719,7 @@
       "tc_d": null,
       "tc_s": "4381772",
       "mob_s": "0908818939",
-      "starosta": "Karol Váradi"
+      "name": "Karol Váradi"
     },
     {
       "id": "Buzitka",
@@ -1731,7 +1731,7 @@
       "tc_d": null,
       "em_o": "obecbuzitka@gmail.com",
       "tc_o": "4380183",
-      "starosta": "Miroslav Malatinec"
+      "name": "Miroslav Malatinec"
     },
     {
       "id": "Divín",
@@ -1741,7 +1741,7 @@
       "mob_s": "0908284287",
       "adresa": "Hrnčiarska 298/16, Divín",
       "tc_d": "0903129318",
-      "starosta": "Ing. Ján Sivok PhD.",
+      "name": "Ing. Ján Sivok PhD.",
       "em_o": "obecdivin@zoznam.sk",
       "tc_o": "4397301"
     },
@@ -1754,7 +1754,7 @@
       "tc_o": "4397105",
       "em_s": "starosta@dobroc.sk",
       "adresa": "Dobroč 235",
-      "starosta": "Ing. Miroslav Remeník",
+      "name": "Ing. Miroslav Remeník",
       "mob_s": "0917961326"
     },
     {
@@ -1763,7 +1763,7 @@
       "mob_s": "0915163311",
       "em_s": "primator@filakovo.sk",
       "tc_d": null,
-      "starosta": "Mgr. Attila Agócs, PhD.",
+      "name": "Mgr. Attila Agócs, PhD.",
       "tc_s": "4381001",
       "em_o": "mesto@filakovo.sk",
       "adresa": "1. mája 18, Fiľakovo",
@@ -1776,7 +1776,7 @@
       "mob_s": "0905548287",
       "adresa": "Fiľakovské Kováče, Kurtáň 215",
       "tc_s": "4511183",
-      "starosta": "Michal Muránsky",
+      "name": "Michal Muránsky",
       "em_s": "starostafkovace@gmail.com",
       "tc_o": "4380233",
       "tc_d": "902685998"
@@ -1788,7 +1788,7 @@
       "mob_s": "0902685998",
       "tc_o": "4392000",
       "tc_s": "4392000",
-      "starosta": "Bc. Renáta Hrnčiarová",
+      "name": "Bc. Renáta Hrnčiarová",
       "em_o": "starosta@gregorovavieska.sk",
       "adresa": "Gregorova Vieska 65, Tomášovce",
       "tc_d": "0908886825"
@@ -1799,7 +1799,7 @@
       "tc_d": "0908882209",
       "tc_s": "4392356",
       "tc_o": "4392356",
-      "starosta": "Mgr. Alexander Udvardy",
+      "name": "Mgr. Alexander Udvardy",
       "em_s": "starosta@obechalic.sk",
       "mob_s": "0907858440",
       "em_o": "starosta@obechalic.sk",
@@ -1815,7 +1815,7 @@
       "mob_s": "0908882209",
       "em_s": "starosta@ocuholisa.sk",
       "adresa": "Holiša č. 125",
-      "starosta": "Adrián Zsélyi"
+      "name": "Adrián Zsélyi"
     },
     {
       "id": "Jelšovec",
@@ -1825,14 +1825,14 @@
       "mob_s": "0910693013",
       "tc_d": "0911697202",
       "em_s": "starosta@jelsovec.sk",
-      "starosta": "Ladislav Máčka",
+      "name": "Ladislav Máčka",
       "em_o": "starosta@jelsovec.sk",
       "tc_o": "4374108"
     },
     {
       "id": "Kalonda",
       "_okresContext": "LC",
-      "starosta": "Réka Papp",
+      "name": "Réka Papp",
       "em_s": "obeckalonda@gmail.com",
       "adresa": "Mierová 17/27, Kalonda",
       "mob_s": "0905234936",
@@ -1851,7 +1851,7 @@
       "adresa": "Kotmanová 109",
       "em_s": "maria.oravcova@kotmanova.sk",
       "tc_o": "4397109",
-      "starosta": "Mgr. Mária Oravcová"
+      "name": "Mgr. Mária Oravcová"
     },
     {
       "id": "Lehôtka",
@@ -1863,7 +1863,7 @@
       "em_o": "starosta@lehotka.sk",
       "mob_s": "0905270431",
       "tc_d": "0907813041",
-      "starosta": "Richard Lasšan"
+      "name": "Richard Lasšan"
     },
     {
       "id": "Lentvora",
@@ -1872,7 +1872,7 @@
       "tc_o": "4379547",
       "adresa": "Lentvora 30",
       "tc_d": null,
-      "starosta": "Bc. Anna Kropáčová",
+      "name": "Bc. Anna Kropáčová",
       "em_o": "obeclentvora@gmail.com",
       "em_s": "obeclentvora@gmail.com",
       "tc_s": "4379547"
@@ -1885,7 +1885,7 @@
       "adresa": "Lipovany 137",
       "em_s": "starostalipovany@gmail.com",
       "tc_s": "4399872",
-      "starosta": "Vladimír Kurčík",
+      "name": "Vladimír Kurčík",
       "em_o": "lipovany@dkn.sk",
       "mob_s": "0905270434"
     },
@@ -1899,7 +1899,7 @@
       "em_s": "andrea.valachova70@gmail.com",
       "em_o": "starosta@lovinobana.sk",
       "tc_s": "4396402",
-      "starosta": "Bc. Andrea Valachová"
+      "name": "Bc. Andrea Valachová"
     },
     {
       "id": "Luboreč",
@@ -1911,12 +1911,12 @@
       "tc_s": "4372823",
       "mob_s": "0903547601",
       "adresa": "Luboreč 109, 98511 Halič",
-      "starosta": "Martina Bitoová"
+      "name": "Martina Bitoová"
     },
     {
       "id": "Lupoč",
       "_okresContext": "LC",
-      "starosta": "Ing. Peter Tejiščák",
+      "name": "Ing. Peter Tejiščák",
       "mob_s": "0911252799",
       "em_o": "obeclupoc@gmail.com",
       "tc_o": "4392345",
@@ -1930,7 +1930,7 @@
       "_okresContext": "LC",
       "adresa": "Rázusová 12/A, Lučenec",
       "tc_s": "4307220",
-      "starosta": "PhDr. Alexandra Pivková",
+      "name": "PhDr. Alexandra Pivková",
       "em_o": "mesto@lucenec.sk",
       "mob_s": "0917900044",
       "tc_o": "4307220",
@@ -1946,7 +1946,7 @@
       "adresa": "Mašková 7, p. 985 11 Halič",
       "tc_s": "4392362",
       "tc_o": "4392362",
-      "starosta": "Ing. Bronislava Brablecová",
+      "name": "Ing. Bronislava Brablecová",
       "mob_s": "0911951775"
     },
     {
@@ -1956,7 +1956,7 @@
       "em_o": "mikusovce@gmail.com",
       "tc_s": "4329132",
       "em_s": "mikusovce@gmail.com",
-      "starosta": "Ing. Imrich Agošton",
+      "name": "Ing. Imrich Agošton",
       "adresa": "Mikušovce 55",
       "mob_s": "0905270432",
       "tc_d": "908544799"
@@ -1969,7 +1969,7 @@
       "em_o": "podatelna@mucin.sk",
       "em_s": "starosta@mucin.sk",
       "tc_d": null,
-      "starosta": "PhDr. Peter Matiáška",
+      "name": "PhDr. Peter Matiáška",
       "adresa": "Ul. Potočná 218/2, Mučín",
       "tc_o": "4378870"
     },
@@ -1980,7 +1980,7 @@
       "tc_s": "4397107",
       "mob_s": "0948035345",
       "tc_d": null,
-      "starosta": "Mgr. Ivana Kondačová",
+      "name": "Mgr. Ivana Kondačová",
       "em_s": "obec@mytna.sk",
       "tc_o": "4397107",
       "em_o": "obec@mytna.sk"
@@ -1989,7 +1989,7 @@
       "id": "Nitra nad Ipľom",
       "_okresContext": "LC",
       "tc_o": "4334866",
-      "starosta": "Bc. Tivadar Berky",
+      "name": "Bc. Tivadar Berky",
       "tc_s": "4394197",
       "mob_s": "0908559894",
       "tc_d": "0908328451",
@@ -2006,7 +2006,7 @@
       "tc_o": "4373112",
       "em_o": "obecnovehony@gmail.com",
       "em_s": "obecnovehony@gmail.com",
-      "starosta": "Alena Spodniaková",
+      "name": "Alena Spodniaková",
       "mob_s": "0908328451"
     },
     {
@@ -2015,7 +2015,7 @@
       "mob_s": "0905359860",
       "tc_s": "4374134",
       "em_o": "obec@panickedravce.sk",
-      "starosta": "Atilla Papp",
+      "name": "Atilla Papp",
       "tc_o": "4374134",
       "tc_d": "4397328",
       "em_s": "starosta@panickedravce.sk",
@@ -2025,7 +2025,7 @@
       "id": "Pinciná",
       "_okresContext": "LC",
       "em_s": "starosta@pincina.sk",
-      "starosta": "Bc. Gabriela Soós",
+      "name": "Bc. Gabriela Soós",
       "adresa": "Pinciná 71",
       "tc_d": "0905384154",
       "em_o": "obec@pincina.sk",
@@ -2039,7 +2039,7 @@
       "tc_d": "4396932",
       "em_s": "obecnyurad.ples@centrum.sk",
       "tc_s": "4399841",
-      "starosta": "Miroslav Plaucha",
+      "name": "Miroslav Plaucha",
       "em_o": "obecnyurad.ples@centrum.sk",
       "tc_o": "4399841",
       "mob_s": "0917674482",
@@ -2050,7 +2050,7 @@
       "_okresContext": "LC",
       "adresa": "Podrečany 29",
       "tc_d": "4379557",
-      "starosta": "Ing. Peter Kulich",
+      "name": "Ing. Peter Kulich",
       "em_s": "starosta@podrecany.sk",
       "mob_s": "0911131706",
       "tc_o": "4396171",
@@ -2062,7 +2062,7 @@
       "_okresContext": "LC",
       "tc_o": "4379533",
       "mob_s": "0905270436",
-      "starosta": "Pavel Kyseľ",
+      "name": "Pavel Kyseľ",
       "em_s": "polichno@polichno.sk",
       "em_o": "polichno@polichno.sk",
       "adresa": "Polichno 76",
@@ -2072,7 +2072,7 @@
     {
       "id": "Praha",
       "_okresContext": "LC",
-      "starosta": "Erik Marčok",
+      "name": "Erik Marčok",
       "adresa": "Praha 16",
       "tc_o": "4392348",
       "mob_s": "0915714166",
@@ -2091,13 +2091,13 @@
       "mob_s": "0908249596",
       "adresa": "Prša 19",
       "tc_s": "4380190",
-      "starosta": "Gábor Nagy"
+      "name": "Gábor Nagy"
     },
     {
       "id": "Píla",
       "_okresContext": "LC",
       "tc_d": "0908214021",
-      "starosta": "Ing. Ľubomír Aláč",
+      "name": "Ing. Ľubomír Aláč",
       "tc_o": "4397104",
       "mob_s": "0903457129",
       "em_o": "pilaobec@gmail.com",
@@ -2113,7 +2113,7 @@
       "tc_s": "4491152",
       "mob_s": "0905270429",
       "tc_d": "0908067007",
-      "starosta": "Ing. Peter György",
+      "name": "Ing. Peter György",
       "adresa": "Radzovce 456",
       "em_o": "obec@radzovce.sk"
     },
@@ -2124,7 +2124,7 @@
       "tc_o": "4398100",
       "adresa": "Hlavná 128, Rapovce",
       "em_s": "rapovce@dkn.sk",
-      "starosta": "Ing. Ladislav Sóky",
+      "name": "Ing. Ladislav Sóky",
       "tc_s": "4398100",
       "tc_d": null,
       "em_o": "rapovce@dkn.sk"
@@ -2135,7 +2135,7 @@
       "tc_s": "4383431",
       "em_o": "starosta.ratka@gmail.com",
       "mob_s": "0905607983",
-      "starosta": "Ing. Milan Spodniak",
+      "name": "Ing. Milan Spodniak",
       "adresa": "Ratka 71",
       "em_s": "starosta.ratka@gmail.com",
       "tc_d": "0915943434",
@@ -2146,7 +2146,7 @@
       "_okresContext": "LC",
       "tc_d": null,
       "adresa": "Ružiná 296",
-      "starosta": "Jozef Líška",
+      "name": "Jozef Líška",
       "em_s": "starosta.ruzina@gmail.com",
       "tc_s": "4396116",
       "tc_o": "4396116",
@@ -2160,7 +2160,7 @@
       "tc_o": "4392331",
       "mob_s": "0918678866",
       "tc_d": null,
-      "starosta": "Ing. Jozef Gembec",
+      "name": "Ing. Jozef Gembec",
       "em_o": "podatelna@starahalic.sk",
       "tc_s": "4392337",
       "em_s": "starosta@starahalic.sk"
@@ -2171,7 +2171,7 @@
       "mob_s": "0908941808",
       "tc_s": "4371446",
       "em_o": "obec@tomasovce.sk",
-      "starosta": "Ing. Ján Mičuda",
+      "name": "Ing. Ján Mičuda",
       "tc_o": "4371446",
       "tc_d": "0902350951",
       "em_s": "starosta@tomasovce.sk",
@@ -2184,7 +2184,7 @@
       "tc_o": "4396175",
       "mob_s": "0903184789",
       "adresa": "Točnica 159",
-      "starosta": "Ing. Lívia Bračoková",
+      "name": "Ing. Lívia Bračoková",
       "em_o": "obec@tocnica.sk",
       "tc_s": "4396175",
       "em_s": "obec@tocnica.sk"
@@ -2197,7 +2197,7 @@
       "em_o": "obectrebelovce@dkn.sk",
       "mob_s": "0905270591",
       "em_s": "obectrebelovce@dkn.sk",
-      "starosta": "Mgr. Marcel Hudec",
+      "name": "Mgr. Marcel Hudec",
       "tc_s": "4398151",
       "tc_d": null
     },
@@ -2209,7 +2209,7 @@
       "tc_s": "4399765",
       "em_o": "trenc@lucenec.net",
       "tc_o": "4399765",
-      "starosta": "Andrej Barcík",
+      "name": "Andrej Barcík",
       "mob_s": "0905661928",
       "adresa": "Trenč 128"
     },
@@ -2220,7 +2220,7 @@
       "em_s": "starosta.tuhar@gmail.com",
       "em_o": "obecnyurad@tuhar.sk",
       "tc_o": "4377621",
-      "starosta": "Bc. Peter Čeman",
+      "name": "Bc. Peter Čeman",
       "mob_s": "0911491250",
       "tc_d": null,
       "adresa": "Tuhár 13"
@@ -2228,7 +2228,7 @@
     {
       "id": "Veľká nad Ipľom",
       "_okresContext": "LC",
-      "starosta": "Ing. Gabriel Rácz",
+      "name": "Ing. Gabriel Rácz",
       "adresa": "Veľká nad Ipľom 359",
       "tc_s": "4374102",
       "mob_s": "0948242680",
@@ -2247,14 +2247,14 @@
       "em_s": "obecvelkedravce@gmail.com",
       "tc_o": "4373122",
       "tc_d": null,
-      "starosta": "Mgr. Viera Rubintová"
+      "name": "Mgr. Viera Rubintová"
     },
     {
       "id": "Vidiná",
       "_okresContext": "LC",
       "em_o": "podatelna@vidina.sk",
       "em_s": "starosta@vidina.sk",
-      "starosta": "Ing. Ján Šupica",
+      "name": "Ing. Ján Šupica",
       "mob_s": "0905270437",
       "tc_d": null,
       "tc_o": "4370102",
@@ -2269,7 +2269,7 @@
       "em_s": "starosta@abelova.sk",
       "tc_s": "4379510",
       "em_o": "obec@abelova.sk",
-      "starosta": "Jaroslav Maslen",
+      "name": "Jaroslav Maslen",
       "mob_s": "0902972000",
       "tc_o": "4379510"
     },
@@ -2281,14 +2281,14 @@
       "tc_s": "4491123",
       "em_o": "obeccakanovce@obeccakanovce.sk",
       "tc_o": "4491280",
-      "starosta": "Mgr. Vojtech Bodor",
+      "name": "Mgr. Vojtech Bodor",
       "mob_s": "0917869033",
       "adresa": "Čakanovce 373"
     },
     {
       "id": "Čamovce",
       "_okresContext": "LC",
-      "starosta": "Mgr. Adrián Karkusz",
+      "name": "Mgr. Adrián Karkusz",
       "mob_s": "0907115296",
       "tc_s": "4389101",
       "tc_o": "4389101",
@@ -2302,7 +2302,7 @@
       "_okresContext": "LC",
       "adresa": "Šiatorská Bukovinka 143",
       "tc_s": "4491154",
-      "starosta": "Ing. Peter Badinka",
+      "name": "Ing. Peter Badinka",
       "tc_o": "4491154",
       "mob_s": "0905272668",
       "tc_d": "0907451483",
@@ -2319,14 +2319,14 @@
       "mob_s": "0905218807",
       "adresa": "Šid 323",
       "tc_o": "4389213",
-      "starosta": "Arnold Kurunci"
+      "name": "Arnold Kurunci"
     },
     {
       "id": "Šurice",
       "_okresContext": "LC",
       "tc_o": "4389282",
       "mob_s": "0917451483",
-      "starosta": "Zoltán Végh",
+      "name": "Zoltán Végh",
       "tc_d": "0908941808",
       "em_s": "starostasurice@gmail.com",
       "adresa": "Šurice č. 215, Hajnačka",
@@ -2339,7 +2339,7 @@
       "adresa": "Šávoľ 52",
       "tc_o": "4380105",
       "tc_d": "0908935666",
-      "starosta": "Július Ferencz",
+      "name": "Július Ferencz",
       "em_s": "ferencz.julius@gmail.com",
       "em_o": "ocu.savol@gmail.com",
       "mob_s": "0905270430",
@@ -2354,7 +2354,7 @@
       "tc_o": "0911794180",
       "tc_s": "911794180",
       "em_s": "branokne@gmail.com",
-      "starosta": "Mgr. Branislav Knechta",
+      "name": "Mgr. Branislav Knechta",
       "adresa": "Breznička 110"
     },
     {
@@ -2363,7 +2363,7 @@
       "em_o": "ocucinobana@cinobana.sk",
       "tc_d": "0905655585",
       "mob_s": "0905655585",
-      "starosta": "Jozef Melicher",
+      "name": "Jozef Melicher",
       "em_s": "starosta@cinobana.sk",
       "adresa": "Potočná 172/2, Cinobaňa",
       "tc_s": "4511731",
@@ -2373,7 +2373,7 @@
       "id": "Hradište",
       "_okresContext": "PT",
       "tc_s": "4291825",
-      "starosta": "Nataša Iskrová",
+      "name": "Nataša Iskrová",
       "adresa": "Hradište 124",
       "em_s": "niskra@centrum.sk",
       "tc_o": "4291825",
@@ -2387,7 +2387,7 @@
       "em_s": "hrnciarskaves@gmail.com",
       "tc_o": "5674317",
       "adresa": "Veľká Suchá 316, Hrnčiarska Ves",
-      "starosta": "Ján Melicher",
+      "name": "Ján Melicher",
       "mob_s": "0907878166",
       "tc_s": "5674317",
       "tc_d": "0905522215",
@@ -2403,7 +2403,7 @@
       "tc_s": "5672111",
       "tc_d": "0908903587",
       "em_o": "ou@hrnciarskezaluzany.sk",
-      "starosta": "Ing. Branislav Nociar"
+      "name": "Ing. Branislav Nociar"
     },
     {
       "id": "Kalinovo",
@@ -2413,14 +2413,14 @@
       "adresa": "Nová 577/43, Kalinovo",
       "em_o": "obec@kalinovo.sk",
       "em_s": "obec@kalinovo.sk",
-      "starosta": "Ján Šarkan",
+      "name": "Ján Šarkan",
       "tc_s": "4390205",
       "mob_s": "0903910575"
     },
     {
       "id": "Kokava nad Rimavicou",
       "_okresContext": "PT",
-      "starosta": "Ing. Ján Chromek",
+      "name": "Ing. Ján Chromek",
       "tc_d": "0907144793",
       "adresa": "Lúčna 1372/7, Kokava nad Rimavicou",
       "tc_o": "4293101",
@@ -2434,7 +2434,7 @@
       "_okresContext": "PT",
       "tc_s": "4291955",
       "tc_d": "0947904847",
-      "starosta": "Michal Senko",
+      "name": "Michal Senko",
       "em_o": "obeckrna@gmail.com",
       "adresa": "Krná 15",
       "mob_s": "0947904847",
@@ -2449,7 +2449,7 @@
       "tc_o": "4486822",
       "tc_s": "4486822",
       "adresa": "Mládzovo 49",
-      "starosta": "Miroslav Čičmanec",
+      "name": "Miroslav Čičmanec",
       "em_s": "starosta@mladzovo.sk",
       "tc_d": "047/4486834"
     },
@@ -2463,12 +2463,12 @@
       "tc_d": "0905410540",
       "tc_o": "4291121",
       "adresa": "Nová 502/1, Málinec",
-      "starosta": "Ing. Igor Lacko"
+      "name": "Ing. Igor Lacko"
     },
     {
       "id": "Ozdín",
       "_okresContext": "PT",
-      "starosta": "Ing. Pavel Salva",
+      "name": "Ing. Pavel Salva",
       "mob_s": "0911875697",
       "tc_d": "0911875697",
       "tc_s": "4291301",
@@ -2481,7 +2481,7 @@
       "id": "Poltár",
       "_okresContext": "PT",
       "em_s": "primator@poltar.sk",
-      "starosta": "Peter Sitor",
+      "name": "Peter Sitor",
       "tc_d": "0948906533",
       "em_o": "mesto@poltar.sk",
       "adresa": "Fučíkova 618/12, Poltár",
@@ -2495,7 +2495,7 @@
       "tc_o": "4223459",
       "em_s": "ocurovnany@ma-net.sk",
       "mob_s": "0908911031",
-      "starosta": "Jana Cabanová",
+      "name": "Jana Cabanová",
       "em_o": "ocurovnany@ma-net.sk",
       "tc_s": "4223459",
       "tc_d": "0907825644",
@@ -2506,7 +2506,7 @@
       "_okresContext": "PT",
       "em_s": "selcegemer@gmail.com",
       "tc_o": "5423491",
-      "starosta": "Martin Bodnár",
+      "name": "Martin Bodnár",
       "mob_s": "0910944851",
       "adresa": "Selce 22",
       "em_o": "selcegemer@gmail.com",
@@ -2521,7 +2521,7 @@
       "mob_s": "0905490022",
       "tc_o": "5678124",
       "em_o": "osusany@post.sk",
-      "starosta": "Mgr. Štefan Václavík",
+      "name": "Mgr. Štefan Václavík",
       "em_s": "osusany@post.sk",
       "adresa": "Sušany 230"
     },
@@ -2530,7 +2530,7 @@
       "_okresContext": "PT",
       "em_o": "obec.uhorske@ma-net.sk",
       "tc_o": "4223428",
-      "starosta": "Ing. Pavel Olšiak",
+      "name": "Ing. Pavel Olšiak",
       "tc_s": "4223428",
       "mob_s": "0948711777",
       "tc_d": "047/4223449",
@@ -2545,7 +2545,7 @@
       "tc_o": "4514131",
       "adresa": "Utekáč 855",
       "tc_d": "0911252433",
-      "starosta": "Bc. Miroslav Barutiak",
+      "name": "Bc. Miroslav Barutiak",
       "em_s": "starosta@obecutekac.sk",
       "mob_s": "0911252433"
     },
@@ -2553,7 +2553,7 @@
       "id": "Veľká Ves",
       "_okresContext": "PT",
       "tc_s": "4390922",
-      "starosta": "Jozef Líška",
+      "name": "Jozef Líška",
       "em_s": "velkaves@velkaves.sk",
       "adresa": "Veľká Ves 101",
       "tc_d": "0903506559",
@@ -2566,7 +2566,7 @@
       "_okresContext": "PT",
       "tc_o": "4292310",
       "mob_s": "0908922106",
-      "starosta": "Mgr. Margaréta Murínová",
+      "name": "Mgr. Margaréta Murínová",
       "tc_d": "047/3700432",
       "tc_s": "4292310",
       "adresa": "Zlatno 49",
@@ -2578,7 +2578,7 @@
       "_okresContext": "PT",
       "em_s": "starosta@ceskebrezovo.sk",
       "tc_s": "4292122",
-      "starosta": "Ivan Miko",
+      "name": "Ivan Miko",
       "adresa": "České Brezovo 139",
       "tc_o": "4292122",
       "tc_d": "0903254386",
@@ -2588,7 +2588,7 @@
     {
       "id": "Ďubákovo",
       "_okresContext": "PT",
-      "starosta": "Miroslav Škrabák",
+      "name": "Miroslav Škrabák",
       "tc_d": "0915788626",
       "adresa": "Ďubákovo 58",
       "em_o": null,
@@ -2600,7 +2600,7 @@
     {
       "id": "Šoltýska",
       "_okresContext": "PT",
-      "starosta": "Viera Havranová",
+      "name": "Viera Havranová",
       "tc_o": "4295723",
       "tc_s": "4295723",
       "tc_d": "0918451879",
@@ -2615,7 +2615,7 @@
       "em_o": "obec.chvalova@pobox.sk",
       "mob_s": "0918407924",
       "tc_d": "0918407924",
-      "starosta": "Judita Vaculčiaková",
+      "name": "Judita Vaculčiaková",
       "em_s": "starosta.chvalova@pobox.sk",
       "tc_o": "047/5596434",
       "adresa": "Chvalová 16",
@@ -2625,7 +2625,7 @@
       "id": "Chyžné",
       "_okresContext": "RA",
       "em_o": "podatelna@obechyzne.sk",
-      "starosta": "Peter Medvec",
+      "name": "Peter Medvec",
       "adresa": "Chyžné 41",
       "tc_d": null,
       "tc_o": "058/4882310",
@@ -2641,7 +2641,7 @@
       "tc_s": "047/3811154",
       "tc_o": "047/3811154",
       "mob_s": "0918870495",
-      "starosta": "Mgr. Mária Duszová",
+      "name": "Mgr. Mária Duszová",
       "em_o": "ocu.drzkovce@gmail.com",
       "tc_d": "047/5597444"
     },
@@ -2652,7 +2652,7 @@
       "adresa": "Gemer 275",
       "em_s": "starosta@obecgemer.sk",
       "tc_o": "047/2224208",
-      "starosta": "Zoltán Jankóšik",
+      "name": "Zoltán Jankóšik",
       "em_o": "ougemer@centrum.sk",
       "tc_s": "047/2224208",
       "tc_d": null
@@ -2664,7 +2664,7 @@
       "tc_s": "047/5597554",
       "adresa": "Gemerská Ves 165",
       "em_s": "starosta@gemerskaves.sk",
-      "starosta": "Monika Lévaiová",
+      "name": "Monika Lévaiová",
       "em_o": "starosta@gemerskaves.sk",
       "tc_d": "0918437603",
       "mob_s": "0904626682"
@@ -2675,7 +2675,7 @@
       "em_o": "ou@gemerske-teplice.sk",
       "em_s": "ou@gemerske-teplice.sk",
       "tc_s": "058/4482480",
-      "starosta": "Mgr. Laura Durančíková",
+      "name": "Mgr. Laura Durančíková",
       "mob_s": "0905519164",
       "tc_d": "0903467955",
       "adresa": "Jelšavská Teplica 22",
@@ -2691,7 +2691,7 @@
       "tc_s": "058/4882423",
       "tc_d": "0902676131",
       "tc_o": "058/4882423",
-      "starosta": "Vojtech Pataki"
+      "name": "Vojtech Pataki"
     },
     {
       "id": "Hrlica",
@@ -2699,7 +2699,7 @@
       "mob_s": "0903734551",
       "tc_d": null,
       "tc_s": "047/5491251",
-      "starosta": "Lukáš Beláni",
+      "name": "Lukáš Beláni",
       "em_s": "obechrlica@centrum.sk",
       "adresa": "Hrlica č. 20",
       "tc_o": "047/5491251",
@@ -2709,7 +2709,7 @@
       "id": "Hucín",
       "_okresContext": "RA",
       "tc_d": null,
-      "starosta": "Ervin Samko",
+      "name": "Ervin Samko",
       "tc_o": "058/4881167",
       "em_o": "obechucin687@gmail.com",
       "mob_s": "0910853158",
@@ -2725,7 +2725,7 @@
       "tc_s": "058/4482422",
       "mob_s": "0905507595",
       "em_s": "primator@jelsava.sk",
-      "starosta": "MVDr. Milan Kolesár",
+      "name": "MVDr. Milan Kolesár",
       "adresa": "9. mája 685, Jelšava",
       "em_o": "podatelna@jelsava.sk"
     },
@@ -2738,7 +2738,7 @@
       "em_s": "starosta@kamenany.sk",
       "tc_s": "058/4495637",
       "tc_o": "058/4495637",
-      "starosta": "Erik Vranka",
+      "name": "Erik Vranka",
       "mob_s": "0918804902"
     },
     {
@@ -2750,14 +2750,14 @@
       "tc_s": "0917857723",
       "em_o": "obeclevkuska@zoznam.sk",
       "mob_s": "0915824776",
-      "starosta": "Kristína Cselényiová",
+      "name": "Kristína Cselényiová",
       "tc_o": "0917857723"
     },
     {
       "id": "Leváre",
       "_okresContext": "RA",
       "adresa": "Leváre 21",
-      "starosta": "Marta Halászová",
+      "name": "Marta Halászová",
       "em_s": "obec.levare@azet.sk",
       "em_o": "obec.levare@azet.sk",
       "tc_d": null,
@@ -2771,7 +2771,7 @@
       "mob_s": "0917263836",
       "tc_d": null,
       "em_s": "obeclicince@azet.sk",
-      "starosta": "Ing. Ladislav Miklóš",
+      "name": "Ing. Ladislav Miklóš",
       "tc_o": "058/4881960",
       "tc_s": "058/4881960",
       "adresa": "Licince 37",
@@ -2780,7 +2780,7 @@
     {
       "id": "Lubeník",
       "_okresContext": "RA",
-      "starosta": "Milan Pavko",
+      "name": "Milan Pavko",
       "adresa": "Lubeník 241",
       "tc_s": "058/488249",
       "mob_s": "0905247202",
@@ -2795,7 +2795,7 @@
       "tc_o": "058/4882770",
       "tc_s": "058/4882770",
       "em_o": "obec.magnezitovce@gmail.com",
-      "starosta": "Bc. Marcela Hudáková",
+      "name": "Bc. Marcela Hudáková",
       "tc_d": "0918476399",
       "em_s": null,
       "mob_s": "0911962662",
@@ -2811,7 +2811,7 @@
       "em_o": "info@mokraluka.eu",
       "tc_d": null,
       "tc_s": "058/4425345",
-      "starosta": "MVDr. Juraj Gallo"
+      "name": "MVDr. Juraj Gallo"
     },
     {
       "id": "Muránska Dlhá Lúka",
@@ -2820,7 +2820,7 @@
       "em_o": "agenda@muranskadhlaluka.sk",
       "tc_s": "058/4881033",
       "tc_o": "058/4881033",
-      "starosta": "Mgr. Ján Kvetko",
+      "name": "Mgr. Ján Kvetko",
       "em_s": "obecmdl@centrum.sk",
       "mob_s": "0918401567",
       "adresa": "Muránska Dlhá Lúka 155"
@@ -2835,13 +2835,13 @@
       "adresa": "Predná Hora 135",
       "tc_s": "058/4494124",
       "em_o": "starosta@muranskahuta.sk",
-      "starosta": "Ing. Marian Szentandrássi"
+      "name": "Ing. Marian Szentandrássi"
     },
     {
       "id": "Muránska Lehota",
       "_okresContext": "RA",
       "mob_s": "0915885958",
-      "starosta": "Miroslav Marčák",
+      "name": "Miroslav Marčák",
       "tc_d": "0907644087",
       "em_o": "obecmurlehota@gmail.com",
       "em_s": "starosta@muranskalehota.sk",
@@ -2855,7 +2855,7 @@
       "tc_d": null,
       "adresa": "Muránska Zdychava 89",
       "tc_s": "0917656133",
-      "starosta": "Ján Oravec",
+      "name": "Ján Oravec",
       "em_s": "muranska.zdychava@gmail.com",
       "em_o": "muranska.zdychava@post.sk",
       "tc_o": "0917656133",
@@ -2866,7 +2866,7 @@
       "_okresContext": "RA",
       "mob_s": "0905527420",
       "tc_o": "058/4881029",
-      "starosta": "Ing. Roman Goldschmidt",
+      "name": "Ing. Roman Goldschmidt",
       "adresa": "Muráň 336",
       "tc_s": "058/4881029",
       "em_o": "obec@muran.sk",
@@ -2880,7 +2880,7 @@
       "tc_o": "058/4482424",
       "em_o": "obecnandraz@gmail.com",
       "adresa": "Nandraž 9",
-      "starosta": "Mgr. Martina Mišanková",
+      "name": "Mgr. Martina Mišanková",
       "tc_s": "058/4482424",
       "mob_s": "0908948456",
       "em_s": "obecnandraz@gmail.com"
@@ -2894,7 +2894,7 @@
       "mob_s": "0905967281",
       "em_s": "starosta@otrocok.sk",
       "tc_o": "047/5597538",
-      "starosta": "Vojtech Šomošvári",
+      "name": "Vojtech Šomošvári",
       "adresa": "Otročok 15"
     },
     {
@@ -2905,7 +2905,7 @@
       "em_s": "ocuploske@centrum.sk",
       "tc_d": null,
       "mob_s": "0910180351",
-      "starosta": "Eva Bakošová",
+      "name": "Eva Bakošová",
       "tc_o": "047/5491113",
       "tc_s": "047/5491113"
     },
@@ -2917,7 +2917,7 @@
       "mob_s": "0903463858",
       "tc_d": null,
       "tc_s": "047/5596435",
-      "starosta": "Ján Punka",
+      "name": "Ján Punka",
       "em_s": "obecpolina@gmail.com",
       "tc_o": "047/5596435"
     },
@@ -2929,7 +2929,7 @@
       "tc_s": "058/4482509",
       "tc_d": null,
       "em_o": "obecprihradzany@gmail.com",
-      "starosta": "Milan Čipka",
+      "name": "Milan Čipka",
       "adresa": "Prihradzany 20",
       "em_s": "obecprihradzany@gmail.com"
     },
@@ -2939,7 +2939,7 @@
       "em_s": "ratkovskebystre@gmail.com",
       "mob_s": "0915818638",
       "tc_d": null,
-      "starosta": "Mgr. Dušan Bodnár",
+      "name": "Mgr. Dušan Bodnár",
       "tc_s": "047/5491218",
       "adresa": "Ratkovské Bystré 217",
       "em_o": "ratkovskebystre@gmail.com",
@@ -2952,7 +2952,7 @@
       "em_o": "obecratkova@ferdonet.sk",
       "mob_s": "0907853570",
       "tc_o": "047/5491160",
-      "starosta": "Roman Chicho",
+      "name": "Roman Chicho",
       "tc_s": "047/5491160",
       "em_s": "podatelna@obecratkova.sk",
       "tc_d": "047/5491102"
@@ -2965,7 +2965,7 @@
       "em_o": "rasice@post.sk",
       "mob_s": "0908613623",
       "em_s": "rasice@post.sk",
-      "starosta": "Mariana Punková",
+      "name": "Mariana Punková",
       "tc_o": "047/5597548",
       "tc_s": "047/5597548"
     },
@@ -2976,7 +2976,7 @@
       "tc_s": "058/2851511",
       "em_s": "primator@revuca.sk",
       "tc_o": "058/2851540",
-      "starosta": "Ing. Július Buchta, MBA",
+      "name": "Ing. Július Buchta, MBA",
       "em_o": "podatelna@revuca.sk",
       "mob_s": "0905114683",
       "adresa": "Jilemnického 1167/1, Revúca"
@@ -2985,7 +2985,7 @@
       "id": "Revúcka Lehota",
       "_okresContext": "RA",
       "tc_s": "058/4881048",
-      "starosta": "Lucia Benediktyová",
+      "name": "Lucia Benediktyová",
       "em_s": "revucskalehota@ferdonet.sk",
       "adresa": "Revúcka Lehota 139",
       "tc_d": "058/4881048",
@@ -3001,7 +3001,7 @@
       "tc_s": "047/5491177",
       "tc_o": "047/5491177",
       "tc_d": null,
-      "starosta": "Ľubomír Eremiáš",
+      "name": "Ľubomír Eremiáš",
       "em_o": "obecrybník@gmail.com",
       "adresa": "Rybník 23"
     },
@@ -3013,7 +3013,7 @@
       "em_s": "starosta@obec-rakos.sk",
       "adresa": "Rákoš 95",
       "tc_d": "0905350862",
-      "starosta": "Lýdia Nemogová Gallová",
+      "name": "Lýdia Nemogová Gallová",
       "tc_o": "058/4495105",
       "mob_s": "0918945085"
     },
@@ -3023,7 +3023,7 @@
       "adresa": "Sirk 171",
       "tc_d": "0902967050",
       "tc_o": "058/4881373",
-      "starosta": "Daniel Fakla",
+      "name": "Daniel Fakla",
       "em_o": "sekretariat@obecsirk.sk",
       "em_s": "sekretariat@obecsirk.sk",
       "tc_s": "058/4881371",
@@ -3039,7 +3039,7 @@
       "tc_d": "047/4334114",
       "em_s": "obec.skeresovo@gmail.com",
       "tc_s": "047/5596425",
-      "starosta": "Mgr. Alena Kalinová"
+      "name": "Mgr. Alena Kalinová"
     },
     {
       "id": "Sása",
@@ -3051,7 +3051,7 @@
       "em_o": "obec.sasa@pobox.sk",
       "em_s": "obec.sasa@pobox.sk",
       "adresa": "Sása 20",
-      "starosta": "Marta Bystrianska"
+      "name": "Marta Bystrianska"
     },
     {
       "id": "Tornaľa",
@@ -3062,7 +3062,7 @@
       "tc_d": "047/5511134",
       "adresa": "Tornaľa, Hurbanova 621/23",
       "em_o": "podatelna@mestotornala.sk",
-      "starosta": "Ing. Erika Györfiová",
+      "name": "Ing. Erika Györfiová",
       "mob_s": "0917758451"
     },
     {
@@ -3074,7 +3074,7 @@
       "em_s": "starostkaturcok@gmail.com",
       "tc_o": "058/4493277",
       "adresa": "Turčok 104",
-      "starosta": "Mgr. Tatiana Belánová",
+      "name": "Mgr. Tatiana Belánová",
       "tc_d": null
     },
     {
@@ -3086,7 +3086,7 @@
       "tc_o": "047/5596438",
       "tc_s": "047/5596438",
       "adresa": "Višňové 14",
-      "starosta": "Zoltán Borsodi",
+      "name": "Zoltán Borsodi",
       "em_s": "obecvisnove@gmail.com"
     },
     {
@@ -3094,7 +3094,7 @@
       "_okresContext": "RA",
       "tc_o": "058/4482004",
       "tc_d": null,
-      "starosta": "Ľudovít Szendrei",
+      "name": "Ľudovít Szendrei",
       "em_s": "obecsivetice@centrum.sk",
       "em_o": "obecsivetice@centrum.sk",
       "adresa": "Šivetice 53",
@@ -3107,7 +3107,7 @@
       "em_s": "zcsizmadia@post.sk",
       "tc_d": null,
       "tc_o": "0904385230",
-      "starosta": "Zoltán Csizmadia",
+      "name": "Zoltán Csizmadia",
       "mob_s": "0904385230",
       "adresa": "Žiar 47",
       "em_o": "zcsizmadia@post.sk",
@@ -3116,7 +3116,7 @@
     {
       "id": "Abovce",
       "_okresContext": "RS",
-      "starosta": "Csaba Kovács",
+      "name": "Csaba Kovács",
       "tc_d": null,
       "tc_o": "5594181",
       "mob_s": "0903043639",
@@ -3133,7 +3133,7 @@
       "mob_s": "0903550892",
       "tc_d": null,
       "em_o": "babinec2010@gmail.com",
-      "starosta": "Bc. Jaroslav Benda",
+      "name": "Bc. Jaroslav Benda",
       "em_s": "babinec2010@gmail.com",
       "adresa": "Babinec 6"
     },
@@ -3141,7 +3141,7 @@
       "id": "Barca",
       "_okresContext": "RS",
       "tc_o": "5697227",
-      "starosta": "Richard Szajkó",
+      "name": "Richard Szajkó",
       "tc_d": null,
       "mob_s": "0905794098",
       "em_o": "oubarca@post.sk",
@@ -3155,7 +3155,7 @@
       "mob_s": "0911417892",
       "em_o": "obecnyuradbelin@gmail.com",
       "tc_o": "5698411",
-      "starosta": "Ivan Očenáš",
+      "name": "Ivan Očenáš",
       "em_s": "obecnyuradbelin@gmail.com",
       "tc_s": "5698411",
       "adresa": "Belín 61",
@@ -3166,7 +3166,7 @@
       "_okresContext": "RS",
       "mob_s": "0902415857",
       "em_s": "starosta@blhovce.sk",
-      "starosta": "Gabriel Szabó",
+      "name": "Gabriel Szabó",
       "em_o": "obec@blhovce.sk",
       "adresa": "Blhovce 26",
       "tc_o": "5812128",
@@ -3178,7 +3178,7 @@
       "_okresContext": "RS",
       "em_s": "obecbottovo@gmail.com",
       "tc_o": "5812157",
-      "starosta": "Ing. Andrea Baláková",
+      "name": "Ing. Andrea Baláková",
       "tc_s": "5812157",
       "tc_d": "5666337",
       "em_o": "obecbottovo@gmail.com",
@@ -3188,7 +3188,7 @@
     {
       "id": "Budikovany",
       "_okresContext": "RS",
-      "starosta": "Martina Kožiaková",
+      "name": "Martina Kožiaková",
       "em_o": "ocubudikovany@gmail.com",
       "em_s": "ocubudikovany@gmail.com",
       "tc_o": "5696559",
@@ -3202,7 +3202,7 @@
       "_okresContext": "RS",
       "em_o": "ocu.batka@rsnet.sk",
       "tc_s": "5697101",
-      "starosta": "Peter Hencz",
+      "name": "Peter Hencz",
       "tc_d": null,
       "adresa": "Bátka 174",
       "tc_o": "5697101",
@@ -3215,7 +3215,7 @@
       "tc_o": "5592101",
       "tc_s": "5592101",
       "em_s": "barikarol@centrum.sk",
-      "starosta": "Karol Bari",
+      "name": "Karol Bari",
       "adresa": "Cakov 26",
       "tc_d": null,
       "em_o": "info@cakov.sk",
@@ -3231,7 +3231,7 @@
       "tc_s": "5594216",
       "em_o": "ocu.chanava@centrum.sk",
       "tc_o": "5594216",
-      "starosta": "Gabriel Maczko"
+      "name": "Gabriel Maczko"
     },
     {
       "id": "Chrámec",
@@ -3239,7 +3239,7 @@
       "tc_d": "0915292988",
       "em_o": "chramec@gemernet.sk",
       "em_s": "chramec@gemernet.sk",
-      "starosta": "Vojtech Bari",
+      "name": "Vojtech Bari",
       "mob_s": "0903602505",
       "adresa": "Chrámec 29",
       "tc_s": "5593223",
@@ -3251,7 +3251,7 @@
       "tc_d": "0908554099",
       "em_o": "obecdolnezahorany@gmail.com",
       "tc_s": "0908908829",
-      "starosta": "Barnabáš Kováč",
+      "name": "Barnabáš Kováč",
       "tc_o": "0908908829",
       "adresa": "Dolné Zahorany 77",
       "em_s": "obecdolnezahorany@gmail.com",
@@ -3263,7 +3263,7 @@
       "tc_s": "5696323",
       "tc_d": "0911980240",
       "tc_o": "5696323",
-      "starosta": "Krisztián Kovács",
+      "name": "Krisztián Kovács",
       "em_o": "ocu@drazice.sk",
       "em_s": "ocu@drazice.sk",
       "mob_s": "0910901830",
@@ -3279,7 +3279,7 @@
       "em_o": "ocu@driencany.sk",
       "tc_s": null,
       "tc_o": "0911569224",
-      "starosta": "Peter Švoňava"
+      "name": "Peter Švoňava"
     },
     {
       "id": "Drňa",
@@ -3287,7 +3287,7 @@
       "tc_s": "5666156",
       "adresa": "Drňa 4",
       "mob_s": "0918426522",
-      "starosta": "Gejza Bari",
+      "name": "Gejza Bari",
       "tc_d": null,
       "tc_o": "5666156",
       "em_o": "obec.drna@gmail.com",
@@ -3299,7 +3299,7 @@
       "tc_o": "5684238",
       "mob_s": "0902178071",
       "adresa": "Dubno 38",
-      "starosta": "Alexandra Farkašová",
+      "name": "Alexandra Farkašová",
       "tc_s": "5684238",
       "em_o": "obecdubno@gmail.com",
       "em_s": "Farkk27@azet.sk",
@@ -3312,7 +3312,7 @@
       "adresa": "Dubovec 58",
       "tc_s": "5666302",
       "tc_o": "5666302",
-      "starosta": "Ing. Ladislav Lökös",
+      "name": "Ing. Ladislav Lökös",
       "em_s": "ou.dubovec@azet.sk",
       "em_o": "ou.dubovec@azet.sk",
       "tc_d": null
@@ -3321,7 +3321,7 @@
       "id": "Dulovo",
       "_okresContext": "RS",
       "adresa": "Dulovo 204",
-      "starosta": "Mgr. Katarína Balážová",
+      "name": "Mgr. Katarína Balážová",
       "em_s": "katbal@centrum.sk",
       "tc_d": null,
       "tc_o": "5697320",
@@ -3332,7 +3332,7 @@
     {
       "id": "Figa",
       "_okresContext": "RS",
-      "starosta": "Norbert Máté",
+      "name": "Norbert Máté",
       "mob_s": "0911595311",
       "adresa": "Figa 78",
       "tc_o": "5595311",
@@ -3344,7 +3344,7 @@
     {
       "id": "Gemerské Dehtáre",
       "_okresContext": "RS",
-      "starosta": "Ondrej Borbáš",
+      "name": "Ondrej Borbáš",
       "em_s": "starosta@gemerskedehtare.sk",
       "tc_d": null,
       "em_o": "info@gemerskedehtare.sk",
@@ -3357,7 +3357,7 @@
       "id": "Gemerské Michalovce",
       "_okresContext": "RS",
       "mob_s": "0905959796",
-      "starosta": "Levente Hubay",
+      "name": "Levente Hubay",
       "tc_o": "5595333",
       "tc_d": null,
       "tc_s": "5595333",
@@ -3370,7 +3370,7 @@
       "_okresContext": "RS",
       "tc_o": "5812140",
       "em_o": "gemerskyjablonec1@gmail.com",
-      "starosta": "Štefan Farkas",
+      "name": "Štefan Farkas",
       "adresa": "Gem. Jablonec 250",
       "tc_d": null,
       "em_s": "stefanfarkas87@gmail.com",
@@ -3381,7 +3381,7 @@
       "id": "Gemerček",
       "_okresContext": "RS",
       "tc_o": "5683324",
-      "starosta": "Ing. Karol Kisantal",
+      "name": "Ing. Karol Kisantal",
       "mob_s": "0907292648",
       "tc_d": null,
       "tc_s": "5683324",
@@ -3392,7 +3392,7 @@
     {
       "id": "Gortva",
       "_okresContext": "RS",
-      "starosta": "Alžbeta Resutíková",
+      "name": "Alžbeta Resutíková",
       "adresa": "Gortva 12",
       "em_o": "obecnyuradgortva@gmail.com",
       "mob_s": "0948260607",
@@ -3406,7 +3406,7 @@
       "_okresContext": "RS",
       "tc_o": "5812143",
       "tc_s": "5812143",
-      "starosta": "Ivan Poprocký",
+      "name": "Ivan Poprocký",
       "tc_d": "5692381",
       "em_o": "hajnacka@obechajnacka.sk",
       "em_s": "poprocky.ivan@gmail.com",
@@ -3418,7 +3418,7 @@
       "_okresContext": "RS",
       "mob_s": "0911790999",
       "em_s": "primator@hnusta.sk",
-      "starosta": "Mgr. Martin Pliešovský",
+      "name": "Mgr. Martin Pliešovský",
       "tc_s": "2028811",
       "tc_d": "0910980682",
       "tc_o": "2028811",
@@ -3433,7 +3433,7 @@
       "mob_s": "0907344560",
       "tc_o": "5683102",
       "adresa": "Hodejov 3",
-      "starosta": "Katarína Jakabová",
+      "name": "Katarína Jakabová",
       "tc_d": null,
       "em_o": "starosta@obechodejov.sk"
     },
@@ -3443,7 +3443,7 @@
       "em_o": "ocuhodejovec@gmail.com",
       "tc_s": "5698394",
       "em_s": "ocuhodejovec@gmail.com",
-      "starosta": "Zoltán Kovács",
+      "name": "Zoltán Kovács",
       "mob_s": "0917216990",
       "tc_d": null,
       "tc_o": "5698394",
@@ -3459,7 +3459,7 @@
       "em_o": "ocu.hornezahorany@centrum.sk",
       "tc_d": "5690136",
       "tc_o": "5690112",
-      "starosta": "Ing. Zuzana Vysokaíová"
+      "name": "Ing. Zuzana Vysokaíová"
     },
     {
       "id": "Hostice",
@@ -3467,7 +3467,7 @@
       "tc_d": null,
       "tc_o": "5812253",
       "mob_s": "0918611889",
-      "starosta": "Mgr. František Rácz",
+      "name": "Mgr. František Rácz",
       "adresa": "Hostice 128",
       "em_o": "info@hostice.sk",
       "em_s": "starosta@hostice.sk",
@@ -3483,7 +3483,7 @@
       "em_s": "ocu.hostisovce@azet.sk",
       "mob_s": "0910977703",
       "tc_d": null,
-      "starosta": "Dezider Berki"
+      "name": "Dezider Berki"
     },
     {
       "id": "Hrachovo",
@@ -3491,7 +3491,7 @@
       "adresa": "Osloboditeľov 230/26, RS",
       "em_s": "starosta@obechrachovo.sk",
       "em_o": "starosta@obechrachovo.sk",
-      "starosta": "Ondrej Knechta",
+      "name": "Ondrej Knechta",
       "tc_o": "5695126",
       "tc_s": "5695126",
       "mob_s": "0910916270",
@@ -3506,7 +3506,7 @@
       "adresa": "Hrušovo - Ostrany 128",
       "tc_d": null,
       "tc_s": "5690151",
-      "starosta": "Ing. Ján Sklenár",
+      "name": "Ing. Ján Sklenár",
       "em_o": "hrusovo.obec@azet.sk"
     },
     {
@@ -3515,7 +3515,7 @@
       "em_s": "obec.hubovo@centrum.sk",
       "adresa": "Hubovo 14",
       "mob_s": "0905478918",
-      "starosta": "Gabriel Gencsi",
+      "name": "Gabriel Gencsi",
       "tc_o": "0905478918",
       "tc_d": "0908967115",
       "em_o": "obec.hubovo@centrum.sk",
@@ -3531,7 +3531,7 @@
       "tc_o": "5694111",
       "tc_d": null,
       "em_o": "obechusina@gmail.com",
-      "starosta": "Csaba Kovács"
+      "name": "Csaba Kovács"
     },
     {
       "id": "Ivanice",
@@ -3540,7 +3540,7 @@
       "adresa": "Ivanice 78",
       "em_o": "obec.ivanice@ivanice.sk",
       "tc_s": "5592116",
-      "starosta": "Tibor Balyo",
+      "name": "Tibor Balyo",
       "em_s": "obec.ivanice@ivanice.sk",
       "mob_s": "0908180375",
       "tc_o": "5592116"
@@ -3551,7 +3551,7 @@
       "tc_s": "5593124",
       "em_s": "martinovicsmarta@azet.sk",
       "adresa": "Janice 9",
-      "starosta": "Bc. Marta Martinovicsová",
+      "name": "Bc. Marta Martinovicsová",
       "tc_o": "5593124",
       "em_o": "info@janice.sk",
       "tc_d": null,
@@ -3566,7 +3566,7 @@
       "tc_o": "5698422",
       "tc_s": "5698283",
       "tc_d": "0918471689",
-      "starosta": "Mgr. Gabriel Mihályi, PhD.",
+      "name": "Mgr. Gabriel Mihályi, PhD.",
       "mob_s": "0911202111"
     },
     {
@@ -3574,7 +3574,7 @@
       "_okresContext": "RS",
       "tc_s": "5699186",
       "mob_s": "0905859558",
-      "starosta": "PaedDr. Katarína Zagyivová",
+      "name": "PaedDr. Katarína Zagyivová",
       "tc_d": "5699132",
       "tc_o": "5699186",
       "em_s": "obecjestice@gmail.com",
@@ -3585,7 +3585,7 @@
       "id": "Kaloša",
       "_okresContext": "RS",
       "mob_s": "0911398960",
-      "starosta": "Vojtech Váradi",
+      "name": "Vojtech Váradi",
       "tc_o": "5595321",
       "em_s": "kalosa@kalosa.sk",
       "em_o": "kalosa@kalosa.sk",
@@ -3600,7 +3600,7 @@
       "mob_s": "0905637292",
       "tc_d": null,
       "tc_o": "0905637292",
-      "starosta": "Ján Szajkó",
+      "name": "Ján Szajkó",
       "em_o": "obeckesovce@gmail.com",
       "tc_s": "0905637292",
       "adresa": "Kesovce 37"
@@ -3615,13 +3615,13 @@
       "adresa": "Klenovčok, 19/28",
       "mob_s": "0911888028",
       "tc_d": "0903496462",
-      "starosta": "Katarína Pribilincová Mgr."
+      "name": "Katarína Pribilincová Mgr."
     },
     {
       "id": "Kociha",
       "_okresContext": "RS",
       "em_o": "obec.kociha@gmail.com",
-      "starosta": "Tatiana Klimová",
+      "name": "Tatiana Klimová",
       "mob_s": "0911910868",
       "adresa": "Kociha 57",
       "em_s": "obec.kociha@gmail.com",
@@ -3632,7 +3632,7 @@
     {
       "id": "Konrádovce",
       "_okresContext": "RS",
-      "starosta": "Štefan Magyar",
+      "name": "Štefan Magyar",
       "tc_s": "5685242",
       "adresa": "Konrádovce 6",
       "em_o": "info@obeckonradovce.sk",
@@ -3648,7 +3648,7 @@
       "tc_o": "0911508050",
       "em_s": "kraskovo.obec@gmail.com",
       "mob_s": "0911508050",
-      "starosta": "Ján Blaho",
+      "name": "Ján Blaho",
       "tc_d": null,
       "adresa": "Kraskovo 55",
       "em_o": "kraskovo.obec@gmail.com"
@@ -3662,7 +3662,7 @@
       "em_s": "oukrokava@gmail.com",
       "mob_s": "0907021901",
       "tc_o": "5492322",
-      "starosta": "Lukáš Remper",
+      "name": "Lukáš Remper",
       "tc_s": "5492322"
     },
     {
@@ -3674,7 +3674,7 @@
       "adresa": "Kružno 51",
       "mob_s": "0910940740",
       "tc_s": "5694155",
-      "starosta": "Pavel Černák",
+      "name": "Pavel Černák",
       "em_s": "kruzno.kruzno@gmail.com"
     },
     {
@@ -3685,7 +3685,7 @@
       "adresa": "Kráľ 87",
       "tc_o": "5812295",
       "tc_d": null,
-      "starosta": "František Béres",
+      "name": "František Béres",
       "mob_s": "0905556288",
       "em_s": "info@obec-kral.sk"
     },
@@ -3698,7 +3698,7 @@
       "tc_d": null,
       "adresa": "Kyjatice 15",
       "em_o": "obeckyjatice@gmail.com",
-      "starosta": "Slavomír Kujan",
+      "name": "Slavomír Kujan",
       "mob_s": "0905985236"
     },
     {
@@ -3707,7 +3707,7 @@
       "tc_s": "5495438",
       "em_s": "oulehotanr@gmail.com",
       "tc_d": "5495131",
-      "starosta": "Ivan Antal",
+      "name": "Ivan Antal",
       "mob_s": "0907958230",
       "tc_o": "5495438",
       "adresa": "Lehota nad Rimavicou 29",
@@ -3718,7 +3718,7 @@
       "_okresContext": "RS",
       "adresa": "Hlavná 8, Lenartovce",
       "tc_s": "0908932380",
-      "starosta": "Ján Rákoši",
+      "name": "Ján Rákoši",
       "tc_d": null,
       "mob_s": "0908932380",
       "em_o": "starosta@lenartovce.sk",
@@ -3732,7 +3732,7 @@
       "em_s": "starosta@obeclenka.sk",
       "em_o": "obeclenka@gmail.com",
       "tc_o": "3700339",
-      "starosta": "Mgr. Marián Habovčík",
+      "name": "Mgr. Marián Habovčík",
       "tc_s": "0907210236",
       "mob_s": "0907210236",
       "tc_d": null
@@ -3744,7 +3744,7 @@
       "tc_s": "0915818861",
       "em_s": "starosta@obeclipovec.sk",
       "adresa": "Lipovec 22",
-      "starosta": "Ing. Janka Mičudová",
+      "name": "Ing. Janka Mičudová",
       "tc_d": "0905958772",
       "tc_o": "0915818861",
       "mob_s": "0915818861"
@@ -3754,7 +3754,7 @@
       "_okresContext": "RS",
       "tc_s": "5690101",
       "adresa": "Lukovíštia 226",
-      "starosta": "Mgr. Roman Hubert",
+      "name": "Mgr. Roman Hubert",
       "em_o": "lukovistia@lukovistia.sk",
       "tc_d": null,
       "mob_s": "0902737904",
@@ -3765,7 +3765,7 @@
       "id": "Martinová",
       "_okresContext": "RS",
       "adresa": "Martinová 11",
-      "starosta": "Eugen Radič",
+      "name": "Eugen Radič",
       "tc_s": "0918651075",
       "em_s": "ocu.martinova@gmail.com",
       "em_o": "ocu.martinova@gmail.com",
@@ -3782,7 +3782,7 @@
       "em_s": "obec.neporadza2015@gmail.com",
       "tc_o": "5594146",
       "tc_d": "5594524",
-      "starosta": "Jozef Madarász",
+      "name": "Jozef Madarász",
       "mob_s": "0911916771"
     },
     {
@@ -3790,7 +3790,7 @@
       "_okresContext": "RS",
       "mob_s": "0903555704",
       "em_s": "obecniznyskalnik@gmail.com",
-      "starosta": "Mgr. Miroslav Bystriansky",
+      "name": "Mgr. Miroslav Bystriansky",
       "tc_o": "5695599",
       "tc_d": null,
       "adresa": "Nižný Skálnik 82",
@@ -3804,7 +3804,7 @@
       "em_o": "nova.basta@gmail.com",
       "tc_s": "5691111",
       "mob_s": "0915497723",
-      "starosta": "Richard Molnár",
+      "name": "Richard Molnár",
       "tc_d": null,
       "adresa": "Nová Bašta 281",
       "tc_o": "5691111"
@@ -3812,7 +3812,7 @@
     {
       "id": "Orávka",
       "_okresContext": "RS",
-      "starosta": "Ing. Ján Lichanec",
+      "name": "Ing. Ján Lichanec",
       "tc_o": "5593119",
       "tc_s": "5593119",
       "em_s": "starosta@oravka.sk",
@@ -3829,7 +3829,7 @@
       "em_s": "starosta@obecozdany.sk",
       "adresa": "Ožďany 563",
       "mob_s": "0902908447",
-      "starosta": "Ján Matej",
+      "name": "Ján Matej",
       "tc_d": null,
       "tc_s": "5694146"
     },
@@ -3841,7 +3841,7 @@
       "tc_o": "5696575",
       "mob_s": "0903640673",
       "tc_d": "0903640673",
-      "starosta": "Ing. Peter Polóni",
+      "name": "Ing. Peter Polóni",
       "em_s": "ocu.padarovce@rsnet.sk",
       "em_o": "ocu.padarovce@rsnet.sk"
     },
@@ -3855,7 +3855,7 @@
       "adresa": "Pavlovce 99",
       "tc_s": "5698402",
       "tc_d": null,
-      "starosta": "Mgr. Vojtech Menyhárt"
+      "name": "Mgr. Vojtech Menyhárt"
     },
     {
       "id": "Petrovce",
@@ -3864,7 +3864,7 @@
       "tc_o": "5684135",
       "tc_s": "5684135",
       "tc_d": null,
-      "starosta": "Gyula Köböl",
+      "name": "Gyula Köböl",
       "mob_s": "0918521190",
       "em_o": "petrovcers@petrovce.sk",
       "em_s": "petrovcers@petrovce.sk"
@@ -3877,7 +3877,7 @@
       "tc_d": null,
       "tc_s": "5492347",
       "adresa": "Poproč 27",
-      "starosta": "Ľubor Kvaka",
+      "name": "Ľubor Kvaka",
       "mob_s": "0903630815",
       "em_s": "poprocobec@zoznam.sk"
     },
@@ -3889,7 +3889,7 @@
       "tc_o": "5492354",
       "tc_d": null,
       "mob_s": "0915342858",
-      "starosta": "Roman Kulifaj",
+      "name": "Roman Kulifaj",
       "em_s": "obecpotok.ou@gmail.com",
       "em_o": "obecpotok.ou@gmail.com"
     },
@@ -3901,7 +3901,7 @@
       "tc_s": "5592198",
       "tc_d": null,
       "em_o": "obec.radnovce@centrum.sk",
-      "starosta": "Zuzana Angyalová",
+      "name": "Zuzana Angyalová",
       "mob_s": "0950372529",
       "em_s": "obec.radnovce@centrum.sk"
     },
@@ -3911,7 +3911,7 @@
       "mob_s": "0908954217",
       "tc_d": null,
       "tc_s": "5697116",
-      "starosta": "Ján Rencsok",
+      "name": "Ján Rencsok",
       "adresa": "Rakytník 53",
       "tc_o": "5697116",
       "em_o": "ourakytnik@rsnet.sk",
@@ -3924,7 +3924,7 @@
       "tc_o": "5491467",
       "adresa": "Ratkovská Lehota 55",
       "mob_s": "0907077130",
-      "starosta": "Milan Koska",
+      "name": "Milan Koska",
       "em_o": "ratkovskalehota@gmail.com",
       "tc_d": "5491250",
       "tc_s": "5491467"
@@ -3937,7 +3937,7 @@
       "adresa": "Ratkovská Suchá 58",
       "tc_o": "0918598450",
       "tc_s": "0918598450",
-      "starosta": "Stanislav Palic",
+      "name": "Stanislav Palic",
       "tc_d": null,
       "mob_s": "0918598450"
     },
@@ -3947,7 +3947,7 @@
       "adresa": "Riečka 70",
       "tc_d": "0908903982",
       "em_o": "oskar.toth@riecka-rs.dcom.sk",
-      "starosta": "Oskár Tóth",
+      "name": "Oskár Tóth",
       "em_s": "oskar.toth@riecka-rs.dcom.sk",
       "tc_s": "0918744482",
       "tc_o": "5594126",
@@ -3956,7 +3956,7 @@
     {
       "id": "Rimavská Baňa",
       "_okresContext": "RS",
-      "starosta": "Mgr. Elena Polóniová",
+      "name": "Mgr. Elena Polóniová",
       "tc_d": null,
       "tc_s": "0904148114",
       "adresa": "Repno 180/4, Rim. Baňa",
@@ -3975,12 +3975,12 @@
       "tc_o": "5593226",
       "tc_s": "3700350",
       "tc_d": null,
-      "starosta": "PhDr. Marta Stubendek"
+      "name": "PhDr. Marta Stubendek"
     },
     {
       "id": "Rimavská Sobota",
       "_okresContext": "RS",
-      "starosta": "JUDr. Jozef Šimko",
+      "name": "JUDr. Jozef Šimko",
       "adresa": "Kurinec 2200, RS",
       "tc_o": "5604601",
       "mob_s": "0905278453",
@@ -3994,7 +3994,7 @@
       "_okresContext": "RS",
       "mob_s": "0911859441",
       "em_s": "sivara.marian@gmail.com",
-      "starosta": "Marian Šivara",
+      "name": "Marian Šivara",
       "tc_s": "5495238",
       "em_o": "r.brezovo@pmxmail.sk",
       "tc_o": "5495238",
@@ -4011,14 +4011,14 @@
       "mob_s": "0915859933",
       "tc_s": "5677116",
       "em_s": "obec@rimavskejanovce.sk",
-      "starosta": "Roman Uhrin"
+      "name": "Roman Uhrin"
     },
     {
       "id": "Rimavské Zalužany",
       "_okresContext": "RS",
       "em_s": "obec@rimavskezaluzany.eu",
       "mob_s": "0908932630",
-      "starosta": "Milan Medved",
+      "name": "Milan Medved",
       "adresa": "Rimavské Zalužany 155",
       "tc_s": "5495223",
       "tc_o": "5495223",
@@ -4033,7 +4033,7 @@
       "tc_s": "5492311",
       "em_o": "rovneobec@zoznam.sk",
       "tc_d": null,
-      "starosta": "Jaroslava Ďurove",
+      "name": "Jaroslava Ďurove",
       "adresa": "Rovné 55",
       "em_s": "rovneobec@zoznam.sk"
     },
@@ -4042,7 +4042,7 @@
       "_okresContext": "RS",
       "em_s": "obecrumince@centrum.sk",
       "tc_d": null,
-      "starosta": "Jozef Hibler",
+      "name": "Jozef Hibler",
       "em_o": "obecrumince@centrum.sk",
       "tc_s": "5594250",
       "mob_s": "0911917970",
@@ -4056,7 +4056,7 @@
       "em_s": "kcromus@pobox.sk",
       "tc_d": null,
       "mob_s": "0911696227",
-      "starosta": "Marcela Sekrénešová",
+      "name": "Marcela Sekrénešová",
       "adresa": "Slizké 31",
       "tc_s": "5696227",
       "tc_o": "5696227"
@@ -4071,7 +4071,7 @@
       "em_o": "obec.starabasta@gmail.com",
       "adresa": "Stará Bašta 174",
       "mob_s": "0917645174",
-      "starosta": "Bc. Ildikó Lászlóová"
+      "name": "Bc. Ildikó Lászlóová"
     },
     {
       "id": "Stránska",
@@ -4079,7 +4079,7 @@
       "tc_d": null,
       "tc_s": "5523529",
       "em_o": "obecstranska@centrum.sk",
-      "starosta": "Martin Šmiro",
+      "name": "Martin Šmiro",
       "tc_o": "5523529",
       "mob_s": "0948142305",
       "em_s": "obecstranska@centrum.sk",
@@ -4093,7 +4093,7 @@
       "tc_o": "5691333",
       "mob_s": "0918666094",
       "tc_d": null,
-      "starosta": "Eva Magová",
+      "name": "Eva Magová",
       "tc_s": "5691333",
       "em_s": "magovaeva@gmail.com"
     },
@@ -4102,7 +4102,7 @@
       "_okresContext": "RS",
       "mob_s": "0940163582",
       "em_s": "info@obecsutor.sk",
-      "starosta": "Barnabáš Váradi",
+      "name": "Barnabáš Váradi",
       "em_o": "info@obecsutor.sk",
       "tc_d": null,
       "tc_s": "2224117",
@@ -4114,7 +4114,7 @@
       "_okresContext": "RS",
       "tc_o": "5689120",
       "mob_s": "0905924655",
-      "starosta": "Róbert Básti",
+      "name": "Róbert Básti",
       "adresa": "Tachty 222",
       "em_o": "obectachty@post.sk",
       "tc_d": null,
@@ -4128,7 +4128,7 @@
       "mob_s": "0903406918",
       "tc_s": "5696255",
       "tc_o": "5696255",
-      "starosta": "Janka Janšová",
+      "name": "Janka Janšová",
       "tc_d": null,
       "adresa": "Teplý Vrch 24",
       "em_s": "ocu@teplyvrch.com"
@@ -4142,7 +4142,7 @@
       "em_s": "jan.vengrin@tisovec.com",
       "em_o": "info@tisovec.com",
       "tc_s": "5603802",
-      "starosta": "Ján Vengrin, MBA",
+      "name": "Ján Vengrin, MBA",
       "adresa": "Francisciho 827/40, Tisovec"
     },
     {
@@ -4154,7 +4154,7 @@
       "adresa": "Tomášovce 78",
       "tc_s": "5697105",
       "tc_o": "5697105",
-      "starosta": "František Lakatos",
+      "name": "František Lakatos",
       "em_s": "ou.tomasovce@gmail.com"
     },
     {
@@ -4165,7 +4165,7 @@
       "em_o": "starosta.uzpanica@gmail.com",
       "mob_s": "0915306946",
       "tc_d": null,
-      "starosta": "Zsolt Bozó",
+      "name": "Zsolt Bozó",
       "tc_s": "5696141",
       "em_s": "starosta.uzpanica@gmail.com"
     },
@@ -4174,7 +4174,7 @@
       "_okresContext": "RS",
       "tc_d": null,
       "mob_s": "0903569718",
-      "starosta": "Ján Ďuriška",
+      "name": "Ján Ďuriška",
       "tc_s": "5595327",
       "adresa": "Valice 23",
       "em_s": "obec.valice2017@gmail.com",
@@ -4185,7 +4185,7 @@
       "id": "Večelkov",
       "_okresContext": "RS",
       "mob_s": "0905842443",
-      "starosta": "Tibor Kovács",
+      "name": "Tibor Kovács",
       "tc_d": "5691220",
       "tc_s": "5691219",
       "tc_o": "5691219",
@@ -4203,7 +4203,7 @@
       "tc_s": "5695172",
       "tc_d": null,
       "em_o": "administrativa@velketeriakovce.sk",
-      "starosta": "Kamil Kučera"
+      "name": "Kamil Kučera"
     },
     {
       "id": "Veľký Blh",
@@ -4213,7 +4213,7 @@
       "tc_s": "5812070",
       "mob_s": "0911555628",
       "tc_o": "5812070",
-      "starosta": "Norbert Kluka",
+      "name": "Norbert Kluka",
       "adresa": "SNP 413/12, Veľký Blh",
       "em_s": "starosta@velkyblh.sk"
     },
@@ -4221,7 +4221,7 @@
       "id": "Vieska nad Blhom",
       "_okresContext": "RS",
       "adresa": "Vieska nad Blhom 12",
-      "starosta": "Július Bodon",
+      "name": "Július Bodon",
       "mob_s": "0918244799",
       "em_s": "Bbodon62@centrum.sk",
       "tc_o": "5697115",
@@ -4239,7 +4239,7 @@
       "em_s": "ujjgejza@gmail.com",
       "adresa": "Vlkyňa 16",
       "em_o": "obecvlkyna@centrum.sk",
-      "starosta": "Gejza Ujj"
+      "name": "Gejza Ujj"
     },
     {
       "id": "Vyšné Valice",
@@ -4247,7 +4247,7 @@
       "mob_s": "0911213645",
       "adresa": "Vyšné Valice 140",
       "tc_s": "5595340",
-      "starosta": "Ján Záhorský",
+      "name": "Ján Záhorský",
       "em_o": "obecvysnevalice@azet.sk",
       "em_s": "obecvysnevalice@azet.sk",
       "tc_o": "5595340",
@@ -4263,7 +4263,7 @@
       "em_s": "obecvysnyskalnik@gmail.com",
       "tc_s": null,
       "tc_o": null,
-      "starosta": "Ing. Ján Durmis"
+      "name": "Ing. Ján Durmis"
     },
     {
       "id": "Včelince",
@@ -4275,7 +4275,7 @@
       "mob_s": "0907566271",
       "tc_s": "5522519",
       "em_o": "obec.vcelince@zoznam.sk",
-      "starosta": "Ing. Ľubomír Kosztúr"
+      "name": "Ing. Ľubomír Kosztúr"
     },
     {
       "id": "Zacharovce",
@@ -4286,14 +4286,14 @@
       "tc_d": null,
       "mob_s": "0905296531",
       "em_o": "obec2.zacharovce@gmail.com",
-      "starosta": "Ružena Gembická",
+      "name": "Ružena Gembická",
       "adresa": "Zacharovce 115"
     },
     {
       "id": "Zádor",
       "_okresContext": "RS",
       "mob_s": "0905652459",
-      "starosta": "Estera Bettesová",
+      "name": "Estera Bettesová",
       "em_s": "info@zador.sk",
       "tc_o": "5592121",
       "tc_s": "5592121",
@@ -4304,7 +4304,7 @@
     {
       "id": "Čerenčany",
       "_okresContext": "RS",
-      "starosta": "PhDr. Zuzana Študencová",
+      "name": "PhDr. Zuzana Študencová",
       "tc_d": null,
       "tc_o": "5811807",
       "em_o": "obec@cerencany.sk",
@@ -4316,7 +4316,7 @@
     {
       "id": "Čierny Potok",
       "_okresContext": "RS",
-      "starosta": "Svetlana Šufliarska",
+      "name": "Svetlana Šufliarska",
       "tc_d": "0908784078",
       "mob_s": "0917516283",
       "em_s": "starosta@ciernypotok.sk",
@@ -4333,7 +4333,7 @@
       "adresa": "Číž 106",
       "mob_s": "0907813295",
       "em_s": "julius.tkac@obecciz.sk",
-      "starosta": "Július Tkáč",
+      "name": "Július Tkáč",
       "tc_s": null,
       "tc_o": "5593131"
     },
@@ -4341,7 +4341,7 @@
       "id": "Šimonovce",
       "_okresContext": "RS",
       "em_o": "info@obecsimonovce.sk",
-      "starosta": "MVDr. Ladislav Lang",
+      "name": "MVDr. Ladislav Lang",
       "mob_s": "0917161309",
       "tc_s": "5666137",
       "tc_o": "5666137",
@@ -4355,7 +4355,7 @@
       "adresa": "Širkovce 299",
       "tc_o": "5698331",
       "tc_d": null,
-      "starosta": "Zoltán Szaniszló",
+      "name": "Zoltán Szaniszló",
       "mob_s": "0905359111",
       "em_s": "starosta@sirkovce.sk",
       "tc_s": "5698774",
@@ -4368,7 +4368,7 @@
       "mob_s": "0903671370",
       "adresa": "Španie Pole 40",
       "em_s": "obec.spaniepole@gmail.com",
-      "starosta": "Vladimír Bien",
+      "name": "Vladimír Bien",
       "em_o": "obec.spaniepole@gmail.com",
       "tc_s": "5596385",
       "tc_d": null
@@ -4378,7 +4378,7 @@
       "_okresContext": "RS",
       "tc_o": "5812197",
       "em_o": "obecstrkovec@gmail.com",
-      "starosta": "Mgr. Norbert Keszi",
+      "name": "Mgr. Norbert Keszi",
       "mob_s": "0905815300",
       "tc_s": "5812197",
       "em_s": "starosta@strkovec-obec.sk",
@@ -4394,7 +4394,7 @@
       "em_s": "obeczip@rsnet.sk",
       "tc_o": "5697194",
       "tc_d": null,
-      "starosta": "Béla Simon",
+      "name": "Béla Simon",
       "em_o": "obeczip@rsnet.sk"
     },
     {
@@ -4404,7 +4404,7 @@
       "em_o": "obec@balognadiplom.sk",
       "em_s": "obec@balognadiplom.sk",
       "tc_d": null,
-      "starosta": "Ing. Peter Bálint",
+      "name": "Ing. Peter Bálint",
       "tc_o": "4885117",
       "mob_s": "0918469128",
       "adresa": "Okružná 142, Balog nad Ipľom"
@@ -4419,14 +4419,14 @@
       "em_s": "obecbrusnik@gmail.com",
       "em_o": "obecbrusnik@gmail.com",
       "tc_d": "4898177",
-      "starosta": "Jaroslav Kalmár"
+      "name": "Jaroslav Kalmár"
     },
     {
       "id": "Bušince",
       "_okresContext": "VK",
       "tc_o": "4514105",
       "mob_s": "0905864641",
-      "starosta": "Ing. Zoltán Végh",
+      "name": "Ing. Zoltán Végh",
       "tc_d": "4892204",
       "em_o": "oubusince@gonet.sk",
       "tc_s": "4514107",
@@ -4439,7 +4439,7 @@
       "em_o": "batorova@slovanet.sk",
       "tc_s": "4514093",
       "em_s": "starosta@batorova.sk",
-      "starosta": "Ján Máth",
+      "name": "Ján Máth",
       "adresa": "Bátorová 7",
       "mob_s": "0918901407",
       "tc_d": null,
@@ -4450,7 +4450,7 @@
       "_okresContext": "VK",
       "tc_s": "4894105",
       "mob_s": "0905258480",
-      "starosta": "Ing. Jozef Varga",
+      "name": "Ing. Jozef Varga",
       "tc_o": "4894105",
       "tc_d": null,
       "adresa": "Chrastince 13",
@@ -4465,7 +4465,7 @@
       "tc_d": null,
       "mob_s": "0907884690",
       "adresa": "Chrťany 20",
-      "starosta": "Ján Belov",
+      "name": "Ján Belov",
       "em_s": "obecchrtany@post.sk",
       "tc_s": "4897220"
     },
@@ -4476,7 +4476,7 @@
       "tc_d": null,
       "tc_o": "4874121",
       "em_o": "ocudacovlom@zoznam.sk",
-      "starosta": "Štefan Škraban",
+      "name": "Štefan Škraban",
       "em_s": "starosta@obecdacovlom.sk",
       "adresa": "Dačov Lom 211",
       "tc_s": "4874121"
@@ -4489,7 +4489,7 @@
       "tc_d": null,
       "em_o": "dolinka@dolinka.org",
       "em_s": "dolinka@dolinka.org",
-      "starosta": "Ing. Zsolt Régi",
+      "name": "Ing. Zsolt Régi",
       "tc_o": "4889121",
       "tc_s": "4889121"
     },
@@ -4498,7 +4498,7 @@
       "_okresContext": "VK",
       "tc_d": null,
       "tc_s": "4897210",
-      "starosta": "Ing. Ľuboslav Dobrocký",
+      "name": "Ing. Ľuboslav Dobrocký",
       "em_o": "obec@dolnastrehova.sk",
       "mob_s": "0907358906",
       "em_s": "starosta@dolnastrehova.sk",
@@ -4512,7 +4512,7 @@
       "tc_o": "4830003",
       "tc_s": "4830093",
       "em_o": "obec@dolneplachtince.sk",
-      "starosta": "Bc. Cyril Bartók",
+      "name": "Bc. Cyril Bartók",
       "tc_d": null,
       "em_s": "starosta@dolneplachtince.sk",
       "adresa": "Dolné Plachtince 191"
@@ -4527,7 +4527,7 @@
       "em_o": "dolnestrhare@procomp.sk",
       "mob_s": "0903216119",
       "tc_o": "4896325",
-      "starosta": "Mgr. Gabriela Hudecová"
+      "name": "Mgr. Gabriela Hudecová"
     },
     {
       "id": "Glabušovce",
@@ -4535,7 +4535,7 @@
       "tc_s": "4871180",
       "tc_o": "4871180",
       "tc_d": "4871114",
-      "starosta": "Štefan Chudý",
+      "name": "Štefan Chudý",
       "em_o": "glabusovce@gmail.com",
       "adresa": "Glabušovce 6",
       "em_s": "chudysteve@gmail.com",
@@ -4551,14 +4551,14 @@
       "tc_o": "4897197",
       "mob_s": "0907859463",
       "tc_d": null,
-      "starosta": "Marek Gondáš"
+      "name": "Marek Gondáš"
     },
     {
       "id": "Horné Plachtince",
       "_okresContext": "VK",
       "mob_s": "0907542314",
       "em_o": "obec.hplachtince@post.sk",
-      "starosta": "Ladislav Nozdrovický",
+      "name": "Ladislav Nozdrovický",
       "adresa": "Horné Plachtince 84",
       "tc_o": "4887266",
       "tc_d": null,
@@ -4571,7 +4571,7 @@
       "mob_s": "0905822465",
       "tc_d": "4896215",
       "tc_s": "4896359",
-      "starosta": "Richard Kurec",
+      "name": "Richard Kurec",
       "adresa": "Horné Strháre 53",
       "em_s": "starosta@hornestrhare.sk",
       "tc_o": "4896359",
@@ -4586,13 +4586,13 @@
       "adresa": "Hrušov 30",
       "mob_s": "0918093690",
       "em_o": "info@hrusov.sk",
-      "starosta": "Ing. Mária Augustínová",
+      "name": "Ing. Mária Augustínová",
       "em_s": "starosta@hrusov.sk"
     },
     {
       "id": "Ipeľské Predmostie",
       "_okresContext": "VK",
-      "starosta": "Viktor Lestyánszky",
+      "name": "Viktor Lestyánszky",
       "tc_o": "4888131",
       "tc_d": "4888394",
       "em_s": "ipelpred@gmail.com",
@@ -4608,7 +4608,7 @@
       "em_s": "obeckamennekosihy@gmail.com",
       "adresa": "Kamenné Kosihy 133",
       "tc_d": null,
-      "starosta": "Ing. Ladislav Pixiadex",
+      "name": "Ing. Ladislav Pixiadex",
       "mob_s": "0907651571",
       "tc_o": "4884113",
       "em_o": "obeckamennekosihy@gmail.com"
@@ -4622,7 +4622,7 @@
       "em_o": "kiarov@slovanet.sk",
       "tc_d": "4881242",
       "adresa": "Kiarov 156",
-      "starosta": "Pavol Suchánsky",
+      "name": "Pavol Suchánsky",
       "tc_o": "4881180"
     },
     {
@@ -4634,7 +4634,7 @@
       "tc_o": "4891309",
       "mob_s": "0905945027",
       "em_o": "klenany@pobox.sk",
-      "starosta": "Helena Csákyová",
+      "name": "Helena Csákyová",
       "em_s": "klenany@pobox.sk"
     },
     {
@@ -4646,7 +4646,7 @@
       "tc_d": "0908542050",
       "adresa": "Koláre 70",
       "tc_o": "4894266",
-      "starosta": "Renáta Kerestešová",
+      "name": "Renáta Kerestešová",
       "tc_s": "4894266"
     },
     {
@@ -4654,7 +4654,7 @@
       "_okresContext": "VK",
       "mob_s": "0950681747",
       "tc_o": "0915587822",
-      "starosta": "Eva Gyurászová",
+      "name": "Eva Gyurászová",
       "tc_d": "0905507232",
       "em_s": "kosihovce@gmail.com",
       "adresa": "Kosihovce 80",
@@ -4670,7 +4670,7 @@
       "adresa": "Kosihy nad Ipľom 211",
       "tc_d": null,
       "em_s": "norilsro@gmail.com",
-      "starosta": "Norbert Böjtös",
+      "name": "Norbert Böjtös",
       "mob_s": "0908683968"
     },
     {
@@ -4680,7 +4680,7 @@
       "tc_s": "4871294",
       "tc_d": "0905836745",
       "mob_s": "0905836745",
-      "starosta": "Bc. Ingrid Sipos - Molnár",
+      "name": "Bc. Ingrid Sipos - Molnár",
       "em_o": "kovacovce@gonet.sk",
       "em_s": "kovacovce@gonet.sk",
       "tc_o": "4871294"
@@ -4695,14 +4695,14 @@
       "tc_s": "4894100",
       "tc_d": null,
       "adresa": "Lesenice 40",
-      "starosta": "Ing. Ladislav Majdán"
+      "name": "Ing. Ladislav Majdán"
     },
     {
       "id": "Malá Čalomija",
       "_okresContext": "VK",
       "tc_o": "4894102",
       "tc_d": "0910134658",
-      "starosta": "Ján Šimko",
+      "name": "Ján Šimko",
       "adresa": "Malá Čalomija 119",
       "mob_s": "0910134658",
       "tc_s": "4894102",
@@ -4712,7 +4712,7 @@
     {
       "id": "Malé Straciny",
       "_okresContext": "VK",
-      "starosta": "Lukáš Varga",
+      "name": "Lukáš Varga",
       "tc_o": "4896431",
       "em_s": "obecmalestraciny@gmail.com",
       "tc_d": "0918229430",
@@ -4728,7 +4728,7 @@
       "tc_d": null,
       "tc_o": "0917665737",
       "mob_s": "0917665737",
-      "starosta": "Ing. Igor Gazdík",
+      "name": "Ing. Igor Gazdík",
       "tc_s": "0917665737",
       "em_s": "obecmalezlievce@gmail.com",
       "em_o": "obecmalezlievce@gmail.com"
@@ -4739,7 +4739,7 @@
       "tc_d": null,
       "adresa": "Andrea Kmeťa 30/149, Malý Krtíš",
       "em_s": "starosta@malykrtis.sk",
-      "starosta": "Ing. Václav Hájevský",
+      "name": "Ing. Václav Hájevský",
       "tc_s": "4830432",
       "tc_o": "4830432",
       "mob_s": "0903523607",
@@ -4748,7 +4748,7 @@
     {
       "id": "Modrý Kameň",
       "_okresContext": "VK",
-      "starosta": "Ing. Mária Bednárová",
+      "name": "Ing. Mária Bednárová",
       "tc_o": "4870288",
       "adresa": "Agátová 561/14, Modrý Kameň",
       "em_s": "primatorka@modrykamen.sk",
@@ -4765,7 +4765,7 @@
       "tc_s": "4892345",
       "tc_o": "4892345",
       "em_o": "obec.mula@gmail.com",
-      "starosta": "Bc. Ladislav Jekkel",
+      "name": "Bc. Ladislav Jekkel",
       "em_s": "obec.mula@gmail.com",
       "adresa": "Muľa 99"
     },
@@ -4777,7 +4777,7 @@
       "tc_s": "4514029",
       "tc_o": "4514030",
       "em_s": "hives.ladislav66@gmail.com",
-      "starosta": "Ladislav Híves",
+      "name": "Ladislav Híves",
       "em_o": "ocunenince@centrum.sk",
       "mob_s": "0908825412"
     },
@@ -4790,7 +4790,7 @@
       "tc_o": "4886287",
       "tc_s": "4886287",
       "em_s": "starosta@novaves.sk",
-      "starosta": "Marian Varholák",
+      "name": "Marian Varholák",
       "em_o": "podatelna@obecnovaves.sk"
     },
     {
@@ -4798,7 +4798,7 @@
       "_okresContext": "VK",
       "tc_d": "4890167",
       "mob_s": "0907308723",
-      "starosta": "Miloš Koči",
+      "name": "Miloš Koči",
       "tc_s": "4371147",
       "adresa": "Obeckov 188",
       "em_s": "miloskoci14@gmail.com",
@@ -4813,7 +4813,7 @@
       "adresa": "Olováry 73",
       "mob_s": "0917985308",
       "em_o": "obecolovary@gmail.com",
-      "starosta": "Mgr. Attila Kanyo",
+      "name": "Mgr. Attila Kanyo",
       "em_s": "obec@olovary.sk",
       "tc_d": null
     },
@@ -4821,7 +4821,7 @@
       "id": "Opatovská Nová Ves",
       "_okresContext": "VK",
       "tc_d": "0907133443",
-      "starosta": "Mgr. Nikoleta Sabóová",
+      "name": "Mgr. Nikoleta Sabóová",
       "mob_s": "0905847391",
       "tc_s": "4894201",
       "adresa": "Opatovská Nová Ves 142",
@@ -4832,7 +4832,7 @@
     {
       "id": "Opava",
       "_okresContext": "VK",
-      "starosta": "Ján Krnáč",
+      "name": "Ján Krnáč",
       "adresa": "Opava 26",
       "em_o": "opavaobec@gmail.com",
       "em_s": "opavaobec@gmail.com",
@@ -4845,7 +4845,7 @@
       "id": "Pravica",
       "_okresContext": "VK",
       "adresa": "Pravica (Imrov kopec) 51",
-      "starosta": "Ján Debnár",
+      "name": "Ján Debnár",
       "tc_o": "4370664",
       "em_o": "pravica@azet.sk",
       "mob_s": "0918857835",
@@ -4861,7 +4861,7 @@
       "tc_d": "0905964028",
       "mob_s": "0918767225",
       "em_s": "pribelce@gmail.com",
-      "starosta": "Ing. Tibor Čierny",
+      "name": "Ing. Tibor Čierny",
       "tc_o": "4895118",
       "tc_s": "4895118"
     },
@@ -4869,7 +4869,7 @@
       "id": "Pôtor",
       "_okresContext": "VK",
       "tc_d": "4896260",
-      "starosta": "Miroslav Činčura",
+      "name": "Miroslav Činčura",
       "tc_o": "4896326",
       "mob_s": "0903649170",
       "em_o": "obecpotor@centrum.sk",
@@ -4887,13 +4887,13 @@
       "adresa": "Senné 2",
       "mob_s": "0905357561",
       "tc_s": "4898122",
-      "starosta": "Ján Gabera"
+      "name": "Ján Gabera"
     },
     {
       "id": "Sečianky",
       "_okresContext": "VK",
       "tc_o": "4888118",
-      "starosta": "Mgr. Zdenek Barienčík",
+      "name": "Mgr. Zdenek Barienčík",
       "tc_s": "4888118",
       "adresa": "Sečianky 61",
       "em_o": "secianky@gmail.com",
@@ -4905,7 +4905,7 @@
       "id": "Seľany",
       "_okresContext": "VK",
       "tc_o": "4895101",
-      "starosta": "Ing. Daniel Gemer",
+      "name": "Ing. Daniel Gemer",
       "adresa": "Seľany 68",
       "tc_d": "0915424969",
       "em_o": "obecselany@slovanet.sk",
@@ -4917,7 +4917,7 @@
       "id": "Sklabiná",
       "_okresContext": "VK",
       "em_o": "ousklabina@pobox.sk",
-      "starosta": "Bc. Marta Kálovcová",
+      "name": "Bc. Marta Kálovcová",
       "tc_d": null,
       "tc_o": "4514140",
       "em_s": "ousklabina@pobox.sk",
@@ -4928,7 +4928,7 @@
     {
       "id": "Slovenské Kľačany",
       "_okresContext": "VK",
-      "starosta": "Mgr. Anna Mužíková",
+      "name": "Mgr. Anna Mužíková",
       "em_o": "slovenskeklacany@zoznam.sk",
       "tc_o": "4897146",
       "em_s": "slovenskeklacany@zoznam.sk",
@@ -4947,7 +4947,7 @@
       "tc_o": "4894196",
       "tc_d": "0907254631",
       "mob_s": "0907254631",
-      "starosta": "Mgr. Denisa Árvayová, MBA"
+      "name": "Mgr. Denisa Árvayová, MBA"
     },
     {
       "id": "Stredné Plachtince",
@@ -4959,13 +4959,13 @@
       "em_s": "mackov.lubo@gmail.com",
       "tc_s": "4830301",
       "adresa": "Stredné Plachtince 183",
-      "starosta": "Ľubo Mackov"
+      "name": "Ľubo Mackov"
     },
     {
       "id": "Sucháň",
       "_okresContext": "VK",
       "tc_o": "4514137",
-      "starosta": "Mgr. Kristína Beracová",
+      "name": "Mgr. Kristína Beracová",
       "tc_s": "4514137",
       "tc_d": "0908607397",
       "adresa": "Sucháň 25",
@@ -4980,7 +4980,7 @@
       "mob_s": "0918118247",
       "tc_s": "4898609",
       "em_o": "suchebrezovo@procomp.sk",
-      "starosta": "Eva Cinkotová",
+      "name": "Eva Cinkotová",
       "adresa": "Suché Brezovo 15",
       "tc_o": "4898609",
       "em_s": "suchebrezovo@procomp.sk"
@@ -4995,13 +4995,13 @@
       "tc_s": "4894103",
       "adresa": "Trebušovce 29",
       "em_o": "obec@trebusovce.sk",
-      "starosta": "Marek Krnáč"
+      "name": "Marek Krnáč"
     },
     {
       "id": "Veľká Ves nad Ipľom",
       "_okresContext": "VK",
       "em_o": "urad@velkavesnadiplom.sk",
-      "starosta": "Ing. Ladislav Kerata",
+      "name": "Ing. Ladislav Kerata",
       "mob_s": "0905519280",
       "adresa": "Veľká Ves nad Ipľom 35",
       "tc_o": "4888121",
@@ -5014,7 +5014,7 @@
       "_okresContext": "VK",
       "em_o": "velkacalomija@velkacalomija.sk",
       "adresa": "Veľká Čalomija 119",
-      "starosta": "Roman Pásztor",
+      "name": "Roman Pásztor",
       "tc_o": "4875116",
       "tc_s": "4894251",
       "mob_s": "0905319906",
@@ -5029,7 +5029,7 @@
       "tc_o": "4875179",
       "tc_s": "4875179",
       "tc_d": null,
-      "starosta": "Ing. Marián Bernáth",
+      "name": "Ing. Marián Bernáth",
       "adresa": "Veľké Straciny",
       "em_o": "velke.straciny@gmail.com"
     },
@@ -5041,14 +5041,14 @@
       "mob_s": "0918461162",
       "em_o": "obecvelkezlievce@velkezlievce.sk",
       "em_s": "obecvelkezlievce@velkezlievce.sk",
-      "starosta": "Ivan Krahulec",
+      "name": "Ivan Krahulec",
       "tc_s": "4892123",
       "adresa": "Veľké Zlievce 109"
     },
     {
       "id": "Veľký Krtíš",
       "_okresContext": "VK",
-      "starosta": "Ing. Dalibor Surkoš",
+      "name": "Ing. Dalibor Surkoš",
       "tc_s": "4812111",
       "tc_d": "4831835",
       "tc_o": "4812111",
@@ -5061,7 +5061,7 @@
       "id": "Veľký Lom",
       "_okresContext": "VK",
       "em_s": "michalminar00@gmail.com",
-      "starosta": "Ing. Michal Minár",
+      "name": "Ing. Michal Minár",
       "mob_s": "0905870482",
       "adresa": "Veľký Lom 101",
       "tc_o": "4898624",
@@ -5072,7 +5072,7 @@
     {
       "id": "Vieska",
       "_okresContext": "VK",
-      "starosta": "Ing. Anna Makovníková",
+      "name": "Ing. Anna Makovníková",
       "tc_s": "4897131",
       "em_s": "anna.makovnikova@vieska-vk.dcom.sk",
       "tc_d": "4897390",
@@ -5089,7 +5089,7 @@
       "adresa": "Pod Kaplnkou 171/46, Vinica",
       "em_s": "starosta@vinica.sk",
       "tc_d": null,
-      "starosta": "Ing. Kristián Baksa",
+      "name": "Ing. Kristián Baksa",
       "tc_o": "4891211",
       "tc_s": "4891210"
     },
@@ -5100,7 +5100,7 @@
       "em_o": "ipolyvarbo@szm.sk",
       "mob_s": "0908929123",
       "tc_d": null,
-      "starosta": "Marcel Fagyas",
+      "name": "Marcel Fagyas",
       "adresa": "Vrbovka 138",
       "tc_s": "4881116",
       "tc_o": "4881116"
@@ -5110,7 +5110,7 @@
       "_okresContext": "VK",
       "mob_s": "0905303155",
       "tc_d": "4871243",
-      "starosta": "Mgr. Miroslav Daniel",
+      "name": "Mgr. Miroslav Daniel",
       "tc_s": "4871138",
       "adresa": "Zombor 79",
       "tc_o": "4871138",
@@ -5124,7 +5124,7 @@
       "adresa": "Krtíšska 201/2, Záhorce",
       "em_o": "obec@zahorce.sk",
       "mob_s": "0918438870",
-      "starosta": "PaedDr. Branislav Kázmer",
+      "name": "PaedDr. Branislav Kázmer",
       "tc_o": "4893283",
       "tc_d": "0905461800",
       "em_s": "starosta@zahorce.sk"
@@ -5134,7 +5134,7 @@
       "_okresContext": "VK",
       "em_s": "kalmar4@post.sk",
       "adresa": "Závada 52",
-      "starosta": "Miroslav Kalmár",
+      "name": "Miroslav Kalmár",
       "em_o": "obeczavada@dtnet.sk",
       "tc_d": null,
       "tc_s": "4877132",
@@ -5144,7 +5144,7 @@
     {
       "id": "Čebovce",
       "_okresContext": "VK",
-      "starosta": "Henrik Tóth",
+      "name": "Henrik Tóth",
       "tc_d": "0915899880",
       "tc_s": null,
       "em_o": "obec@cebovce.sk",
@@ -5156,7 +5156,7 @@
     {
       "id": "Čelovce",
       "_okresContext": "VK",
-      "starosta": "Ján Petroch",
+      "name": "Ján Petroch",
       "tc_o": "4883127",
       "em_s": "obeccelovce@gmail.com",
       "adresa": "Čelovce 30",
@@ -5171,7 +5171,7 @@
       "mob_s": "0907856579",
       "tc_d": null,
       "adresa": "Čeláre 38",
-      "starosta": "Vojtech Ádám",
+      "name": "Vojtech Ádám",
       "em_s": "obec.celare@gmail.com",
       "tc_o": "4514116",
       "em_o": "obec.celare@gmail.com",
@@ -5186,7 +5186,7 @@
       "em_o": "obeccervenany@azet.sk",
       "tc_o": "918617797",
       "tc_s": "0918617797",
-      "starosta": "Radoslav Palášthy",
+      "name": "Radoslav Palášthy",
       "tc_d": "0907441874"
     },
     {
@@ -5196,7 +5196,7 @@
       "em_s": "obec.durkovce@gmail.com",
       "tc_o": "4884112",
       "mob_s": "0908693988",
-      "starosta": "Nikola Zolnay",
+      "name": "Nikola Zolnay",
       "em_o": "obec.durkovce@gmail.com",
       "adresa": "Ďurkovce 35",
       "tc_s": "4884112"
@@ -5206,7 +5206,7 @@
       "_okresContext": "VK",
       "em_s": "starostaluboriecky@zoznam.sk",
       "adresa": "Ľuboriečka 67",
-      "starosta": "Ján Žilka",
+      "name": "Ján Žilka",
       "em_o": "obec.luboriecka@dtnet.sk",
       "tc_d": null,
       "tc_o": "4897191",
@@ -5220,7 +5220,7 @@
       "mob_s": "0915835844",
       "tc_o": "4884110",
       "adresa": "Širákov 123",
-      "starosta": "Tibor Dímik",
+      "name": "Tibor Dímik",
       "em_s": "sirakov.obec@gmail.com",
       "em_o": "sirakov.obec@gmail.com",
       "tc_s": "4884110"
@@ -5229,7 +5229,7 @@
       "id": "Šuľa",
       "_okresContext": "VK",
       "adresa": "Šuľa 49",
-      "starosta": "Marianna Marková",
+      "name": "Marianna Marková",
       "mob_s": "0918946754",
       "tc_s": null,
       "tc_o": null,
@@ -5247,14 +5247,14 @@
       "em_s": "starosta@zelovce.sk",
       "tc_d": "0910717936",
       "mob_s": "0910717936",
-      "starosta": "PaedDr. Mária Rechová"
+      "name": "PaedDr. Mária Rechová"
     },
     {
       "id": "Babiná",
       "_okresContext": "ZV",
       "em_o": "obec@babina.sk",
       "adresa": "Horná 90/26, Babiná",
-      "starosta": "Jana Gregušová",
+      "name": "Jana Gregušová",
       "tc_d": null,
       "tc_o": "5384116",
       "mob_s": "0905265002",
@@ -5267,7 +5267,7 @@
       "em_s": "bacurov@bacurov.sk",
       "mob_s": "0903811296",
       "adresa": "Bacúrov č.3",
-      "starosta": "Katarína Zlámalová",
+      "name": "Katarína Zlámalová",
       "tc_s": "5387125",
       "tc_d": "0911499577",
       "tc_o": "5387125",
@@ -5282,7 +5282,7 @@
       "tc_o": "5387124",
       "tc_s": "5387124",
       "mob_s": "0917805783",
-      "starosta": "Ján Šatara",
+      "name": "Ján Šatara",
       "adresa": "Horné Breziny 16"
     },
     {
@@ -5290,7 +5290,7 @@
       "_okresContext": "ZV",
       "tc_d": null,
       "adresa": "ČSA 100/25, Budča",
-      "starosta": "Ing. František Moravec",
+      "name": "Ing. František Moravec",
       "tc_s": "5398032",
       "tc_o": "5391231",
       "mob_s": "0905649899",
@@ -5302,7 +5302,7 @@
       "_okresContext": "ZV",
       "em_o": "starosta.lehotka@gmail.com",
       "adresa": "Bzovská Lehôtka č. 53",
-      "starosta": "Martin Kubík",
+      "name": "Martin Kubík",
       "em_s": "starosta.lehotka@gmail.com",
       "mob_s": "0904517934",
       "tc_d": null,
@@ -5319,14 +5319,14 @@
       "mob_s": "0905345706",
       "tc_d": null,
       "em_o": "urad@obecdobraniva.sk",
-      "starosta": "Ing. Milan Jakubík"
+      "name": "Ing. Milan Jakubík"
     },
     {
       "id": "Dubové",
       "_okresContext": "ZV",
       "tc_s": "5387443",
       "em_s": "obec@obecdubove.sk",
-      "starosta": "Anna Janovicová",
+      "name": "Anna Janovicová",
       "mob_s": "0910924520",
       "tc_d": null,
       "tc_o": "5387443",
@@ -5343,12 +5343,12 @@
       "adresa": "Hronská Breznica 48",
       "tc_d": null,
       "em_s": "obechb@gmail.com",
-      "starosta": "Igor Kanda"
+      "name": "Igor Kanda"
     },
     {
       "id": "Kováčová",
       "_okresContext": "ZV",
-      "starosta": "Ing. Ján Izrael",
+      "name": "Ing. Ján Izrael",
       "em_s": "izrael@kovacova.sk",
       "adresa": "P. O. Hviezdoslava 15, Kováčová",
       "tc_o": "5445528",
@@ -5363,7 +5363,7 @@
       "tc_d": "0960465808",
       "tc_s": "5562472",
       "em_s": "milos.matyas@mil.sk",
-      "starosta": "pplk. Ing. Miloš Mátyás",
+      "name": "pplk. Ing. Miloš Mátyás",
       "mob_s": "0903820335",
       "adresa": "Vinohradnícka 39, Veľký Krtíš",
       "tc_o": "5562472",
@@ -5376,7 +5376,7 @@
       "mob_s": "0903787186",
       "em_s": "starosta@obeclieskovec.sk",
       "em_o": "podatelna@obeclieskovec.sk",
-      "starosta": "Michal Turay",
+      "name": "Michal Turay",
       "tc_s": "5370257",
       "tc_o": "5370257",
       "adresa": "Horná 2788/51, Lieskovec"
@@ -5390,13 +5390,13 @@
       "mob_s": "0911490627",
       "adresa": "Dubina 8, Lukavica",
       "em_s": "lukavica@zoznam.sk",
-      "starosta": "Ing. Michal Bartko, PhD.",
+      "name": "Ing. Michal Bartko, PhD.",
       "tc_o": "5442252"
     },
     {
       "id": "Michalková",
       "_okresContext": "ZV",
-      "starosta": "Ján Parobok",
+      "name": "Ján Parobok",
       "tc_o": "907244228",
       "em_o": "obecmichalkova@zoznam.sk",
       "tc_d": null,
@@ -5409,7 +5409,7 @@
       "id": "Ostrá Lúka",
       "_okresContext": "ZV",
       "em_s": "starosta@ostraluka.sk",
-      "starosta": "Mgr. Juraj Jelok",
+      "name": "Mgr. Juraj Jelok",
       "tc_s": "5391124",
       "adresa": "Ostrá Lúka č. 137",
       "tc_d": null,
@@ -5426,7 +5426,7 @@
       "tc_s": "5349069",
       "adresa": "ČSA 165/193, Očová",
       "tc_o": "5349091",
-      "starosta": "Ing. Rudolf Huliak",
+      "name": "Ing. Rudolf Huliak",
       "em_s": "starosta@ocova.sk"
     },
     {
@@ -5436,7 +5436,7 @@
       "em_s": "obec@pliesovce.sk",
       "mob_s": "0905264575",
       "tc_s": "5562963",
-      "starosta": "Ing. Štefan Sýkora",
+      "name": "Ing. Štefan Sýkora",
       "tc_o": "5562401",
       "tc_d": null,
       "adresa": "Vlkanovská 203/17, Pliešovce"
@@ -5450,7 +5450,7 @@
       "tc_s": "5387151",
       "adresa": "Podzámčok č.70",
       "tc_o": "5387151",
-      "starosta": "Mária Hrčková",
+      "name": "Mária Hrčková",
       "em_s": "maria.hrckova@podzamcok.sk"
     },
     {
@@ -5461,7 +5461,7 @@
       "em_o": "obec@sielnica.sk",
       "tc_s": "5442231",
       "mob_s": "0918696090",
-      "starosta": "Anna Gavajdová",
+      "name": "Anna Gavajdová",
       "tc_d": "0907886041",
       "tc_o": "5442231"
     },
@@ -5474,7 +5474,7 @@
       "em_s": "primator@sliac.sk",
       "em_o": "msu@sliac.sk",
       "tc_s": "5442802",
-      "starosta": "Ing., Mgr. et Mgr. Ľubica Balgová",
+      "name": "Ing., Mgr. et Mgr. Ľubica Balgová",
       "mob_s": "0903298210"
     },
     {
@@ -5484,7 +5484,7 @@
       "tc_d": null,
       "mob_s": "0905459989",
       "em_s": "starosta@sasa.sk",
-      "starosta": "Ing. Zoltán Prokein",
+      "name": "Ing. Zoltán Prokein",
       "adresa": "Nová ulica 138/40, Sása",
       "tc_o": "5562551",
       "tc_s": "5562551"
@@ -5495,7 +5495,7 @@
       "mob_s": "0917658304",
       "adresa": "Turová č. 17",
       "em_o": "jana.jarotova@turova.sk",
-      "starosta": "Ing. Jana Jarotová",
+      "name": "Ing. Jana Jarotová",
       "tc_d": null,
       "tc_s": "5391048",
       "tc_o": "5391049",
@@ -5504,7 +5504,7 @@
     {
       "id": "Tŕnie",
       "_okresContext": "ZV",
-      "starosta": "Mgr. Martina Kubincová",
+      "name": "Mgr. Martina Kubincová",
       "em_o": "info@trnie.sk",
       "adresa": "Tŕnie č. 2",
       "tc_d": null,
@@ -5517,7 +5517,7 @@
       "id": "Veľká Lúka",
       "_okresContext": "ZV",
       "tc_d": null,
-      "starosta": "Ing. Andrea Chromeková",
+      "name": "Ing. Andrea Chromeková",
       "mob_s": "0918419874",
       "adresa": "Vansovej č. 10, Veľká Lúka",
       "em_o": "obecnyurad@velkaluka.sk",
@@ -5534,7 +5534,7 @@
       "tc_s": "5330006",
       "mob_s": "0905705823",
       "tc_d": null,
-      "starosta": "Ing. Vladimír Maňka",
+      "name": "Ing. Vladimír Maňka",
       "em_o": "mesto@zvolen.sk"
     },
     {
@@ -5545,7 +5545,7 @@
       "mob_s": "0903806029",
       "tc_d": null,
       "tc_o": "5394212",
-      "starosta": "Ing. Mária Klimentová",
+      "name": "Ing. Mária Klimentová",
       "adresa": "Poľovnícka 713/24, Zvolenská Slatina",
       "tc_s": "5394212"
     },
@@ -5558,7 +5558,7 @@
       "em_o": "obec@zeleznabreznica.sk",
       "tc_s": "5391045",
       "tc_d": null,
-      "starosta": "Ján Dúbravský",
+      "name": "Ján Dúbravský",
       "tc_o": "5391046"
     },
     {
@@ -5571,7 +5571,7 @@
       "mob_s": "0905417540",
       "adresa": "Brehy 40",
       "tc_s": "6857008",
-      "starosta": "Michal Šlavka"
+      "name": "Michal Šlavka"
     },
     {
       "id": "Hodruša-Hámre",
@@ -5579,7 +5579,7 @@
       "tc_d": "6844140",
       "em_o": "sekretariat@hodrusa-hamre.sk",
       "em_s": "starosta@hodrusa-hamre.sk",
-      "starosta": "Jozef Uram",
+      "name": "Jozef Uram",
       "tc_o": "6844415",
       "tc_s": "6844415",
       "mob_s": "0908933036",
@@ -5590,7 +5590,7 @@
       "_okresContext": "ZC",
       "tc_o": "6812780",
       "adresa": "Horné Hámre 146",
-      "starosta": "Ing. Milan Mokrý",
+      "name": "Ing. Milan Mokrý",
       "tc_d": null,
       "em_o": "hhamre@hornehamre.sk",
       "mob_s": "0903628860",
@@ -5602,7 +5602,7 @@
       "_okresContext": "ZC",
       "em_s": "obec@hrabicov.sk",
       "adresa": "Hrabičov 198",
-      "starosta": "Ján Adámik",
+      "name": "Ján Adámik",
       "tc_d": null,
       "mob_s": "0904470478",
       "tc_s": "6866120",
@@ -5612,7 +5612,7 @@
     {
       "id": "Hronský Beňadik",
       "_okresContext": "ZC",
-      "starosta": "Imrich Rajčok",
+      "name": "Imrich Rajčok",
       "tc_s": "6893125",
       "adresa": "Rakovec 41/17, Hronský Beňadik",
       "em_s": "starosta@obechronskybenadik.sk",
@@ -5631,12 +5631,12 @@
       "tc_s": "6866100",
       "tc_o": "6866100",
       "em_s": "obec@klak.sk",
-      "starosta": "Ľuboš Haring"
+      "name": "Ľuboš Haring"
     },
     {
       "id": "Malá Lehota",
       "_okresContext": "ZC",
-      "starosta": "Dušan Pacalaj",
+      "name": "Dušan Pacalaj",
       "tc_s": "6897519",
       "tc_o": "6898133",
       "mob_s": "0905766950",
@@ -5654,7 +5654,7 @@
       "em_o": "msu@novabana.sk",
       "mob_s": "0905436381",
       "tc_s": "6782800",
-      "starosta": "Mgr., MVDr. Branislav Jaďuď, MBA",
+      "name": "Mgr., MVDr. Branislav Jaďuď, MBA",
       "tc_d": null
     },
     {
@@ -5664,7 +5664,7 @@
       "mob_s": "0917811909",
       "tc_s": "6856655",
       "em_o": "obec@orovnica.eu",
-      "starosta": "Mgr. Katarína Forgáčová",
+      "name": "Mgr. Katarína Forgáčová",
       "tc_d": "6852117",
       "em_s": "obec@orovnica.eu",
       "tc_o": "6856655"
@@ -5674,7 +5674,7 @@
       "_okresContext": "ZC",
       "tc_o": "6866114",
       "mob_s": "0915498582",
-      "starosta": "Ing. Ján Adamov",
+      "name": "Ing. Ján Adamov",
       "em_o": "obec@ostrygrun.sk",
       "adresa": "Ostrý Grúň 54",
       "em_s": "obec@ostrygrun.sk",
@@ -5689,7 +5689,7 @@
       "em_s": "podatelna@obecpila.eu",
       "em_o": "podatelna@obecpila.eu",
       "mob_s": "0902725218",
-      "starosta": "Eugen Čižmárik",
+      "name": "Eugen Čižmárik",
       "adresa": "Píla",
       "tc_o": "6726312"
     },
@@ -5701,7 +5701,7 @@
       "mob_s": "0908995052",
       "adresa": "Rudno nad Hronom 198",
       "tc_d": "0905460250",
-      "starosta": "PhDr. Marián Šurjanský",
+      "name": "PhDr. Marián Šurjanský",
       "tc_o": "6856253",
       "em_s": "starosta@rudnonadhronom.sk"
     },
@@ -5714,13 +5714,13 @@
       "em_s": "starosta@tekovskabreznica.sk",
       "tc_o": "6861169",
       "tc_s": "6861365",
-      "starosta": "Vladimír Zaťko",
+      "name": "Vladimír Zaťko",
       "mob_s": "0903560011"
     },
     {
       "id": "Veľká Lehota",
       "_okresContext": "ZC",
-      "starosta": "Jozef Miháľ",
+      "name": "Jozef Miháľ",
       "em_s": "obec@velkalehota.eu",
       "adresa": "Veľká Lehota 32",
       "tc_d": "0918524802",
@@ -5738,7 +5738,7 @@
       "adresa": "Veľké Pole 263",
       "tc_o": "6895123",
       "mob_s": "0902905241",
-      "starosta": "František Demeter",
+      "name": "František Demeter",
       "em_o": "ocu@velkepole.sk"
     },
     {
@@ -5750,13 +5750,13 @@
       "tc_s": "6820037",
       "em_s": "starosta@voznica.sk",
       "adresa": "Voznica 175",
-      "starosta": "Ing. Nadežda Nemcová",
+      "name": "Ing. Nadežda Nemcová",
       "tc_o": "6820037"
     },
     {
       "id": "Žarnovica",
       "_okresContext": "ZC",
-      "starosta": "Ing. Alena Kazimírová",
+      "name": "Ing. Alena Kazimírová",
       "em_o": "mestsky.urad@zarnovica.eu",
       "tc_o": "6830011",
       "tc_d": null,
@@ -5774,7 +5774,7 @@
       "tc_d": "0940845987",
       "em_s": "starosta@zupkov.sk",
       "tc_o": "6866122",
-      "starosta": "Mgr. Ľubomír Medlen",
+      "name": "Mgr. Ľubomír Medlen",
       "mob_s": "0911334600"
     },
     {
@@ -5784,7 +5784,7 @@
       "mob_s": "0905780353",
       "em_s": "starosta@bartosovalehotka.sk",
       "em_o": "info@bartosovalehotka.sk",
-      "starosta": "PhDr. Erika Forgáčová, MBA",
+      "name": "PhDr. Erika Forgáčová, MBA",
       "adresa": "Bartošova Lehôtka 93",
       "tc_o": "6726266",
       "tc_d": null
@@ -5794,7 +5794,7 @@
       "_okresContext": "ZH",
       "mob_s": "0907802114",
       "em_s": "bzenica@bzenica.sk",
-      "starosta": "Viktor Debnár",
+      "name": "Viktor Debnár",
       "em_o": "bzenica@bzenica.sk",
       "tc_o": "6769196",
       "tc_s": "6769196",
@@ -5806,7 +5806,7 @@
       "_okresContext": "ZH",
       "em_s": "starosta@dolnatrnavka.sk",
       "adresa": "Dolná Trnávka 41",
-      "starosta": "Mgr. Kristína Kupcová",
+      "name": "Mgr. Kristína Kupcová",
       "tc_d": "0948033578",
       "tc_o": "6761628",
       "tc_s": "6761628",
@@ -5820,7 +5820,7 @@
       "mob_s": "0908935423",
       "em_o": "starosta@dolnaves.sk",
       "adresa": "Dolná Ves 103",
-      "starosta": "Milan Pračko",
+      "name": "Milan Pračko",
       "tc_o": "6742127",
       "em_s": "starosta@dolnaves.sk",
       "tc_s": "6742127"
@@ -5829,7 +5829,7 @@
       "id": "Dolná Ždaňa",
       "_okresContext": "ZH",
       "adresa": "Dolná Ždaňa 63",
-      "starosta": "Mgr. Andrea Murgašová",
+      "name": "Mgr. Andrea Murgašová",
       "tc_s": "6761397",
       "tc_o": "6761397",
       "mob_s": "0911028993",
@@ -5845,7 +5845,7 @@
       "adresa": "Sovietskej armády 358/14, HnH",
       "mob_s": "0903544950",
       "tc_s": "6761190",
-      "starosta": "Mgr. Dominika Kordíková",
+      "name": "Mgr. Dominika Kordíková",
       "em_o": "obec@hliniknadhronom.sk",
       "tc_o": "6761190"
     },
@@ -5857,7 +5857,7 @@
       "tc_d": "0907486924",
       "tc_s": "6742518",
       "adresa": "Horná Ves 44/B, Kremnica",
-      "starosta": "Mgr. Michal Mecele",
+      "name": "Mgr. Michal Mecele",
       "mob_s": "0918779744",
       "em_s": "starosta@obechornaves.sk"
     },
@@ -5866,7 +5866,7 @@
       "_okresContext": "ZH",
       "tc_d": null,
       "tc_s": "6766138",
-      "starosta": "Ing. Mgr. Rastislav Štanga",
+      "name": "Ing. Mgr. Rastislav Štanga",
       "em_s": "starosta@hornazdana.sk",
       "tc_o": "6766138",
       "mob_s": "0918865059",
@@ -5880,7 +5880,7 @@
       "adresa": "Hronská Dúbrava 59",
       "tc_d": "0903130402",
       "tc_s": "6775366",
-      "starosta": "Miriam Červienková",
+      "name": "Miriam Červienková",
       "em_s": "starosta@hronskadubrava.sk",
       "em_o": "hdubrava@nextra.sk",
       "mob_s": "0905351442"
@@ -5893,14 +5893,14 @@
       "adresa": "Ihráč 47",
       "em_s": "starosta@ihrac.sk",
       "tc_o": "6726173",
-      "starosta": "Ján Kubík",
+      "name": "Ján Kubík",
       "mob_s": "0918844718",
       "tc_d": "0908422867"
     },
     {
       "id": "Janova Lehota",
       "_okresContext": "ZH",
-      "starosta": "Ing. Mgr. Božena Kováčová",
+      "name": "Ing. Mgr. Božena Kováčová",
       "adresa": "Janova Lehota 264",
       "tc_o": "6726262",
       "tc_s": "6726261",
@@ -5918,7 +5918,7 @@
       "adresa": "Jastrabá 98",
       "tc_s": "6733322",
       "mob_s": "0910141279",
-      "starosta": "Zdenko Matuška",
+      "name": "Zdenko Matuška",
       "em_s": "starosta@jastraba.eu"
     },
     {
@@ -5927,7 +5927,7 @@
       "em_o": "podatelna@kopernica.sk",
       "em_s": "starosta@kopernica.sk",
       "tc_d": null,
-      "starosta": "Bc. Rastislav Slanina",
+      "name": "Bc. Rastislav Slanina",
       "tc_o": "6755621",
       "mob_s": "0918433281",
       "adresa": "Kopernica 107",
@@ -5941,7 +5941,7 @@
       "em_s": "starosta@kosorin.sk",
       "adresa": "Kosorín 114",
       "tc_d": null,
-      "starosta": "Ing. Darina Morvayová",
+      "name": "Ing. Darina Morvayová",
       "em_o": "obec@kosorin.sk",
       "mob_s": "0917353172"
     },
@@ -5953,7 +5953,7 @@
       "em_s": "ou@krahule.sk",
       "em_o": "ou@krahule.sk",
       "adresa": "Krahule 12",
-      "starosta": "Miroslav Schwarz",
+      "name": "Miroslav Schwarz",
       "tc_o": "6743659",
       "tc_d": null
     },
@@ -5962,7 +5962,7 @@
       "_okresContext": "ZH",
       "tc_d": "0903609450",
       "mob_s": "0918998361",
-      "starosta": "Ing. Martin Novodomec",
+      "name": "Ing. Martin Novodomec",
       "adresa": "Ul. Jula Horvátha 32, Kremnica",
       "tc_s": "2289793",
       "em_s": "primator@kremnica.sk",
@@ -5972,7 +5972,7 @@
     {
       "id": "Kremnické Bane",
       "_okresContext": "ZH",
-      "starosta": "Juraj Vozár",
+      "name": "Juraj Vozár",
       "tc_o": "6755122",
       "mob_s": "0907886773",
       "em_o": "kremnickebane@kremnicke-bane.dcom.sk",
@@ -5985,7 +5985,7 @@
       "id": "Kunešov",
       "_okresContext": "ZH",
       "mob_s": "0905668862",
-      "starosta": "Peter Stašf'an",
+      "name": "Peter Stašf'an",
       "em_s": "kunesov@kunesov.dcom.sk",
       "em_o": "kunesov@kunesov.dcom.sk",
       "adresa": "Kunešov 2",
@@ -5998,7 +5998,7 @@
       "_okresContext": "ZH",
       "tc_s": "6727016",
       "em_o": "obec@ladomerska-vieska.sk",
-      "starosta": "Ing. Katarína Janeková",
+      "name": "Ing. Katarína Janeková",
       "tc_d": "0917576291",
       "adresa": "Ladomer 71, Ladomerská Vieska",
       "mob_s": "0911996992",
@@ -6014,7 +6014,7 @@
       "adresa": "Lehôtka pod Brehmi 100",
       "tc_d": "0917161798",
       "em_s": "starosta@lehotkapodbrehmi.sk",
-      "starosta": "Ing. Michal Obertáš",
+      "name": "Ing. Michal Obertáš",
       "em_o": "obeclehotka@post.sk"
     },
     {
@@ -6025,7 +6025,7 @@
       "mob_s": "0908931328",
       "tc_d": "0907076735",
       "tc_o": "6732835",
-      "starosta": "Ondrej Bahno",
+      "name": "Ondrej Bahno",
       "em_s": "starosta@lovca.sk",
       "em_o": "lovca@lovca.sk"
     },
@@ -6038,14 +6038,14 @@
       "em_s": "starosta@lovcica-trubin.sk",
       "em_o": "obec@lovcica-trubin.sk",
       "tc_o": "6790126",
-      "starosta": "Štefan Horvát",
+      "name": "Štefan Horvát",
       "tc_d": "0948011159"
     },
     {
       "id": "Lutila",
       "_okresContext": "ZH",
       "em_s": "starosta@lutila.sk",
-      "starosta": "Peter Knopp",
+      "name": "Peter Knopp",
       "em_o": "lutila@lutila.sk",
       "tc_s": "6789080",
       "tc_d": "0918334655",
@@ -6063,12 +6063,12 @@
       "mob_s": "0910617686",
       "tc_d": "0905820472",
       "tc_s": "6742468",
-      "starosta": "Vladimír Závadský"
+      "name": "Vladimír Závadský"
     },
     {
       "id": "Nevoľné",
       "_okresContext": "ZH",
-      "starosta": "Štefan Henžel",
+      "name": "Štefan Henžel",
       "adresa": "Nevoľné 126",
       "mob_s": "0908934072",
       "em_s": "starosta@nevolne.sk",
@@ -6082,7 +6082,7 @@
       "_okresContext": "ZH",
       "mob_s": "0905325053",
       "tc_o": "6775131",
-      "starosta": "Martina Záhorcová",
+      "name": "Martina Záhorcová",
       "tc_d": "0908906938",
       "em_o": "pitelova@pitelova.eu",
       "em_s": "starosta@pitelova.eu",
@@ -6099,7 +6099,7 @@
       "tc_d": null,
       "em_s": "starosta@prestavlky.sk",
       "tc_s": "6773170",
-      "starosta": "Ján Abrahám"
+      "name": "Ján Abrahám"
     },
     {
       "id": "Prochot",
@@ -6107,7 +6107,7 @@
       "tc_o": "6726838",
       "adresa": "Prochot 17",
       "em_o": "obecprochot@prochot.dcom.sk",
-      "starosta": "Ing. Mária Rozenbergová",
+      "name": "Ing. Mária Rozenbergová",
       "mob_s": "0907883186",
       "tc_d": null,
       "tc_s": "6726838",
@@ -6123,7 +6123,7 @@
       "tc_s": "6771098",
       "mob_s": "0905481998",
       "adresa": "Repište 170",
-      "starosta": "Vladimír Šalkovský"
+      "name": "Vladimír Šalkovský"
     },
     {
       "id": "Sklené Teplice",
@@ -6133,7 +6133,7 @@
       "tc_d": null,
       "mob_s": "0908930037",
       "em_s": "starosta@sklene-teplice.sk",
-      "starosta": "Ing. Ľubomír Meliš",
+      "name": "Ing. Ľubomír Meliš",
       "tc_o": "6771070",
       "tc_s": "6771275"
     },
@@ -6143,7 +6143,7 @@
       "tc_d": null,
       "em_s": "starosta@slaska.sk",
       "adresa": "Slaská 246",
-      "starosta": "Mgr. Daniel Gelien",
+      "name": "Mgr. Daniel Gelien",
       "em_o": "mojzisova@slaska.sk",
       "mob_s": "0907877769",
       "tc_o": "6726132",
@@ -6157,14 +6157,14 @@
       "adresa": "Stará Kremnička 37",
       "em_s": "starosta@starakremnicka.sk",
       "tc_s": "6726221",
-      "starosta": "Ing. Stanislav Rigo",
+      "name": "Ing. Stanislav Rigo",
       "tc_o": "6737105",
       "em_o": "obec@starakremnicka.sk"
     },
     {
       "id": "Trnavá Hora",
       "_okresContext": "ZH",
-      "starosta": "Mgr. Pavel Kravec",
+      "name": "Mgr. Pavel Kravec",
       "tc_o": "6775121",
       "mob_s": "0918454941",
       "tc_s": "6775121",
@@ -6176,7 +6176,7 @@
     {
       "id": "Vyhne",
       "_okresContext": "ZH",
-      "starosta": "Mgr. Martina Kmeťová",
+      "name": "Mgr. Martina Kmeťová",
       "em_s": "starosta@vyhne.sk",
       "tc_o": "6772110",
       "adresa": "Vyhne 435",
@@ -6191,7 +6191,7 @@
       "mob_s": "0905603011",
       "tc_d": null,
       "tc_s": "6787121",
-      "starosta": "Mgr. Peter Antal",
+      "name": "Mgr. Peter Antal",
       "em_s": "primator@ziar.sk",
       "em_o": "info@ziar.sk",
       "adresa": "Sládkovičova 485/5, Žiar n/H",

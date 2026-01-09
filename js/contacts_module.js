@@ -29,12 +29,12 @@ export async function handleEditContact(contactId) {
     if (!contact) return;
 
     // ✅ ZACHYTENIE PÔVODNÉHO STAVU pre audit
-    const oldMayor = contact.starosta || '---';
+    const oldMayor = contact.name || '---';
 
     // 3. Naplníme polia modalu aktuálnymi dátami
     document.getElementById(IDs.CONTACTS.EDIT_CONTACT_ID).value = contactId;
     document.getElementById(IDs.CONTACTS.EDIT_CONTACT_TITLE).innerText = `Upraviť obec: ${contact.municipality}`;
-    document.getElementById(IDs.CONTACTS.EDIT_MAYOR).value = contact.starosta || '';
+    document.getElementById(IDs.CONTACTS.EDIT_MAYOR).value = contact.name || '';
     document.getElementById(IDs.CONTACTS.EDIT_MOB).value = contact.mob_s || '';
     document.getElementById(IDs.CONTACTS.EDIT_EMAIL).value = contact.em_s || '';
     document.getElementById(IDs.CONTACTS.EDIT_ADDRESS).value = contact.adresa || '';
@@ -48,7 +48,7 @@ export async function handleEditContact(contactId) {
         const newMayorValue = document.getElementById(IDs.CONTACTS.EDIT_MAYOR).value.trim();
 
         const updatedData = {
-            starosta: newMayorValue,
+            name: newMayorValue,
             mob_s: document.getElementById(IDs.CONTACTS.EDIT_MOB).value.trim(),
             em_s: document.getElementById(IDs.CONTACTS.EDIT_EMAIL).value.trim(),
             adresa: document.getElementById(IDs.CONTACTS.EDIT_ADDRESS).value.trim()
@@ -67,7 +67,7 @@ export async function handleEditContact(contactId) {
             searchService.indexData(allContactsCache, 'contacts');
 
             // ✅ DETAILNÝ AUDIT LOG (teraz s definovanou premennou newMayorValue)
-            const logDetail = `zmenil kontakt obce ${contact.municipality} (starosta: ${oldMayor} -> ${newMayorValue || '---'})`;
+            const logDetail = `zmenil kontakt obce ${contact.municipality} (name: ${oldMayor} -> ${newMayorValue || '---'})`;
             logUserAction('EDIT_CONTACT', logDetail);
 
             showToast('Kontakt bol úspešne aktualizovaný', TOAST_TYPE.SUCCESS);
@@ -113,7 +113,7 @@ export async function loadContactsToCache() {
                     municipality: doc.id,
                     okres: okresId,
                     type: 'contact',
-                    mayor: data.starosta || '',
+                    mayor: data.name || '',
                     ...data
                 });
             });
@@ -203,8 +203,9 @@ export function searchContactsInCache(userQuery) {
             (c.id && c.id.toLowerCase().includes(lowerQuery)) ||
             (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
             (c.municipality && c.municipality.toLowerCase().includes(lowerQuery)) ||
-            (c.starosta && c.starosta.toLowerCase().includes(lowerQuery)) ||
-            (c.mayor && c.mayor.toLowerCase().includes(lowerQuery))
+            (c.name && c.name.toLowerCase().includes(lowerQuery)) ||
+            (c.mayor && c.mayor.toLowerCase().includes(lowerQuery)) ||
+            (c.primator && c.primator.toLowerCase().includes(lowerQuery))
         )) ||
         // Vyhľadávanie zamestnancov
         (c.type === 'employee' && (
@@ -353,7 +354,7 @@ function renderResults(list) {
                 
                 <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; font-size: 0.9rem;">
                     <div>
-                        <p><strong><i class="fas fa-user-tie"></i> Starosta:</strong><br>${c.starosta || '---'}</p>
+                        <p><strong><i class="fas fa-user-tie"></i> name:</strong><br>${c.name || '---'}</p>
                         <p style="margin-top: 8px;"><strong><i class="fas fa-map-marker-alt"></i> Bydlisko:</strong><br>
                         <span class="contact-address-value">${c.adresa || '---'}</span>
                         </p>
@@ -420,7 +421,7 @@ export async function downloadContactsAsXLSX() {
     const excelRows = filteredData.map(c => ({
         "Obec / Mesto": c.title,
         "Okres": c.okres || '',
-        "Starosta (Meno)": c.starosta || '',
+        "Starosta (Meno)": c.name || '',
         "Bydlisko starostu": c.adresa || '',
         "E-mail (Obec)": c.em_o || '',
         "E-mail (Starosta)": c.em_s || '',
@@ -487,11 +488,11 @@ function createEditContactModalHTML() {
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Mobil starosta:</label>
+                            <label>Mobil name:</label>
                             <input type="text" id="${IDs.CONTACTS.EDIT_MOB}" class="ua-input">
                         </div>
                         <div class="form-group">
-                            <label>E-mail starosta:</label>
+                            <label>E-mail name:</label>
                             <input type="email" id="${IDs.CONTACTS.EDIT_EMAIL}" class="ua-input">
                         </div>
                     </div>
