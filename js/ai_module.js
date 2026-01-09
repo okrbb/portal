@@ -26,12 +26,18 @@ Po zobrazení výsledkov UKONČI odpoveď - žiadny ďalší text ani návrhy.
 /**
  * POMOCNÁ FUNKCIA: Naformátuje dáta lokálne bez použitia AI
  * Zabezpečuje rovnaký vzhľad ako z Gemini, ale zadarmo a okamžite.
- * ✅ NOVÉ: Podporuje aj formátovanie zamestnancov
+ * ✅ NOVÉ: Podporuje aj formátovanie zamestnancov a personálu (staff)
  */
 function formatLocalContacts(contacts) {
     let htmlResult = "";
     contacts.slice(0, 10).forEach(c => {
-        if (c.type === 'employee') {
+        if (c.type === 'staff') {
+            // ✅ NOVÉ: Formátovanie pre personál (novo pridaný z Excel k.xlsx)
+            htmlResult += `### Personál: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
+            htmlResult += `- **Funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **Kontakt:** ${c.kontakt || '---'}\n`;
+            htmlResult += `- **E-mail:** ${c.email || '---'}\n\n`;
+        } else if (c.type === 'employee') {
             // Formátovanie pre zamestnancov
             htmlResult += `### Zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';
             htmlResult += `- **Oddelenie:** ${c.oddelenie || '---'}\n`;

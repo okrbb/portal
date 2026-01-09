@@ -143,6 +143,37 @@ export async function loadContactsToCache() {
             console.warn("Chyba pri načítaní zamestnancov:", e);
         }
 
+        // 3. ✅ NOVÉ (2026-01-09): Načítanie personálu (staff) z kontaktov
+        try {
+            for (const okresId of okresy) {
+                const querySnapshot = await getDocs(collection(db, "contacts"));
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // Ak dokument má pole "staff", načítaj personál
+                    if (data.staff && Array.isArray(data.staff)) {
+                        data.staff.forEach((person, index) => {
+                            const staffId = `staff_${doc.id}_${index}`;
+                            tempCache.push({
+                                id: staffId,
+                                title: `${person.meno || ''}`.trim(),
+                                type: 'staff',
+                                meno: person.meno || '',
+                                funkcia: person.funkcia || '',
+                                kontakt: person.kontakt || '',
+                                email: person.email || '',
+                                okres: doc.id,  // ID okresu z kontaktu
+                                ...person
+                            });
+                        });
+                    }
+                });
+            }
+            console.log("[Kontakty] Personál (staff) úspešne načítaný");
+        } catch (e) {
+            console.warn("Chyba pri načítaní personálu (staff):", e);
+        }
+
         allContactsCache = tempCache;
         allContactsCache.sort((a, b) => a.title.localeCompare(b.title, 'sk'));
 
@@ -185,6 +216,15 @@ export function searchContactsInCache(userQuery) {
             (c.telefon && c.telefon.toLowerCase().includes(lowerQuery)) ||
             (c.oddelenie && c.oddelenie.toLowerCase().includes(lowerQuery)) ||
             (c.funkcia && c.funkcia.toLowerCase().includes(lowerQuery))
+        )) ||
+        // ✅ NOVÉ: Vyhľadávanie personálu (staff - novo pridané z Excel)
+        (c.type === 'staff' && (
+            (c.meno && c.meno.toLowerCase().includes(lowerQuery)) ||
+            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
+            (c.funkcia && c.funkcia.toLowerCase().includes(lowerQuery)) ||
+            (c.kontakt && c.kontakt.toLowerCase().includes(lowerQuery)) ||
+            (c.email && c.email.toLowerCase().includes(lowerQuery)) ||
+            (c.okres && c.okres.toLowerCase().includes(lowerQuery))
         ))
     );
 }
