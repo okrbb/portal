@@ -48,11 +48,17 @@ function formatLocalContacts(contacts) {
             // Formátovanie pre obce/mestá
             htmlResult += `### Obec/Mesto: ${c.id || '---'}\n`;
             htmlResult += `- **Okres:** ${c.okres || '---'}\n`;
-            htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
+            // Zobraz starostu alebo primátora v závislosti od typu mestnosti
+            if (c.primator) {
+                htmlResult += `- **Primátor:** ${c.primator || '---'}\n`;
+                htmlResult += `- **E-mail primátor:** ${c.em_p || '---'}\n`;
+            } else {
+                htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
+                htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
+                htmlResult += `- **Mobil starosta:** ${c.mob_s || '---'}\n`;
+            }
             htmlResult += `- **Bydlisko:** ${c.adresa || '---'}\n`;
             htmlResult += `- **E-mail obec:** ${c.em_o || '---'}\n`;
-            htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
-            htmlResult += `- **Mobil starosta:** ${c.mob_s || '---'}\n`;
             htmlResult += `- **Tel. úrad:** ${c.tc_o || '---'}\n\n`;
         }
         htmlResult += `-----------------------------------\n\n`;
@@ -186,7 +192,7 @@ async function sendMessageToAI(userMessage) {
         console.log('Lokálne hľadanie neúspešné, pýtam sa AI...');
         const loadingElement = document.getElementById(loadingId);
         if (loadingElement) {
-            loadingElement.innerHTML = '<i class="fas fa-brain"></i> Premýšľam (AI Fallback)...';
+            loadingElement.innerHTML = '<i class="fa-brands fa-think-peaks"></i> Premýšľam ...';
         }
 
         let response;
@@ -314,26 +320,14 @@ function showHelpMessage() {
 ## 📚 Nápoveda - Ako vyhľadávať
 
 ### Hľadanie osôb (personálu)
-- Napíš **BS** (iba okres) → zobrazí všetky osoby z tej oblasti
-- Napíš **Jóry** (meno) → nájde osobu podľa mena
-- Napíš **vedúci** (funkcia) → nájde osoby na danej pozícii
+- **id okresu** → zobrazí všetkých zamestnancov OKR z okresu
+- **priezvisko alebo meno a priezvisko** → nájde konkrétnu osobu (zamestnanca)
+- **vedúci** (funkcia) → nájde osoby na danej pozícii
 
 ### Hľadanie obcí a miest
-- Napíš **Modrý Kameň** (názov) → nájde konkrétnu obec
-- Napíš **starosta Vlkanová** → nájde starostu obce
-- Napíš **mestá BS** → nájde mestá v danom okrese
-
-### Hľadanie zamestnancov
-- Napíš **Ján Novák** → nájde zamestnanca podľa mena
-- Napíš **IT oddelenie** → nájde zamestnancov IT tímu
-
-### Tipy na vyhľadávanie
-1. **Skúšaj jednoduché dopyt** - len meno bez dodatočných detailov
-2. **Kľúčové slová fungujú** - funkcia, okres, mestnosť
-3. **Veľkosť písmen nezáleží** - aj malé aj veľké písmená sú v poriadku
-4. **Skúšaj zhora nadol** - od špecifickej informácie ku všeobecnej
-
-Máš otázky? Skúšaj a pýtaj sa! 😊
+- **názov obce/mesta** → nájde konkrétnu obec/mesto
+- **starosta a názov obce/mesta** → nájde starostu obce/mesta
+- **ak chceš zobr** → nájde obce/mestá v danom okrese
     `.trim();
 
     const area = document.getElementById(IDs.AI.MESSAGES_AREA);
