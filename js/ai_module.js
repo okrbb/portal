@@ -407,7 +407,7 @@ function showHelpMessage() {
 - **funkciu** (napr. "vedúci", "prednosta") → nájde osoby na danej pozícii
 
 ### Hľadanie zamestnancov SKR
-- **priezvisko** alebo **meno a priezvisk** → nájde konkrétneho zamestnanca SKR
+- **priezvisko** alebo **meno a priezvisko** → nájde konkrétneho zamestnanca SKR
 - **funkciu** → nájde zamestnancov na danej pozícii
 - **odbor (skratka)** → KGR, ORG, ORGo, oSM, OOR, CMSR, oVaV, oIZS, OMS, OCOaKP, OCO, KCHL, CBTC, oUSaZV, oT, oP, oRCHB, LZ
 
