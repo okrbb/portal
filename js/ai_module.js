@@ -48,14 +48,10 @@ function formatLocalContacts(contacts) {
             // Formátovanie pre obce/mestá
             htmlResult += `### obec/mesto: ${c.id || '---'}\n`;
             htmlResult += `- **okres:** ${c.okres || '---'}\n`;
-            // Zobraz starostu alebo primátora v závislosti od typu mestnosti
-            if (c.primator) {
-                htmlResult += `- **primátor:** ${c.primator || '---'}\n`;
-            } else {
-                htmlResult += `- **starosta:** ${c.starosta || '---'}\n`;
-                htmlResult += `- **email:** ${c.em_s || '---'}\n`;
-                htmlResult += `- **mobil:** ${c.mob_s || '---'}\n`;
-            }
+            // Zobraz starostu alebo primátora - podľa toho čo existuje
+            htmlResult += `- **starosta:** ${c.starosta || c.primator || '---'}\n`;
+            htmlResult += `- **email:** ${c.em_s || '---'}\n`;
+            htmlResult += `- **mobil:** ${c.mob_s || '---'}\n`;
             htmlResult += `- **bydlisko:** ${c.adresa || '---'}\n`;
             htmlResult += `- **email obec/mesto:** ${c.em_o || '---'}\n`;
             htmlResult += `- **tel. úrad:** ${c.tc_o || '---'}\n\n`;
