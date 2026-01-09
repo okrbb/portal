@@ -33,32 +33,32 @@ function formatLocalContacts(contacts) {
     contacts.slice(0, 10).forEach(c => {
         if (c.type === 'staff') {
             // ✅ NOVÉ: Formátovanie pre zamestnancov (novo pridaný z Excel k.xlsx)
-            htmlResult += `### Osoba: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
-            htmlResult += `- **Funkcia:** ${c.funkcia || '---'}\n`;
-            htmlResult += `- **Kontakt:** ${c.kontakt || '---'}\n`;
-            htmlResult += `- **E-mail:** ${c.email || '---'}\n\n`;
+            htmlResult += `### osoba: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
+            htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **kontakt:** ${c.kontakt || '---'}\n`;
+            htmlResult += `- **email:** ${c.email || '---'}\n\n`;
         } else if (c.type === 'employee') {
             // Formátovanie pre zamestnancov
-            htmlResult += `### Zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';
-            htmlResult += `- **Oddelenie:** ${c.oddelenie || '---'}\n`;
-            htmlResult += `- **Funkcia:** ${c.funkcia || '---'}\n`;
-            htmlResult += `- **E-mail:** ${c.mail || '---'}\n`;
-            htmlResult += `- **Telefón/Kontakt:** ${c.telefon || '---'}\n\n`;
+            htmlResult += `### zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';
+            htmlResult += `- **oddelenie:** ${c.oddelenie || '---'}\n`;
+            htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **email:** ${c.mail || '---'}\n`;
+            htmlResult += `- **telefón/kontakt:** ${c.telefon || '---'}\n\n`;
         } else {
             // Formátovanie pre obce/mestá
-            htmlResult += `### Obec/Mesto: ${c.id || '---'}\n`;
-            htmlResult += `- **Okres:** ${c.okres || '---'}\n`;
+            htmlResult += `### obec/mesto: ${c.id || '---'}\n`;
+            htmlResult += `- **okres:** ${c.okres || '---'}\n`;
             // Zobraz starostu alebo primátora v závislosti od typu mestnosti
             if (c.primator) {
-                htmlResult += `- **Primátor:** ${c.primator || '---'}\n`;
+                htmlResult += `- **primátor:** ${c.primator || '---'}\n`;
             } else {
-                htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
-                htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
-                htmlResult += `- **Mobil starosta:** ${c.mob_s || '---'}\n`;
+                htmlResult += `- **starosta:** ${c.starosta || '---'}\n`;
+                htmlResult += `- **email:** ${c.em_s || '---'}\n`;
+                htmlResult += `- **mobil:** ${c.mob_s || '---'}\n`;
             }
-            htmlResult += `- **Bydlisko:** ${c.adresa || '---'}\n`;
-            htmlResult += `- **E-mail obec:** ${c.em_o || '---'}\n`;
-            htmlResult += `- **Tel. úrad:** ${c.tc_o || '---'}\n\n`;
+            htmlResult += `- **bydlisko:** ${c.adresa || '---'}\n`;
+            htmlResult += `- **email obec/mesto:** ${c.em_o || '---'}\n`;
+            htmlResult += `- **tel. úrad:** ${c.tc_o || '---'}\n\n`;
         }
         htmlResult += `-----------------------------------\n\n`;
     });
