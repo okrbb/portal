@@ -1,6 +1,6 @@
 /* js/backup_service.js - FIXED VERSION */
 import { store } from './store.js'; 
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { showToast, TOAST_TYPE } from './utils.js';
 import { lazyLoader } from './lazy_loader.js'; 
 
@@ -44,19 +44,44 @@ export async function performFullBackup() {
             // ŠPECIÁLNY PRÍPAD PRE KONTAKTY (kvôli hlbokej štruktúre)
             if (collectionName === 'contacts') {
                 const okresy = ["BB", "BS", "BR", "DT", "KA", "LC", "PT", "RA", "RS", "VK", "ZV", "ZC", "ZH"];
-                console.log("[Backup] Zálohujem hlbokú štruktúru pre contacts...");
+                console.log("[Backup] Zálohujem KOMPLETNÚ hlbokú štruktúru pre contacts...");
                 
                 for (const okresId of okresy) {
-                    // Pristupujeme k ceste contacts/{okresId}/{okresId}
-                    const subSnap = await getDocs(collection(db, 'contacts', okresId, okresId));
-                    subSnap.forEach(docSnap => {
-                        allData.push({ 
-                            id: docSnap.id, 
-                            _okresContext: okresId, // Pomocný príznak pre budúci restore
-                            ...docSnap.data() 
+                    // 1. ZÁLOHUJ SAM DOKUMENT contacts/{okresId}
+                    try {
+                        const rootDocRef = doc(db, 'contacts', okresId);
+                        const rootDocSnap = await getDoc(rootDocRef);
+                        if (rootDocSnap.exists()) {
+                            allData.push({
+                                id: rootDocSnap.id,
+                                _type: 'root',  // Príznak že ide o root dokument
+                                _okresContext: okresId,
+                                ...rootDocSnap.data()
+                            });
+                            console.log(`[Backup] Zálohujem root dokument: contacts/${okresId}`);
+                        }
+                    } catch (rootError) {
+                        console.warn(`[Backup] Chyba pri čítaní root dokumentu ${okresId}:`, rootError);
+                    }
+
+                    // 2. ZÁLOHUJ SUBKOLEKCIU contacts/{okresId}/{okresId}
+                    try {
+                        const subSnap = await getDocs(collection(db, 'contacts', okresId, okresId));
+                        console.log(`[Backup] Zálohujem subkolekciu ${okresId}/${okresId} s ${subSnap.size} dokumentami`);
+                        
+                        subSnap.forEach(docSnap => {
+                            allData.push({ 
+                                id: docSnap.id, 
+                                _type: 'subcollection',  // Príznak že ide o dokument zo subkolekcie
+                                _okresContext: okresId,
+                                ...docSnap.data() 
+                            });
                         });
-                    });
+                    } catch (subError) {
+                        console.warn(`[Backup] Chyba pri čítaní subkolekcie ${okresId}:`, subError);
+                    }
                 }
+                console.log(`[Backup] Spolu zálohujem ${allData.length} dokumentov pre contacts`);
             } else {
                 // KLASICKÝ POSTUP PRE OSTATNÉ KOLEKCIE
                 console.log(`[Backup] Zálohujem: ${collectionName}`);

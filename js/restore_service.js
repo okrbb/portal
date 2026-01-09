@@ -47,19 +47,45 @@ export async function restoreCollectionFromFile(file) {
                 let subCollectionOps = 0;
 
                 for (const docData of records) {
-                    const docId = docData._id;
-                    const { _id, refuelings_backup, km_logs_backup, ...dataToSave } = docData;
+                    const docId = docData.id || docData._id;
+                    const docType = docData._type || 'normal';
+                    const okresContext = docData._okresContext;
+                    const { id, _id, _type, _okresContext, refuelings_backup, km_logs_backup, ...dataToSave } = docData;
 
-                    // Hlavný dokument
-                    operations.push({
-                        type: 'set',
-                        collection: collectionName,
-                        id: docId,
-                        data: dataToSave
-                    });
+                    // ŠPECIÁLNA LOGIKA PRE CONTACTS
+                    if (collectionName === 'contacts' && okresContext) {
+                        if (docType === 'root') {
+                            // Root dokument: contacts/{okresId}
+                            operations.push({
+                                type: 'set',
+                                collection: collectionName,
+                                id: okresContext,
+                                data: dataToSave
+                            });
+                            console.log(`[Restore] Obnovujem root dokument: ${collectionName}/${okresContext}`);
+                        } else {
+                            // Dokument zo subkolekcie: contacts/{okresId}/{okresId}
+                            // docId je napríklad "Badín", "Baláže", atď.
+                            operations.push({
+                                type: 'set',
+                                collection: `${collectionName}/${okresContext}/${okresContext}`,
+                                id: docId,
+                                data: dataToSave
+                            });
+                            subCollectionOps++;
+                            console.log(`[Restore] Obnovujem dokument v subkolakcii: contacts/${okresContext}/${okresContext}/${docId}`);
+                        }
+                    }
+                    // LOGIKA PRE AUTÁ (EXISTUJÚCA)
+                    else if (collectionName === 'cars') {
+                        // Hlavný dokument
+                        operations.push({
+                            type: 'set',
+                            collection: collectionName,
+                            id: docId,
+                            data: dataToSave
+                        });
 
-                    // Špeciálna logika pre Autá (Sub-kolekcie)
-                    if (collectionName === 'cars') {
                         // Refuelings
                         if (Array.isArray(refuelings_backup)) {
                             for (const refuel of refuelings_backup) {
@@ -87,6 +113,15 @@ export async function restoreCollectionFromFile(file) {
                             }
                         }
                     }
+                    // OSTATNÉ KOLEKCIE (NORMÁLNE)
+                    else {
+                        operations.push({
+                            type: 'set',
+                            collection: collectionName,
+                            id: docId,
+                            data: dataToSave
+                        });
+                    }
                 }
 
                 // ✅ NOVÉ: Použitie batchOperation helper s progress barom
@@ -97,7 +132,9 @@ export async function restoreCollectionFromFile(file) {
                     }
                 });
 
-                const successMsg = `Úspešne obnovené: ${collectionName} (${totalRecords} dok. + ${subCollectionOps} pod-dok.)`;
+                const successMsg = collectionName === 'contacts' 
+                    ? `Úspešne obnovené: ${collectionName} (${totalRecords} root + sub-dok.)`
+                    : `Úspešne obnovené: ${collectionName} (${totalRecords} dok. + ${subCollectionOps} pod-dok.)`;
                 showToast(successMsg, TOAST_TYPE.SUCCESS);
                 console.log(`[Restore] Hotovo. ${successMsg}`);
 
