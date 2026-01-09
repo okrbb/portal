@@ -153,6 +153,16 @@ async function sendMessageToAI(userMessage) {
     appendMessage('<i class="fas fa-circle-notch fa-spin"></i> Hľadám v databáze...', 'assistant-msg', loadingId);
 
     try {
+        // ✅ DETEKCIA NEÚPLNÝCH DOTAZOV (iba "starosta" alebo "primátor" bez obce)
+        const lowerMsg = userMessage.toLowerCase().trim();
+        const incompleteRolePatterns = /^(starosta|starostka|primátor|primátorka)$/i;
+        
+        if (incompleteRolePatterns.test(lowerMsg)) {
+            removeMessage(loadingId);
+            appendMessage("Prosím, upresni názov obce alebo mesta. Napríklad: 'starosta Vlkanová' alebo 'primátor Banská Bystrica'", 'assistant-msg');
+            return;
+        }
+        
         // --- DETEKCIA OKRESID ---
         const detectedPeriod = detectPeriodId(userMessage);
         
