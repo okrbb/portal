@@ -2,9 +2,10 @@
  * MIGRATION HELPER: Premenovať pole primátor -> primator v Firebase contacts
  * 
  * Spustenie v konzole:
- * 1. Otvor DevTools (F12)
- * 2. Choď na Console
- * 3. Vlož tento kód (bez import - priamo v konzole):
+ * 1. Otvor aplikáciu v prehliadači
+ * 2. Stlač F12 (otvorí DevTools)
+ * 3. Choď na záložku "Console"
+ * 4. Skopíruj a vlož TÝŢ KÓD NIŽŠIE a stlač ENTER:
 
 async function renamePrimatorField() {
     console.log('🔄 Spúšťam migráciu: primátor → primator');
@@ -68,8 +69,3 @@ async function renamePrimatorField() {
 renamePrimatorField();
 
  */
-
-// Export ako funkcia pre prípadný budúci modul import
-export async function renamePrimatorField() {
-    console.log('❌ Prosím spusti kód priamo v DevTools konzole (F12)');
-}
