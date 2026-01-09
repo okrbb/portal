@@ -265,7 +265,8 @@ function setupAIInterface() {
         close: document.getElementById(IDs.AI.CLOSE_BTN),
         send: document.getElementById(IDs.AI.SEND_BTN),
         input: document.getElementById(IDs.AI.INPUT),
-        reset: document.getElementById(IDs.AI.RESET_BTN)
+        reset: document.getElementById(IDs.AI.RESET_BTN),
+        help: document.getElementById(IDs.AI.HELP_BTN)
     };
 
     ui.btn?.addEventListener('click', () => {
@@ -299,4 +300,49 @@ function setupAIInterface() {
         await startNewChatSession();
         appendMessage('💬 Konverzácia bola resetovaná.', 'assistant-msg');
     });
+
+    ui.help?.addEventListener('click', () => {
+        showHelpMessage();
+    });
+}
+
+/**
+ * Zobrazí nápovedu pre vyhľadávanie
+ */
+function showHelpMessage() {
+    const helpText = `
+## 📚 Nápoveda - Ako vyhľadávať
+
+### Hľadanie osôb (personálu)
+- Napíš **BS** (iba okres) → zobrazí všetky osoby z tej oblasti
+- Napíš **Jóry** (meno) → nájde osobu podľa mena
+- Napíš **vedúci** (funkcia) → nájde osoby na danej pozícii
+
+### Hľadanie obcí a miest
+- Napíš **Modrý Kameň** (názov) → nájde konkrétnu obec
+- Napíš **starosta Vlkanová** → nájde starostu obce
+- Napíš **mestá BS** → nájde mestá v danom okrese
+
+### Hľadanie zamestnancov
+- Napíš **Ján Novák** → nájde zamestnanca podľa mena
+- Napíš **IT oddelenie** → nájde zamestnancov IT tímu
+
+### Tipy na vyhľadávanie
+1. **Skúšaj jednoduché dopyt** - len meno bez dodatočných detailov
+2. **Kľúčové slová fungujú** - funkcia, okres, mestnosť
+3. **Veľkosť písmen nezáleží** - aj malé aj veľké písmená sú v poriadku
+4. **Skúšaj zhora nadol** - od špecifickej informácie ku všeobecnej
+
+Máš otázky? Skúšaj a pýtaj sa! 😊
+    `.trim();
+
+    const area = document.getElementById(IDs.AI.MESSAGES_AREA);
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'ai-msg assistant-msg';
+    msgDiv.innerHTML = DOMPurify.sanitize(marked.parse(helpText), {
+        ALLOWED_TAGS: ['h2', 'h3', 'p', 'br', 'ul', 'li', 'strong', 'em', 'b', 'i'],
+        ALLOWED_ATTR: []
+    });
+    area.appendChild(msgDiv);
+    area.scrollTop = area.scrollHeight;
 }

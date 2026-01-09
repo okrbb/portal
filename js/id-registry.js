@@ -338,6 +338,7 @@ export const IDs = {
     FLOATING_BTN: 'ai__ai-floating-btn',
     MODAL_OVERLAY: 'ai__ai-modal-overlay',
     CLOSE_BTN: 'ai__ai-close-btn',
+    HELP_BTN: 'ai__ai-help-btn',
     MESSAGES_AREA: 'ai__ai-messages-area',
     INPUT: 'ai__ai-input',
     SEND_BTN: 'ai__send-ai-btn',
