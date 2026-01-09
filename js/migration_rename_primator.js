@@ -4,20 +4,21 @@
  * Spustenie v konzole:
  * 1. Otvor DevTools (F12)
  * 2. Choď na Console
- * 3. Skopíruj a vlož tento kód:
- * 
- * import { renamePrimatorField } from './js/migration_rename_primator.js';
- * await renamePrimatorField();
- */
+ * 3. Vlož tento kód (bez import - priamo v konzole):
 
-import { db } from './db_service.js';
-import { collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-export async function renamePrimatorField() {
+async function renamePrimatorField() {
     console.log('🔄 Spúšťam migráciu: primátor → primator');
     
     try {
-        const contactsRef = collection(db, 'contacts');
+        // Predpokladáme, že db je už dostupný globálne
+        if (!window.db) {
+            console.error('❌ Firebase db nie je dostupný. Skontroluj, či je aplikácia načítaná.');
+            return;
+        }
+        
+        const { collection, getDocs, updateDoc, doc } = window.firebase.firestore;
+        
+        const contactsRef = collection(window.db, 'contacts');
         const querySnapshot = await getDocs(contactsRef);
         
         let processedCount = 0;
@@ -44,7 +45,7 @@ export async function renamePrimatorField() {
                 
                 // Ulož zmeny
                 if (hasChanges) {
-                    await updateDoc(doc(db, 'contacts', regionId), {
+                    await updateDoc(doc(window.db, 'contacts', regionId), {
                         municipalities: regionData.municipalities
                     });
                     console.log(`✅ ${regionId} uložené`);
@@ -61,4 +62,14 @@ export async function renamePrimatorField() {
     } catch (error) {
         console.error('❌ Chyba pri migrácii:', error);
     }
+}
+
+// Spustenie
+renamePrimatorField();
+
+ */
+
+// Export ako funkcia pre prípadný budúci modul import
+export async function renamePrimatorField() {
+    console.log('❌ Prosím spusti kód priamo v DevTools konzole (F12)');
 }
