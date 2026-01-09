@@ -200,9 +200,9 @@
                 log('🔄 Spúšťam migráciu: primátor → primator', 'info');
                 
                 const contactsRef = db.collection('contacts');
-                const querySnapshot = await contactsRef.get();
+                const regions = await contactsRef.get();
                 
-                if (querySnapshot.empty) {
+                if (regions.empty) {
                     throw new Error('Zbierka contacts je prázdna alebo neexistuje');
                 }
                 
@@ -211,42 +211,44 @@
                 
                 showStatus('Migrácia v progrese... (0%)', 'loading');
 
-                for (const docSnapshot of querySnapshot.docs) {
-                    const regionId = docSnapshot.id;
-                    const regionData = docSnapshot.data();
+                for (const regionDoc of regions.docs) {
+                    const regionId = regionDoc.id;
+                    log(`\n📍 Spracovávam región: ${regionId}`, 'info');
                     
-                    if (regionData.municipalities && Array.isArray(regionData.municipalities)) {
-                        let hasChanges = false;
+                    // Prístup k sub-kolekcii municipalities
+                    const municipalitiesRef = regionDoc.ref.collection('municipalities');
+                    const municipalitiesSnapshot = await municipalitiesRef.get();
+                    
+                    log(`  → Nájdených mestností: ${municipalitiesSnapshot.size}`, 'info');
+                    
+                    for (const munDoc of municipalitiesSnapshot.docs) {
+                        const munData = munDoc.data();
                         
-                        regionData.municipalities.forEach(municipality => {
-                            if (municipality['primátor']) {
-                                const value = municipality['primátor'];
-                                delete municipality['primátor'];
-                                municipality['primator'] = value;
-                                hasChanges = true;
-                                changedCount++;
-                                log(`✓ ${regionId}: ${municipality.id} → pole preimenované`, 'success');
-                            }
-                        });
-                        
-                        if (hasChanges) {
-                            await contactsRef.doc(regionId).update({
-                                municipalities: regionData.municipalities
+                        // Skontroluj či má pole primátor (s dĺžňom)
+                        if (munData['primátor']) {
+                            const value = munData['primátor'];
+                            
+                            // Aktualizuj dokument - odstráň primátor a pridaj primator
+                            await munDoc.ref.update({
+                                'primátor': firebase.firestore.FieldValue.delete(),
+                                'primator': value
                             });
-                            log(`✅ ${regionId} uložené`, 'success');
+                            
+                            changedCount++;
+                            log(`  ✓ ${munData.id || munDoc.id}: ${value} → preimenované`, 'success');
                         }
                     }
                     
                     processedCount++;
-                    const progress = Math.round((processedCount / querySnapshot.size) * 100);
+                    const progress = Math.round((processedCount / regions.size) * 100);
                     showStatus(`Migrácia v progrese... (${progress}%)`, 'loading');
                 }
                 
                 log(`\n✅ MIGRÁCIA DOKONČENÁ!`, 'success');
-                log(`📊 Spracovaných oblastí: ${processedCount}`, 'info');
-                log(`🔄 Zmenených záznamov: ${changedCount}`, 'success');
+                log(`📊 Spracovaných regiónov: ${processedCount}`, 'info');
+                log(`🔄 Zmenených mestností: ${changedCount}`, 'success');
                 
-                showStatus(`✅ Migrácia úspešne dokončená! Zmenené záznamy: ${changedCount}`, 'success');
+                showStatus(`✅ Migrácia úspešne dokončená! Zmenené mestnosti: ${changedCount}`, 'success');
                 
             } catch (error) {
                 log(`❌ Chyba pri migrácii: ${error.message}`, 'error');
