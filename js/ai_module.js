@@ -24,6 +24,42 @@ Po zobrazení výsledkov UKONČI odpoveď - žiadny ďalší text ani návrhy.
 `.trim();
 
 /**
+ * Formátuje telefónne číslo do tvaru: 0905 123 456
+ * Ak sú dve čísla oddelené čiarkou, naformátuje obe
+ */
+function formatPhoneNumber(phone) {
+    if (!phone) return '---';
+    
+    // Ak sú dve čísla oddelené čiarkou, naformátuj obe samostatne
+    if (phone.includes(',')) {
+        return phone.split(',')
+            .map(num => formatSinglePhoneNumber(num.trim()))
+            .join(', ');
+    }
+    
+    return formatSinglePhoneNumber(phone);
+}
+
+/**
+ * Formátuje jedno telefónne číslo
+ */
+function formatSinglePhoneNumber(phone) {
+    if (!phone) return '---';
+    // Odstráň všetky medzery a pomlčky
+    const cleaned = phone.replace(/[\s-]/g, '');
+    // Ak má 10 číslic (slovenský formát): 0905123456 → 0905 123 456
+    if (cleaned.length === 10 && cleaned.startsWith('0')) {
+        return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+    }
+    // Ak má 9 číslic (bez nuly): 905123456 → 905 123 456
+    if (cleaned.length === 9) {
+        return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
+    }
+    // Inak vráť pôvodné
+    return phone;
+}
+
+/**
  * POMOCNÁ FUNKCIA: Naformátuje dáta lokálne bez použitia AI
  * Zabezpečuje rovnaký vzhľad ako z Gemini, ale zadarmo a okamžite.
  * ✅ NOVÉ: Podporuje aj formátovanie zamestnancov a personálu (staff)
@@ -35,7 +71,7 @@ function formatLocalContacts(contacts) {
             // ✅ NOVÉ: Formátovanie pre zamestnancov (novo pridaný z Excel k.xlsx)
             htmlResult += `### osoba: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
             htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
-            htmlResult += `- **kontakt:** ${c.kontakt || '---'}\n`;
+            htmlResult += `- **kontakt:** ${formatPhoneNumber(c.kontakt)}\n`;
             htmlResult += `- **email:** ${c.email || '---'}\n\n`;
         } else if (c.type === 'employee') {
             // Formátovanie pre zamestnancov
@@ -43,7 +79,7 @@ function formatLocalContacts(contacts) {
             htmlResult += `- **oddelenie:** ${c.oddelenie || '---'}\n`;
             htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
             htmlResult += `- **email:** ${c.mail || '---'}\n`;
-            htmlResult += `- **telefón/kontakt:** ${c.telefon || '---'}\n\n`;
+            htmlResult += `- **telefón/kontakt:** ${formatPhoneNumber(c.telefon)}\n\n`;
         } else {
             // Formátovanie pre obce/mestá
             htmlResult += `### obec/mesto: ${c.id || '---'}\n`;
@@ -51,10 +87,10 @@ function formatLocalContacts(contacts) {
             // Zobraz starostu alebo primátora - podľa toho čo existuje
             htmlResult += `- **starosta/primátor:** ${c.name || c.primator || '---'}\n`;
             htmlResult += `- **email:** ${c.em_s || '---'}\n`;
-            htmlResult += `- **mobil:** ${c.mob_s || '---'}\n`;
+            htmlResult += `- **mobil:** ${formatPhoneNumber(c.mob_s)}\n`;
             htmlResult += `- **bydlisko:** ${c.adresa || '---'}\n`;
             htmlResult += `- **email obec/mesto:** ${c.em_o || '---'}\n`;
-            htmlResult += `- **tel. úrad:** ${c.tc_o || '---'}\n\n`;
+            htmlResult += `- **tel. úrad:** ${formatPhoneNumber(c.tc_o)}\n\n`;
         }
         htmlResult += `-----------------------------------\n\n`;
     });
@@ -118,7 +154,13 @@ function filterResultsByType(contacts, type) {
     return contacts.filter(c => c.type === type);
 }
 
-
+/**
+ * POMOCNÁ FUNKCIA: Odstráni diakritiku z textu
+ */
+function removeDiacritics(text) {
+    if (!text) return '';
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 
 /**
  * POMOCNÁ FUNKCIA: Očistí dopyt od "šumových" slov, ktoré by bránili lokálnemu vyhľadaniu.
@@ -127,14 +169,22 @@ function filterResultsByType(contacts, type) {
 function cleanQuery(query) {
     const noiseWords = [
         "starosta", "starostka", "obec", "mesto", "kontakt", 
-        "primator", "primatorka", "na", "hladam", "tel", "email", "cislo"
+        "primator", "primatorka", "primátor", "primátorka", "starostu", "primátora",
+        "na", "hladam", "hľadám", "tel", "email", "cislo", "číslo"
     ];
     
     let cleaned = query.toLowerCase();
+    // Normalizuj aj bez diakritiky
+    const cleanedNoDiacritics = removeDiacritics(cleaned);
+    
     noiseWords.forEach(word => {
         // Regulárny výraz nahradí celé slová bez ohľadu na veľkosť písmen
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         cleaned = cleaned.replace(regex, '');
+        // Skús aj bez diakritiky
+        const wordNoDiacritics = removeDiacritics(word);
+        const regexNoDiacritics = new RegExp(`\\b${wordNoDiacritics}\\b`, 'gi');
+        cleaned = cleaned.replace(regexNoDiacritics, '');
     });
     
     return cleaned.trim();
@@ -163,6 +213,11 @@ async function sendMessageToAI(userMessage) {
             return;
         }
         
+        // ✅ DETEKCIA FUNKCIE (starosta/primátor) v dotaze
+        const hasPrimator = /\b(primátor|primátorka|primator|primatorka)\b/i.test(userMessage);
+        const hasStarosta = /\b(starosta|starostka)\b/i.test(userMessage);
+        const detectedRole = hasPrimator ? 'primator' : (hasStarosta ? 'starosta' : null);
+        
         // --- DETEKCIA OKRESID ---
         const detectedPeriod = detectPeriodId(userMessage);
         
@@ -180,10 +235,24 @@ async function sendMessageToAI(userMessage) {
 
         // --- KROK C: ZOBRAZENIE LOKÁLNYCH VÝSLEDKOV (Ak sa niečo našlo) ---
         if (foundContacts && foundContacts.length > 0) {
-            // ✅ NOVÉ: Ak je query iba okresId, zobrazí iba osôb (staff)
-            if (detectedPeriod && !userMessage.includes(' ')) {
-                // Filtruj iba staff dáta
-                foundContacts = filterResultsByType(foundContacts, 'staff');
+            // ✅ FILTER PODĽA FUNKCIE (ak bola zadaná)
+            if (detectedRole) {
+                foundContacts = foundContacts.filter(c => 
+                    c.type === 'contact' && c.stat === detectedRole
+                );
+            }
+            
+            // ✅ NOVÉ: Ak je query iba okresId, zobrazí iba zamestnancov (staff) z toho okresu
+            if (detectedPeriod) {
+                // Filtruj iba staff dáta pre daný okres
+                foundContacts = foundContacts.filter(c => 
+                    c.type === 'staff' && c.okres && c.okres.toUpperCase() === detectedPeriod
+                );
+                
+                // Ak sa nenašli staff, skús vyhľadať všetky kontakty pre okres
+                if (foundContacts.length === 0) {
+                    foundContacts = await searchContactsInCache(userMessage);
+                }
             }
             
             const formattedHTML = formatLocalContacts(foundContacts);
@@ -324,15 +393,19 @@ function showHelpMessage() {
     const helpText = `
 ## 📚 Nápoveda - Ako vyhľadávať
 
-### Hľadanie osôb (personálu)
-- **id okresu** → zobrazí všetkých zamestnancov OKR z okresu
-- **priezvisko alebo meno a priezvisko** → nájde konkrétnu osobu (zamestnanca)
-- **vedúci** (funkcia) → nájde osoby na danej pozícii
+### Hľadanie osôb (personálu OKR)
+- **ID okresu** (BB, BS, BR ...) → zobrazí všetkých zamestnancov OKR z daného okresu
+- **priezvisko** alebo **meno a priezvisko** → nájde konkrétnu osobu (zamestnanca)
+- **funkciu** (napr. "vedúci", "prednosta") → nájde osoby na danej pozícii
 
 ### Hľadanie obcí a miest
 - **názov obce/mesta** → nájde konkrétnu obec/mesto
-- **starosta a názov obce/mesta** → nájde starostu obce/mesta
-- **ak chceš zobr** → nájde obce/mestá v danom okrese
+- **"starosta"** a **názov obce** → nájde starostu obce (napr. "starosta Vlkanová")
+- **"primátor"** a **názov mesta** → nájde primátora mesta (napr. "primátor Zvolen")
+
+### Vyhľadávanie podľa kontaktov
+- **telefónne číslo** (aj s medzerami alebo bez) → nájde osobu s daným číslom
+- **email** → nájde osobu podľa emailovej adresy
     `.trim();
 
     const area = document.getElementById(IDs.AI.MESSAGES_AREA);
