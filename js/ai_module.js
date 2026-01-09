@@ -32,8 +32,8 @@ function formatLocalContacts(contacts) {
     let htmlResult = "";
     contacts.slice(0, 10).forEach(c => {
         if (c.type === 'staff') {
-            // ✅ NOVÉ: Formátovanie pre personál (novo pridaný z Excel k.xlsx)
-            htmlResult += `### Personál: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
+            // ✅ NOVÉ: Formátovanie pre zamestnancov (novo pridaný z Excel k.xlsx)
+            htmlResult += `### Zamestnanec: ${c.meno || ''} (${c.okres || 'neuvedený okres'})\n`;
             htmlResult += `- **Funkcia:** ${c.funkcia || '---'}\n`;
             htmlResult += `- **Kontakt:** ${c.kontakt || '---'}\n`;
             htmlResult += `- **E-mail:** ${c.email || '---'}\n\n`;
