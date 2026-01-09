@@ -395,9 +395,9 @@ export async function downloadContactsAsXLSX() {
         return;
     }
     
-    let filteredData = allContactsCache;
+    let filteredData = allContactsCache.filter(c => c.type === 'contact'); // Len obce a mestá
     if (selectedOkres !== 'all') {
-        filteredData = allContactsCache.filter(c => c.okres === selectedOkres);
+        filteredData = filteredData.filter(c => c.okres === selectedOkres);
     }
 
     if (filteredData.length === 0) {
