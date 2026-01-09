@@ -51,7 +51,6 @@ function formatLocalContacts(contacts) {
             // Zobraz starostu alebo primátora v závislosti od typu mestnosti
             if (c.primator) {
                 htmlResult += `- **Primátor:** ${c.primator || '---'}\n`;
-                htmlResult += `- **E-mail primátor:** ${c.em_p || '---'}\n`;
             } else {
                 htmlResult += `- **Starosta:** ${c.starosta || '---'}\n`;
                 htmlResult += `- **E-mail starosta:** ${c.em_s || '---'}\n`;
