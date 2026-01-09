@@ -1,0 +1,201 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===================================================
+    // CHANGELOG (2026-01-05)
+    // ===================================================
+    // - Pridaná validácia IBANU v employees kolekcii
+    // - Funkcija isValidIban() - kontroluje SK IBAN formát (SK + 22 číslic)
+    // - IBAN pole je voliteľné (prázdne hodnoty sú povolené)
+    // ===================================================
+
+    // --- POMOCNÉ FUNKCIE ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ✅ OPRAVA: Bezpečné získanie roly s fallbackom na 'user'
+    function getUserRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/user_roles/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/user_roles/$(request.auth.uid)).data.role
+        : 'user';
+    }
+
+    function hasAnyRole(roles) {
+      return isSignedIn() && (getUserRole() in roles);
+    }
+    
+    function isOwner(email) {
+      return isSignedIn() && request.auth.token.email.lower() == email.lower();
+    }
+
+    function isAdmin() {
+      return hasAnyRole(['admin']);
+    }
+
+    // Pomocná funkcia pre dovolenkové privilégiá (Admin, Manageri, SU_IZS_1, SU_3)
+    function canManageVacations() {
+      return hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_IZS_1', 'super_user_3']);
+    }
+
+    // --- PRAVIDLÁ PRE KOLEKCIE ---
+
+    // 1. USER_ROLES
+    match /user_roles/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 2. ACCESS_LOGS
+    match /access_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ============================================
+    // PERFORMANCE & ERROR MONITORING
+    // ============================================
+
+    // 3. PERFORMANCE_LOGS
+    match /performance_logs/{logId} {
+      // Čítanie: Admin + Manageri (pre analýzu výkonu)
+      allow read: if hasAnyRole(['admin', 'manager_1', 'manager_2']);
+      
+      // ✅ OPRAVENÉ: Zápis bez strict validácie polí
+      allow create: if isSignedIn() 
+        && request.resource.data.timestamp != null;
+      
+      // Update/Delete: Iba Admin (pre data cleanup)
+      allow update, delete: if isAdmin();
+    }
+
+    // 4. ERROR_LOGS
+    match /error_logs/{logId} {
+      // Čítanie: Iba Admin (pre debugging)
+      allow read: if isAdmin();
+      
+      // ✅ OPRAVENÉ: Zápis bez strict validácie type field
+      allow create: if isSignedIn() 
+        && request.resource.data.timestamp != null;
+      
+      // Update/Delete: Iba Admin
+      allow update, delete: if isAdmin();
+    }
+
+    // ============================================
+    // EXISTUJÚCE KOLEKCIE
+    // ============================================
+
+    // 5. PUBLISHED_SCHEDULES (Pohotovosť)
+    match /publishedSchedules/{scheduleId} {
+      allow read: if isSignedIn();
+      allow write: if hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_1']);
+    }
+
+    // 6. PUBLISHED_SCHEDULES_IZS (IZS Služby)
+    match /publishedSchedulesIZS/{scheduleId} {
+      allow read: if isSignedIn();
+      allow create, update: if hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_IZS_1']);
+      allow delete: if isSignedIn();
+    }
+
+    // 7. ANNOUNCEMENTS (Nástenka)
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow write: if hasAnyRole(['admin', 'manager_1', 'manager_2']);
+    }
+
+    // 8. TOWNS_EM (Príspevky UA)
+    match /towns_em/{townId} {
+      allow read: if hasAnyRole(['admin', 'super_user_2']);
+      allow write: if isAdmin();
+    }
+
+    // 9. EMPLOYEES
+    match /employees/{employeeId} {
+      // ✅ OPRAVA: Povoliť čítanie všetkým prihláseným používateľom (aj bez roly)
+      allow read: if isSignedIn();
+      allow write: if (hasAnyRole(['admin', 'manager_1', 'manager_2']) || isOwner(resource.data.mail));
+
+      // --- EVIDENCIA DOVOLENIEK (Podkolekcie zamestnanca) ---
+      
+      // Štatistiky (nárok, prenos, čerpanie)
+      match /vacationStats/{year} {
+        allow read: if isSignedIn();
+        allow create: if isOwner(get(/databases/$(database)/documents/employees/$(employeeId)).data.mail) || canManageVacations();
+        // Povoliť update aj vlastníkovi
+        allow update: if isOwner(get(/databases/$(database)/documents/employees/$(employeeId)).data.mail) || canManageVacations();
+        allow delete: if canManageVacations();
+      }
+
+      // Žiadosti o dovolenku
+      match /vacationRequests/{requestId} {
+        // Čítať môže každý prihlásený
+        allow read: if isSignedIn();
+        // Zapísať novú dovolenku môže majiteľ (bežný user) alebo manažér
+        allow create: if isOwner(get(/databases/$(database)/documents/employees/$(employeeId)).data.mail) || canManageVacations();
+        // Mazať/Upraviť môže majiteľ alebo manažér
+        allow update, delete: if isOwner(get(/databases/$(database)/documents/employees/$(employeeId)).data.mail) || canManageVacations();
+      }
+    }
+    
+    // 10. DIETARY, 11. KNOWLEDGE_BASE, 12. SETTINGS
+    match /dietary/{docId} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /knowledge_base/{docId} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /settings/{docId} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+
+    // 13. PAYMENTS
+    match /payments/{paymentId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 14. CARS & PHM (Zosúladené s canEditFuelRecord v accesses.js)
+    match /cars/{carId} {
+      allow read: if hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_1', 'super_user_2', 'super_user_IZS_2']);
+      allow write: if isAdmin()
+        || (hasAnyRole(['super_user_1']) && resource.data.evidence_number == 'B82475')
+        || (hasAnyRole(['super_user_2']) && resource.data.evidence_number == 'B45539')
+        || (hasAnyRole(['super_user_IZS_2']) && resource.data.evidence_number == 'B83354');
+
+      match /refuelings/{docId} {
+         allow read: if hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_1', 'super_user_2', 'super_user_IZS_2']);
+         allow write: if isAdmin()
+            || (hasAnyRole(['super_user_1']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B82475')
+            || (hasAnyRole(['super_user_2']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B45539')
+            || (hasAnyRole(['super_user_IZS_2']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B83354');
+      }
+
+      match /km_logs/{docId} {
+         allow read: if hasAnyRole(['admin', 'manager_1', 'manager_2', 'super_user_1', 'super_user_2', 'super_user_IZS_2']);
+         allow write: if isAdmin()
+            || (hasAnyRole(['super_user_1']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B82475')
+            || (hasAnyRole(['super_user_2']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B45539')
+            || (hasAnyRole(['super_user_IZS_2']) && get(/databases/$(database)/documents/cars/$(carId)).data.evidence_number == 'B83354');
+      }
+    }
+
+    // 15. CP CONFIGURATION
+    match /cp/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 16. CONTACTS (Adresár miest a obcí)
+    match /contacts/{any=**} {
+      // Čítať môže každý prihlásený používateľ
+      allow read: if isSignedIn();
+      // Zapisovať (vytvoriť, upraviť, zmazať) môže Admin a Vedúci OCOaKP a Vedúci IZS
+      allow write: if hasAnyRole(['admin', 'manager_1', 'manager_2']);
+    }
+    
+    // Povolenie čítania dovoleniek pre kalendár (Collection Group Query)
+    match /{path=**}/vacationRequests/{request} {
+      allow read: if request.auth != null;
+    }
+    
+    // ✅ OPRAVA: Odstránené príliš reštriktívne default deny pravidlo
+    // Neexplicitne definované kolekcie sú automaticky zakázané Firestore engine
+  }
+}

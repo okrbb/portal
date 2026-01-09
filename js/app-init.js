@@ -24,6 +24,8 @@ import { SidebarManager } from './sidebar.js';
 import { NavigationManager } from './navigation.js';
 import { DashboardManager } from './dashboard.js';
 
+import { importStaffToContacts } from './staff_import_helper.js';
+
 /**
  * Trieda na inicializáciu aplikácie.
  */

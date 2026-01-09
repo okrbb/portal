@@ -910,15 +910,15 @@
     </script>
 
     <!-- Update Notification System -->
-    <div id="update-notification" class="update-notification" style="display: none;">
+    <div id="update__notification" class="update-notification" style="display: none;">
         <div class="update-notification-content">
             <i class="fas fa-info-circle"></i>
             <div class="update-notification-text">
                 <strong>Nová verzia</strong>
-                <p id="update-message">Nová verzia aplikácie je dostupná. Aplikácia sa automaticky obnoví...</p>
+                <p id="update__message">Nová verzia aplikácie je dostupná. Aplikácia sa automaticky obnoví...</p>
             </div>
-            <button id="update-reload-btn" class="update-reload-btn">Obnoviť teraz</button>
-            <button id="update-close-btn" class="update-close-btn">Zatvoriť</button>
+            <button id="update__reload-btn" class="update-reload-btn">Obnoviť teraz</button>
+            <button id="update__close-btn" class="update-close-btn">Zatvoriť</button>
         </div>
     </div>
 
@@ -1053,10 +1053,10 @@
         }
 
         function showUpdateNotification(message) {
-            const notification = document.getElementById('update-notification');
-            const messageElement = document.getElementById('update-message');
-            const reloadBtn = document.getElementById('update-reload-btn');
-            const closeBtn = document.getElementById('update-close-btn');
+            const notification = document.getElementById('update__notification');
+            const messageElement = document.getElementById('update__message');
+            const reloadBtn = document.getElementById('update__reload-btn');
+            const closeBtn = document.getElementById('update__close-btn');
 
             if (messageElement) {
                 messageElement.textContent = message;
