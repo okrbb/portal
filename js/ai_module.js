@@ -73,6 +73,14 @@ function formatLocalContacts(contacts) {
             htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
             htmlResult += `- **kontakt:** ${formatPhoneNumber(c.kontakt)}\n`;
             htmlResult += `- **email:** ${c.email || '---'}\n\n`;
+        } else if (c.type === 'skr') {
+            // ✅ NOVÉ (2026-01-09): Formátovanie pre zamestnancov SKR
+            htmlResult += `### SKR: ${c.meno || ''} (${c.utvar || 'neuvedený útvar'})\n`;
+            htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **telefon:** ${formatPhoneNumber(c.telefon)}\n`;
+            htmlResult += `- **kontakt:** ${formatPhoneNumber(c.kontakt)}\n`;
+            htmlResult += `- **email:** ${c.email || '---'}\n`;
+            htmlResult += `- **odbor:** ${c.odbor || '---'}\n\n`;
         } else if (c.type === 'employee') {
             // Formátovanie pre zamestnancov
             htmlResult += `### zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';

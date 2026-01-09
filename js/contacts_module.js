@@ -172,6 +172,38 @@ export async function loadContactsToCache() {
             console.warn("Chyba pri načítaní personálu (staff):", e);
         }
 
+        // 4. ✅ NOVÉ (2026-01-09): Načítanie zamestnancov SKR
+        try {
+            const skrSnapshot = await getDocs(collection(db, "SKR"));
+            skrSnapshot.forEach(doc => {
+                const odbor = doc.data();
+                const odborId = doc.id;
+                
+                // Každý dokument v SKR má pole "data" s ľuďmi
+                if (odbor.data && Array.isArray(odbor.data)) {
+                    odbor.data.forEach((person, index) => {
+                        const skrId = `skr_${odborId}_${index}`;
+                        tempCache.push({
+                            id: skrId,
+                            title: `${person.meno || ''}`.trim(),
+                            type: 'skr',
+                            meno: person.meno || '',
+                            funkcia: person.funkcia || '',
+                            kontakt: person.kontakt || '',
+                            telefon: person.telefon || '',
+                            email: person.email || '',
+                            utvar: person.utvar || '',
+                            odbor: odborId,  // ID odboru (KGR, ORG, atď.)
+                            ...person
+                        });
+                    });
+                }
+            });
+            console.log("[Kontakty] Zamestnanci SKR úspešne načítaní");
+        } catch (e) {
+            console.warn("Chyba pri načítaní zamestnancov SKR:", e);
+        }
+
         allContactsCache = tempCache;
         allContactsCache.sort((a, b) => a.title.localeCompare(b.title, 'sk'));
 
@@ -196,36 +228,76 @@ export async function searchContactsInWorker(queryText) {
 export function searchContactsInCache(userQuery) {
     if (!userQuery) return [];
     const lowerQuery = userQuery.toLowerCase();
-    return allContactsCache.filter(c => 
-        // Vyhľadávanie obcí/miest
-        (c.type === 'contact' && (
-            (c.id && c.id.toLowerCase().includes(lowerQuery)) ||
-            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
-            (c.municipality && c.municipality.toLowerCase().includes(lowerQuery)) ||
-            (c.name && c.name.toLowerCase().includes(lowerQuery)) ||
-            (c.mayor && c.mayor.toLowerCase().includes(lowerQuery)) ||
-            (c.primator && c.primator.toLowerCase().includes(lowerQuery))
-        )) ||
-        // Vyhľadávanie zamestnancov
-        (c.type === 'employee' && (
-            (c.meno && c.meno.toLowerCase().includes(lowerQuery)) ||
-            (c.priezvisko && c.priezvisko.toLowerCase().includes(lowerQuery)) ||
-            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
-            (c.mail && c.mail.toLowerCase().includes(lowerQuery)) ||
-            (c.telefon && c.telefon.toLowerCase().includes(lowerQuery)) ||
-            (c.oddelenie && c.oddelenie.toLowerCase().includes(lowerQuery)) ||
-            (c.funkcia && c.funkcia.toLowerCase().includes(lowerQuery))
-        )) ||
-        // ✅ NOVÉ: Vyhľadávanie personálu (staff - novo pridané z Excel)
-        (c.type === 'staff' && (
-            (c.meno && c.meno.toLowerCase().includes(lowerQuery)) ||
-            (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
-            (c.funkcia && c.funkcia.toLowerCase().includes(lowerQuery)) ||
-            (c.kontakt && c.kontakt.toLowerCase().includes(lowerQuery)) ||
-            (c.email && c.email.toLowerCase().includes(lowerQuery)) ||
-            (c.okres && c.okres.toLowerCase().includes(lowerQuery))
-        ))
-    );
+    const cleanedQuery = lowerQuery.replace(/[\s-]/g, ''); // Odstráň medzery pre porovnanie telefónov
+    
+    // Helper: Presné vyhľadávanie - celé slovo, nie substring
+    const matchesWord = (text, query) => {
+        if (!text) return false;
+        const regex = new RegExp(`\\b${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
+        return regex.test(text);
+    };
+    
+    // Helper: Substring vyhľadávanie (pôvodné správanie)
+    const matchesSubstring = (text, query) => {
+        if (!text) return false;
+        return text.toLowerCase().includes(query);
+    };
+    
+    return allContactsCache.filter(c => {
+        // Helper funkcia pre porovnanie telefónnych čísel
+        const matchesPhone = (phone) => {
+            if (!phone) return false;
+            const cleanedPhone = phone.replace(/[\s-]/g, '').toLowerCase();
+            return cleanedPhone.includes(cleanedQuery) || phone.toLowerCase().includes(lowerQuery);
+        };
+        
+        return (
+            // Vyhľadávanie obcí/miest - substring pre názvy (aby "zvolen" našlo aj "Zvolenská Slatina")
+            (c.type === 'contact' && (
+                matchesSubstring(c.id, lowerQuery) ||
+                matchesSubstring(c.title, lowerQuery) ||
+                matchesSubstring(c.municipality, lowerQuery) ||
+                matchesSubstring(c.name, lowerQuery) ||
+                matchesSubstring(c.stat, lowerQuery) ||
+                matchesSubstring(c.em_o, lowerQuery) ||
+                matchesSubstring(c.em_s, lowerQuery) ||
+                matchesPhone(c.mob_s) ||
+                matchesPhone(c.tc_o) ||
+                matchesPhone(c.tc_s) ||
+                matchesSubstring(c.okres, lowerQuery)
+            )) ||
+            // Vyhľadávanie zamestnancov
+            (c.type === 'employee' && (
+                matchesSubstring(c.meno, lowerQuery) ||
+                matchesSubstring(c.priezvisko, lowerQuery) ||
+                matchesSubstring(c.title, lowerQuery) ||
+                matchesSubstring(c.mail, lowerQuery) ||
+                matchesPhone(c.telefon) ||
+                matchesSubstring(c.oddelenie, lowerQuery) ||
+                matchesSubstring(c.funkcia, lowerQuery)
+            )) ||
+            // Vyhľadávanie personálu (staff z root dokumentov)
+            (c.type === 'staff' && (
+                matchesSubstring(c.meno, lowerQuery) ||
+                matchesSubstring(c.title, lowerQuery) ||
+                matchesSubstring(c.funkcia, lowerQuery) ||
+                matchesPhone(c.kontakt) ||
+                matchesSubstring(c.email, lowerQuery) ||
+                matchesSubstring(c.okres, lowerQuery)
+            )) ||
+            // Vyhľadávanie zamestnancov SKR
+            (c.type === 'skr' && (
+                matchesSubstring(c.meno, lowerQuery) ||
+                matchesSubstring(c.title, lowerQuery) ||
+                matchesSubstring(c.funkcia, lowerQuery) ||
+                matchesPhone(c.kontakt) ||
+                matchesPhone(c.telefon) ||
+                matchesSubstring(c.email, lowerQuery) ||
+                matchesSubstring(c.utvar, lowerQuery) ||
+                matchesSubstring(c.odbor, lowerQuery)
+            ))
+        );
+    });
 }
 
 /**
@@ -308,6 +380,25 @@ export function initializeContactsModule() {
 }
 
 /**
+ * Formátuje telefónne číslo do tvaru: 0905 123 456
+ */
+function formatPhoneNumber(phone) {
+    if (!phone) return '---';
+    // Odstráň všetky medzery a pomlčky
+    const cleaned = phone.replace(/[\s-]/g, '');
+    // Ak má 10 číslic (slovenský formát): 0905123456 → 0905 123 456
+    if (cleaned.length === 10 && cleaned.startsWith('0')) {
+        return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+    }
+    // Ak má 9 číslic (bez nuly): 905123456 → 905 123 456
+    if (cleaned.length === 9) {
+        return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
+    }
+    // Inak vráť pôvodné
+    return phone;
+}
+
+/**
  * Zobrazuje vizitky obcí.
  */
 function renderResults(list) {
@@ -369,11 +460,11 @@ function renderResults(list) {
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--color-border); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="fuel-stat-item">
                         <span class="fuel-stat-label">Mobil starosta</span>
-                        <a href="tel:${c.mob_s}" class="fuel-stat-value" style="text-decoration:none; font-size: 1rem;">${c.mob_s || '---'}</a>
+                        <a href="tel:${c.mob_s}" class="fuel-stat-value" style="text-decoration:none; font-size: 1rem;">${formatPhoneNumber(c.mob_s)}</a>
                     </div>
                     <div class="fuel-stat-item">
                         <span class="fuel-stat-label">Telefón obec</span>
-                        <a href="tel:${c.tc_o}" class="fuel-stat-value" style="text-decoration:none; font-size: 1rem;">${c.tc_o || '---'}</a>
+                        <a href="tel:${c.tc_o}" class="fuel-stat-value" style="text-decoration:none; font-size: 1rem;">${formatPhoneNumber(c.tc_o)}</a>
                     </div>
                 </div>
             </div>
