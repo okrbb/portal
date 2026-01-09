@@ -108,13 +108,12 @@ export async function loadContactsToCache() {
                 const uniqueId = `${okresId}_${doc.id}`; 
                 
                 tempCache.push({
+                    ...data,  // Najprv rozbalíme všetky dáta z Firebase
                     id: uniqueId,
                     title: doc.id,
                     municipality: doc.id,
                     okres: okresId,
-                    type: 'contact',
-                    mayor: data.name || '',
-                    ...data
+                    type: 'contact'
                 });
             });
         }
