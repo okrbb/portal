@@ -145,30 +145,29 @@ export async function loadContactsToCache() {
 
         // 3. ✅ NOVÉ (2026-01-09): Načítanie personálu (staff) z kontaktov
         try {
-            for (const okresId of okresy) {
-                const querySnapshot = await getDocs(collection(db, "contacts"));
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    
-                    // Ak dokument má pole "staff", načítaj personál
-                    if (data.staff && Array.isArray(data.staff)) {
-                        data.staff.forEach((person, index) => {
-                            const staffId = `staff_${doc.id}_${index}`;
-                            tempCache.push({
-                                id: staffId,
-                                title: `${person.meno || ''}`.trim(),
-                                type: 'staff',
-                                meno: person.meno || '',
-                                funkcia: person.funkcia || '',
-                                kontakt: person.kontakt || '',
-                                email: person.email || '',
-                                okres: doc.id,  // ID okresu z kontaktu
-                                ...person
-                            });
+            // ✅ OPRAVA: Nenačítavaj viackrát - jeden query na všetky dokumenty
+            const querySnapshot = await getDocs(collection(db, "contacts"));
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                
+                // Ak dokument má pole "staff", načítaj personál
+                if (data.staff && Array.isArray(data.staff)) {
+                    data.staff.forEach((person, index) => {
+                        const staffId = `staff_${doc.id}_${index}`;
+                        tempCache.push({
+                            id: staffId,
+                            title: `${person.meno || ''}`.trim(),
+                            type: 'staff',
+                            meno: person.meno || '',
+                            funkcia: person.funkcia || '',
+                            kontakt: person.kontakt || '',
+                            email: person.email || '',
+                            okres: doc.id,  // ID okresu z kontaktu
+                            ...person
                         });
-                    }
-                });
-            }
+                    });
+                }
+            });
             console.log("[Kontakty] Personál (staff) úspešne načítaný");
         } catch (e) {
             console.warn("Chyba pri načítaní personálu (staff):", e);
