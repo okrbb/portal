@@ -117,47 +117,7 @@ function filterResultsByType(contacts, type) {
     return contacts.filter(c => c.type === type);
 }
 
-/**
- * GLOBÁLNA FUNKCIA: Spustí vyhľadávanie s filterom - volaná z tlačidiel
- */
-async function filterAndDisplayResults(periodId, type) {
-    const typeLabel = type === 'staff' ? 'Osoby' : 'Obce';
-    
-    // Skryj tlačidlá
-    const filterButtons = document.querySelector('.ai-filter-buttons');
-    if (filterButtons) filterButtons.style.display = 'none';
-    
-    // Zobraz loading
-    const area = document.getElementById(IDs.AI.MESSAGES_AREA);
-    const loadingId = `filter-loading-${Date.now()}`;
-    appendMessage(`<i class="fas fa-circle-notch fa-spin"></i> Hľadám ${typeLabel.toLowerCase()} z ${periodId}...`, 'assistant-msg', loadingId);
-    
-    try {
-        // Vyhľadaj všetko z tohto obdobia
-        let allResults = await searchContactsInCache(periodId);
-        
-        // Filtruj podľa typu
-        let filtered = filterResultsByType(allResults, type);
-        
-        // Odstráň loading správu
-        document.getElementById(loadingId)?.remove();
-        
-        // Zobraz výsledky
-        if (filtered.length > 0) {
-            const formattedHTML = formatLocalContacts(filtered);
-            appendMessage(formattedHTML, 'assistant-msg');
-        } else {
-            appendMessage(`Žiadne výsledky pre ${typeLabel.toLowerCase()} v ${periodId}.`, 'assistant-msg');
-        }
-    } catch (error) {
-        console.error("Filter Error:", error);
-        document.getElementById(loadingId)?.remove();
-        appendMessage(`❌ Chyba pri filtrovaní.`, 'assistant-msg error-msg');
-    }
-}
 
-// Sprístupni na globálny scope
-window.filterAndDisplayResults = filterAndDisplayResults;
 
 /**
  * POMOCNÁ FUNKCIA: Očistí dopyt od "šumových" slov, ktoré by bránili lokálnemu vyhľadaniu.
@@ -181,7 +141,7 @@ function cleanQuery(query) {
 
 /**
  * UPRAVENÁ HLAVNÁ FUNKCIA: Hybridné vyhľadávanie (Lokálne -> Očistené lokálne -> AI)
- * ✅ NOVÉ: Detekuje okresId a ponúka filter tlačidlá
+ * ✅ NOVÉ: Ak je query iba okresId, zobrazí iba osôb (staff)
  */
 async function sendMessageToAI(userMessage) {
     if (!userMessage || userMessage.trim() === '') return;
@@ -209,40 +169,12 @@ async function sendMessageToAI(userMessage) {
 
         // --- KROK C: ZOBRAZENIE LOKÁLNYCH VÝSLEDKOV (Ak sa niečo našlo) ---
         if (foundContacts && foundContacts.length > 0) {
-            // ✅ NOVÉ: Ak je to len okresId, ponúkni filter
+            // ✅ NOVÉ: Ak je query iba okresId, zobrazí iba osôb (staff)
             if (detectedPeriod && !userMessage.includes(' ')) {
-                const staffCount = foundContacts.filter(c => c.type === 'staff').length;
-                const contactCount = foundContacts.filter(c => c.type === 'contact').length;
-                
-                document.getElementById(loadingId)?.remove();
-                
-                // Zobraz question s tlačidlami
-                let question = `Nájdoval som v ${detectedPeriod}:\n`;
-                if (staffCount > 0) question += `- **${staffCount} osôb**\n`;
-                if (contactCount > 0) question += `- **${contactCount} obcí**\n\n`;
-                question += `Čo ťa zaujíma?`;
-                
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'ai-msg assistant-msg ai-filter-buttons';
-                msgDiv.innerHTML = marked.parse(question) + `
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        <button onclick="filterAndDisplayResults('${detectedPeriod}', 'contact')" 
-                                style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            🏘️ Obce
-                        </button>
-                        <button onclick="filterAndDisplayResults('${detectedPeriod}', 'staff')" 
-                                style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            👥 Osoby
-                        </button>
-                    </div>
-                `;
-                const area = document.getElementById(IDs.AI.MESSAGES_AREA);
-                area.appendChild(msgDiv);
-                area.scrollTop = area.scrollHeight;
-                return;
+                // Filtruj iba staff dáta
+                foundContacts = filterResultsByType(foundContacts, 'staff');
             }
             
-            // Normálne zobrazenie bez tlačidiel
             const formattedHTML = formatLocalContacts(foundContacts);
             document.getElementById(loadingId)?.remove();
             appendMessage(formattedHTML, 'assistant-msg');
