@@ -3,10 +3,10 @@
 import MiniSearch from 'https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/es/index.js';
 
 let searchEngine = new MiniSearch({
-    fields: ['title', 'description', 'keywords', 'category', 'municipality', 'mayor', 'name'],
-    storeFields: ['id', 'title', 'description', 'category', 'okres', 'municipality', 'name', 'stat', 'starosta', 'adresa', 'em_o', 'em_s', 'mob_s', 'tc_o', 'tc_s', 'tc_d', 'type'],
+    fields: ['title', 'description', 'keywords', 'category', 'municipality', 'mayor', 'name', 'adresa', 'em_o', 'em_s', 'mob_s', 'tc_o', 'stat', 'meno', 'funkcia', 'kontakt', 'email'],
+    storeFields: ['id', 'title', 'description', 'category', 'okres', 'municipality', 'name', 'stat', 'adresa', 'em_o', 'em_s', 'mob_s', 'tc_o', 'tc_s', 'tc_d', 'type', 'meno', 'priezvisko', 'funkcia', 'kontakt', 'email', 'mail', 'telefon', 'oddelenie'],
     searchOptions: {
-        boost: { title: 3, municipality: 3, mayor: 2, name: 2, keywords: 2 },
+        boost: { title: 3, municipality: 3, name: 3, meno: 3, adresa: 2, em_s: 2, em_o: 2, funkcia: 2, keywords: 2 },
         fuzzy: 0.2,
         prefix: true
     }
