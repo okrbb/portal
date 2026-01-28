@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 
 import { showToast, TOAST_TYPE, safeAsync, ModalManager } from './utils.js';
-import { fetchCollection, addDocument, updateDocument, deleteDocument } from './firebase_helpers.js';
+import { fetchCollection, addDocument, updateDocument, deleteDocument, batchOperation } from './firebase_helpers.js';
 import { lazyLoader } from './lazy_loader.js';
 
 import { Permissions } from './accesses.js';
@@ -229,7 +229,9 @@ async function calculateMonthlyStats(carId, monthStr, yearStr) {
         let endOfMonthFuel = null;
         if (monthlyEvents.length > 0) {
             monthlyEvents.sort((a, b) => b.date - a.date);
-            endOfMonthFuel = monthlyEvents[0].fuelLevel ?? 0;
+            // Nájdi prvý element ktorý MÁ fuel level (niektoré km_logs môžu mať undefined)
+            const eventWithFuel = monthlyEvents.find(e => e.fuelLevel !== undefined && e.fuelLevel !== null);
+            endOfMonthFuel = eventWithFuel ? eventWithFuel.fuelLevel : 0;
         }
 
         let avgCons = 0, isVirtual = false;
