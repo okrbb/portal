@@ -517,6 +517,11 @@ export function initializeSCHDModule() {
         const keys = Object.keys(appState.dutyAssignments).filter(k => k.startsWith(`${appState.selectedYear}-${appState.selectedMonth}-`));
         if (keys.length === 0) return showToast("Priraďte aspoň jedného zamestnanca.", TOAST_TYPE.ERROR);
         
+        // Pred generovaním PDF načítaj aktuálne hodnoty z inputov
+        if (elMonthSelect && elYearSelect) {
+            appState.selectedMonth = parseInt(elMonthSelect.value);
+            appState.selectedYear = parseInt(elYearSelect.value);
+        }
         showToast('Generujem náhľad PDF...', TOAST_TYPE.INFO);
         if (!customFontBase64) await loadFontData();
 
@@ -540,7 +545,14 @@ export function initializeSCHDModule() {
             }
             doc.setFontSize(14);
             doc.text(`Rozpis pohotovosti - OKR BB`, 105, 15, { align: 'center' });
-            doc.text(`${monthNames[appState.selectedMonth].charAt(0).toUpperCase() + monthNames[appState.selectedMonth].slice(1)} ${appState.selectedYear}`, 105, 22, { align: 'center' });
+            // Oprava: ochrana proti chybnému indexu mesiaca a logovanie
+            let monthIdx = Number(appState.selectedMonth);
+            if (isNaN(monthIdx) || monthIdx < 0 || monthIdx > 11) {
+                console.warn('Neplatný index mesiaca pre PDF:', monthIdx, 'appState.selectedMonth:', appState.selectedMonth);
+                monthIdx = 0; // fallback na január
+            }
+            const monthTitle = monthNames[monthIdx].charAt(0).toUpperCase() + monthNames[monthIdx].slice(1);
+            doc.text(`${monthTitle} ${appState.selectedYear}`, 105, 22, { align: 'center' });
             
             const body = [];
             const weeks = getWeeksForMonth(appState.selectedYear, appState.selectedMonth);
