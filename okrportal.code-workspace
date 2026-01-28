@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../sar"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "sar"
+	}
+}
