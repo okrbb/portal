@@ -12,6 +12,7 @@ const COLLECTIONS_TO_BACKUP = [
     'payments',   
     'publishedSchedules',   
     'publishedSchedulesIZS',
+    'SKR',
     'towns_em',             
     'user_roles'        
 ];

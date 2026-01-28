@@ -110,6 +110,20 @@ export const Permissions = {
     },
 
     /**
+     * Adresár SKR (Slovenský Kynologický Rez)
+     */
+    canViewSKR: (user) => {
+        // SKR môže vyhľadávať každý prihlásený užívateľ
+        return !!user;
+    },
+
+    canEditSKR: (user) => {
+         if (!user) return false;
+        // Editovať môže Admin a Vedúci OCOaKP (manager_1)
+        return hasRole(user, ROLES.ADMIN, ROLES.MANAGER_1, ROLES.MANAGER_2);
+    },
+
+    /**
      * Zoznam zamestnancov (Pravý panel a Detail)
      */
     canViewEmployeeList: (user, targetEmp, activeModuleId) => {
@@ -192,6 +206,21 @@ export const Permissions = {
      * Adresár miest a obcí (demo režim)
      */
     canDownloadContacts: (user) => {
+        if (!user) return false;
+        
+        // Ak je aktívny demo režim pre daný email, sťahovanie zakážeme
+        if (isDemoUser(user.email)) {
+            return false;
+        }
+        
+        // Ostatní prihlásení používatelia môžu sťahovať
+        return true; 
+    },
+
+    /**
+     * Adresár SKR (demo režim)
+     */
+    canDownloadSKR: (user) => {
         if (!user) return false;
         
         // Ak je aktívny demo režim pre daný email, sťahovanie zakážeme

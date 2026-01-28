@@ -73,6 +73,14 @@ function formatLocalContacts(contacts) {
             htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
             htmlResult += `- **kontakt:** ${formatPhoneNumber(c.kontakt)}\n`;
             htmlResult += `- **email:** ${c.email || '---'}\n\n`;
+        } else if (c.type === 'skr') {
+            // ✅ NOVÉ (2026-01-09): Formátovanie pre zamestnancov SKR
+            htmlResult += `### SKR: ${c.meno || ''} (${c.utvar || 'neuvedený útvar'})\n`;
+            htmlResult += `- **funkcia:** ${c.funkcia || '---'}\n`;
+            htmlResult += `- **telefón:** ${formatPhoneNumber(c.telefon)}\n`;
+            htmlResult += `- **kontakt:** ${formatPhoneNumber(c.kontakt)}\n`;
+            htmlResult += `- **email:** ${c.email || '---'}\n`;
+            htmlResult += `- **odbor:** ${c.odbor || '---'}\n\n`;
         } else if (c.type === 'employee') {
             // Formátovanie pre zamestnancov
             htmlResult += `### zamestnanec: ${c.meno || ''} ${c.priezvisko || ''}`.trim() + '\n';
@@ -397,6 +405,11 @@ function showHelpMessage() {
 - **ID okresu** (BB, BS, BR ...) → zobrazí všetkých zamestnancov OKR z daného okresu
 - **priezvisko** alebo **meno a priezvisko** → nájde konkrétnu osobu (zamestnanca)
 - **funkciu** (napr. "vedúci", "prednosta") → nájde osoby na danej pozícii
+
+### Hľadanie zamestnancov SKR
+- **priezvisko** alebo **meno a priezvisko** → nájde konkrétneho zamestnanca SKR
+- **funkciu** → nájde zamestnancov na danej pozícii
+- **odbor (skratka)** → KGR, ORG, ORGo, oSM, OOR, CMSR, oVaV, oIZS, OMS, OCOaKP, OCO, KCHL, CBTC, oUSaZV, oT, oP, oRCHB, LZ
 
 ### Hľadanie obcí a miest
 - **názov obce/mesta** → nájde konkrétnu obec/mesto
