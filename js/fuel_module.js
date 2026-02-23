@@ -319,11 +319,7 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
         div.querySelector('.km-btn').onclick = (e) => { e.stopPropagation(); openKmModal(docId, rawCarData.current_km); };
     }
     div.querySelector('.history-btn').onclick = (e) => { e.stopPropagation(); openHistoryModal(docId, rawCarData.brand); };
-    div.addEventListener('click', (e) => {
-        if (!e.target.closest('.fuel-action-btn')) {
-            openHistoryModal(docId, rawCarData.brand);
-        }
-    });
+    div.onclick = () => openHistoryModal(docId, rawCarData.brand);
     return div;
 }
 
