@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 
 import { showToast, TOAST_TYPE, safeAsync, ModalManager } from './utils.js';
-import { fetchCollection, addDocument, updateDocument, deleteDocument, batchOperation } from './firebase_helpers.js';
+import { fetchCollection, addDocument, updateDocument, deleteDocument } from './firebase_helpers.js';
 import { lazyLoader } from './lazy_loader.js';
 
 import { Permissions } from './accesses.js';
@@ -229,9 +229,7 @@ async function calculateMonthlyStats(carId, monthStr, yearStr) {
         let endOfMonthFuel = null;
         if (monthlyEvents.length > 0) {
             monthlyEvents.sort((a, b) => b.date - a.date);
-            // Nájdi prvý element ktorý MÁ fuel level (niektoré km_logs môžu mať undefined)
-            const eventWithFuel = monthlyEvents.find(e => e.fuelLevel !== undefined && e.fuelLevel !== null);
-            endOfMonthFuel = eventWithFuel ? eventWithFuel.fuelLevel : 0;
+            endOfMonthFuel = monthlyEvents[0].fuelLevel ?? 0;
         }
 
         let avgCons = 0, isVirtual = false;
@@ -321,7 +319,11 @@ function createCarCard(docId, rawCarData, displayData, isMonthly) {
         div.querySelector('.km-btn').onclick = (e) => { e.stopPropagation(); openKmModal(docId, rawCarData.current_km); };
     }
     div.querySelector('.history-btn').onclick = (e) => { e.stopPropagation(); openHistoryModal(docId, rawCarData.brand); };
-    div.onclick = () => openHistoryModal(docId, rawCarData.brand);
+    div.addEventListener('click', (e) => {
+        if (!e.target.closest('.fuel-action-btn')) {
+            openHistoryModal(docId, rawCarData.brand);
+        }
+    });
     return div;
 }
 
