@@ -331,12 +331,9 @@ function openFuelModal(carId = null, currentKm = 0) {
     const carIdInput = document.getElementById(IDs.FUEL.CAR_ID);
     const dateInput = document.getElementById(IDs.FUEL.DATE);
     const kmInput = document.getElementById(IDs.FUEL.KM);
-
-    //OPRAVA: Ochrana pred null - ak elementy neexistujú, modal sa neotvorí bez chyby
-    const newCarFields = document.getElementById(IDs.FUEL.NEW_CAR_FIELDS);
-    const refuelFields = document.getElementById(IDs.FUEL.REFUEL_FIELDS);
-    const fuelForm = document.getElementById(IDs.FUEL.FORM);
-
+    document.getElementById(IDs.FUEL.NEW_CAR_FIELDS).classList.add('hidden');
+    document.getElementById(IDs.FUEL.REFUEL_FIELDS).classList.remove('hidden');
+    document.getElementById(IDs.FUEL.FORM).reset();
     let defaultDate = new Date();
     if (filterState.month !== '') {
         const filterMonth = parseInt(filterState.month), filterYear = parseInt(filterState.year);
