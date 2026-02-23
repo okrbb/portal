@@ -13,6 +13,15 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 12px;
+    /* ✅ OPRAVA: Wrapper nesmie blokovať kliknutia na prvky pod ním */
+    pointer-events: none;
+}
+
+/* Interaktívne deti musia mať pointer-events: auto */
+.action-panel-toggle,
+.action-panel-menu,
+.action-panel-item {
+    pointer-events: auto;
 }
 
 /* === HLAVNÉ FAB TLAČIDLO (Toggle) === */
