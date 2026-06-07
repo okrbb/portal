@@ -417,8 +417,8 @@ function collectFormData(emp) {
     return {
         // ✅ PRIDANÉ: OEC a spojené dátumy s časom
         OEC: emp.oec || '', // Získané z dát zamestnanca v store
-        datum_zc: `${fDatumZc} ${datumZcCas}`.trim(), // Spojenie dátumu a času odchodu
-        datum_kc: `${fDatumKc} ${datumKcCas}`.trim(), // Spojenie dátumu a času príchodu
+        datum_zc: fDatumZc, // Len dátum odchodu (DD.MM.YYYY)
+        datum_kc: fDatumKc, // Len dátum príchodu (DD.MM.YYYY)
 
         // Údaje o zamestnancovi
         oddelenie: emp.oddelenie || '',
