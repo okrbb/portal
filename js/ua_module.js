@@ -269,17 +269,24 @@ export function initializeUAModule(db, activeUser) {
                 globalRok = '';    
                 const header = data[0]; 
                 
-                const ovmIndex = header.indexOf('ovm');
-                const mesiacIndex = header.indexOf('mesiac'); 
-                const rokIndex = header.indexOf('rok');       
+                // Vyhľadávanie indexov s podporou starých textových názvov aj nového formátu (písmená stĺpcov)
+                const ovmIndex = header.findIndex(col => 
+                    typeof col === 'string' && (col.toLowerCase() === 'ovm' || col.toUpperCase() === 'D')
+                );
+                const mesiacIndex = header.findIndex(col => 
+                    typeof col === 'string' && (col.toLowerCase() === 'mesiac' || col.toUpperCase() === 'W')
+                );
+                const rokIndex = header.findIndex(col => 
+                    typeof col === 'string' && (col.toLowerCase() === 'rok' || col.toUpperCase() === 'X')
+                );
 
                 if (ovmIndex === -1) {
-                    showToast('Chyba: V súbore chýba stĺpec "ovm".', TOAST_TYPE.ERROR);
+                    showToast('Chyba: V súbore chýba stĺpec "ovm" (resp. stĺpec "D").', TOAST_TYPE.ERROR);
                     return;
                 }
                 
                 if (mesiacIndex === -1 || rokIndex === -1) {
-                    showToast('Chyba: V súbore chýbajú stĺpce "mesiac" alebo "rok".', TOAST_TYPE.ERROR);
+                    showToast('Chyba: V súbore chýbajú stĺpce pre "mesiac" a "rok" (resp. stĺpce "W" a "X").', TOAST_TYPE.ERROR);
                     return;
                 }
 
